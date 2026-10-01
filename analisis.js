@@ -196,21 +196,9 @@
     let total = 0;
     lista.forEach(function (d) { total += d.canales[0].length; });
     const out = new Float64Array(total);
-    let p = 0;
-    let fin = -Infinity;
-    lista.forEach(function (d) {
-      const n = d.canales[0].length;
-      const t = d.tiempos;
-      if (t && t.length === n && n && Number.isFinite(t[0])) {
-        const desplazamiento = t[0] <= fin ? fin + 1 / fs - t[0] : 0;
-        for (let i = 0; i < n; i++) out[p + i] = t[i] + desplazamiento;
-      } else {
-        const t0 = Number.isFinite(fin) ? fin + 1 / fs : 0;
-        for (let i = 0; i < n; i++) out[p + i] = t0 + i / fs;
-      }
-      if (n) fin = out[p + n - 1];
-      p += n;
-    });
+    // Los archivos se unen uno tras otro con eje de tiempo continuo: se ignoran
+    // los pequeños huecos (~0.2 s) que deja el equipo entre una grabación y otra.
+    for (let i = 0; i < total; i++) out[i] = i / fs;
     return out;
   }
 
@@ -314,6 +302,36 @@
     });
     for (let i = 0; i < n; i++) m[i] = Math.sqrt(m[i]);
     return m;
+  }
+
+  function evolucionRMS(canales, mag, tiempos, nVent) {
+    const n = mag.length;
+    const vent = Math.max(1, Math.min(nVent, Math.floor(n / 4)));
+    const paso = Math.max(1, Math.floor(n / vent));
+    const t = new Float64Array(vent);
+    const r = new Float64Array(vent);
+    const y = [null, null, null];
+    for (let c = 0; c < 3; c++) if (canales[c]) y[c] = new Float64Array(vent);
+    function rmsTramo(col, ini, fin) {
+      let s = 0;
+      let k = 0;
+      for (let i = ini; i < fin; i++) {
+        if (Number.isFinite(col[i])) {
+          s += col[i] * col[i];
+          k++;
+        }
+      }
+      return k ? Math.sqrt(s / k) : NaN;
+    }
+    for (let v = 0; v < vent; v++) {
+      const ini = v * paso;
+      const fin = v === vent - 1 ? n : Math.min(n, ini + paso);
+      const medio = Math.min(n - 1, Math.floor((ini + fin - 1) / 2));
+      t[v] = tiempos[medio];
+      r[v] = rmsTramo(mag, ini, fin);
+      for (let c = 0; c < 3; c++) if (canales[c]) y[c][v] = rmsTramo(canales[c], ini, fin);
+    }
+    return { t: t, y: y, r: r };
   }
 
   function movmean(x, w) {
@@ -754,6 +772,7 @@
       medianaFueraBandaEje: ch.medianaFueraBandaEje,
       t: plot.t,
       y: plot.y,
+      evol: evolucionRMS(canales, mag, armado.t, 60),
       f: espec.f,
       p: espec.p,
       fs: armado.fs,

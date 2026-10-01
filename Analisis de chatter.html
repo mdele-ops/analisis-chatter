@@ -3,572 +3,750 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#040a14">
+  <meta name="description" content="Estancia de investigación del Tecnológico de Monterrey: análisis de chatter en torneado a partir de aceleración, fuerza y análisis modal en tres ejes.">
   <title>Análisis de chatter · Tecnológico de Monterrey</title>
+  <script>document.documentElement.classList.add("js");</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Outfit:wght@300..700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300..700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --tec: #0c6ec8;
-      --tec-deep: #06315c;
+      --bg: #040a14;
+      --tec: #1f8bff;
+      --tec-soft: #6db6ff;
+      --cyan: #5ad1ff;
       --gold: #e4c48a;
-      --gold-dim: #b89255;
-      --ink: #122033;
-      --muted: #5a6d82;
-      --line: rgba(12, 70, 130, 0.14);
-      --glass: rgba(255, 252, 247, 0.86);
-      --x: #2659bf;
-      --y: #c43b32;
-      --z: #1a8a4d;
+      --gold-hi: #f8e3b4;
+      --txt: #e9f1fb;
+      --muted: #8ea4be;
+      --faint: #5f7692;
+      --line: rgba(130, 180, 240, 0.16);
+      --line-hi: rgba(130, 180, 240, 0.34);
+      --card: rgba(9, 22, 42, 0.66);
+      --x: #4da3ff;
+      --y: #ff6b5e;
+      --z: #3fe0a0;
+      --serif: "Instrument Serif", "Cormorant Garamond", Georgia, serif;
+      --sans: "Outfit", "Segoe UI", system-ui, sans-serif;
+      --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
     }
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; scroll-padding-top: 84px; }
     body {
       margin: 0;
-      color: var(--ink);
-      background: #06101c;
-      font-family: "Outfit", "Segoe UI", sans-serif;
+      color: var(--txt);
+      background: var(--bg);
+      font-family: var(--sans);
       font-size: 16px;
-      line-height: 1.55;
+      line-height: 1.6;
       min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
     }
-    .escena {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      overflow: hidden;
-      pointer-events: none;
+    ::selection { background: rgba(228, 196, 138, 0.35); color: #fff; }
+
+    /* ───────── Escena de fondo ───────── */
+    .escena { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
       background:
-        radial-gradient(1200px 700px at 10% -10%, rgba(18, 92, 180, 0.55), transparent 60%),
-        radial-gradient(900px 600px at 100% 0%, rgba(212, 168, 92, 0.22), transparent 55%),
-        linear-gradient(165deg, #071426 0%, #0a1c34 42%, #071018 100%);
+        radial-gradient(1100px 700px at 8% -8%, rgba(21, 96, 190, 0.55), transparent 62%),
+        radial-gradient(900px 640px at 105% 8%, rgba(228, 196, 138, 0.16), transparent 58%),
+        radial-gradient(800px 600px at 50% 120%, rgba(31, 139, 255, 0.18), transparent 60%),
+        linear-gradient(170deg, #061226 0%, #040a14 55%, #03070e 100%);
     }
-    .aurora {
-      position: absolute;
-      width: 140%;
-      height: 70%;
-      left: -20%;
-      top: -10%;
+    .aurora { position: absolute; width: 140%; height: 70%; left: -20%; top: -10%;
       background:
-        radial-gradient(closest-side, rgba(46, 160, 255, 0.45), transparent 70%),
-        radial-gradient(closest-side, rgba(228, 196, 138, 0.28), transparent 72%);
-      background-size: 55% 80%, 40% 70%;
-      background-position: 20% 40%, 80% 20%;
+        radial-gradient(closest-side, rgba(46, 160, 255, 0.34), transparent 70%),
+        radial-gradient(closest-side, rgba(228, 196, 138, 0.2), transparent 72%);
+      background-size: 55% 80%, 38% 70%;
+      background-position: 18% 40%, 82% 20%;
       background-repeat: no-repeat;
-      filter: blur(8px);
-      animation: aurora 18s ease-in-out infinite alternate;
+      filter: blur(10px);
+      animation: aurora 20s ease-in-out infinite alternate;
     }
-    .orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(2px);
-      opacity: 0.85;
-    }
-    .o1 {
-      width: 420px; height: 420px; left: -80px; top: 18%;
-      background: radial-gradient(circle, rgba(28, 130, 230, 0.45), transparent 68%);
-      animation: flotar 14s ease-in-out infinite;
-    }
-    .o2 {
-      width: 340px; height: 340px; right: -60px; top: 48%;
-      background: radial-gradient(circle, rgba(228, 196, 138, 0.32), transparent 70%);
-      animation: flotar 18s ease-in-out infinite reverse;
-    }
-    .o3 {
-      width: 260px; height: 260px; left: 42%; bottom: -40px;
-      background: radial-gradient(circle, rgba(70, 210, 190, 0.22), transparent 70%);
-      animation: flotar 16s ease-in-out infinite 2s;
-    }
-    .rejilla {
-      position: absolute;
-      inset: 0;
+    .rejilla { position: absolute; inset: 0;
       background-image:
-        linear-gradient(rgba(180, 214, 255, 0.07) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(180, 214, 255, 0.07) 1px, transparent 1px);
-      background-size: 72px 72px;
-      mask-image: radial-gradient(ellipse at 50% 20%, #000 20%, transparent 75%);
-      animation: deriva 28s linear infinite;
+        linear-gradient(rgba(150, 200, 255, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(150, 200, 255, 0.055) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: radial-gradient(ellipse at 50% 18%, #000 12%, transparent 72%);
+      -webkit-mask-image: radial-gradient(ellipse at 50% 18%, #000 12%, transparent 72%);
+      animation: deriva 30s linear infinite;
     }
-    .onda {
-      position: absolute;
-      left: 0; right: 0; bottom: 8%;
-      height: 120px;
-      opacity: 0.35;
-    }
-    .onda path {
-      fill: none;
-      stroke: rgba(180, 220, 255, 0.55);
-      stroke-width: 1.4;
-      stroke-dasharray: 8 14;
-      animation: trazo 12s linear infinite;
+    .grano { position: absolute; inset: 0; opacity: 0.5; mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .08 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
     }
     header, main, footer { position: relative; z-index: 1; }
-    .barra {
-      background: rgba(6, 16, 32, 0.45);
-      border-bottom: 1px solid rgba(228, 196, 138, 0.22);
-      backdrop-filter: blur(16px);
+
+    /* ───────── Barra superior ───────── */
+    .barra { position: sticky; top: 0; z-index: 20;
+      background: rgba(4, 10, 20, 0.62);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(18px) saturate(140%);
+      -webkit-backdrop-filter: blur(18px) saturate(140%);
     }
-    .barra-interior {
-      max-width: 1120px;
-      margin: 0 auto;
-      padding: 14px 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
+    .progreso { position: absolute; left: 0; bottom: -1px; height: 2px; width: 100%;
+      transform-origin: 0 50%; transform: scaleX(0);
+      background: linear-gradient(90deg, var(--tec), var(--cyan), var(--gold));
+      box-shadow: 0 0 12px rgba(90, 209, 255, 0.7);
     }
-    .marca { display: flex; align-items: center; gap: 14px; color: #f4efe6; }
-    .sello {
-      width: 74px; height: 74px;
-      border-radius: 18px;
-      background: linear-gradient(160deg, #fff, #eef4fb);
-      display: grid;
-      place-items: center;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28), inset 0 0 0 1px rgba(228, 196, 138, 0.7);
+    .barra-interior { max-width: 1240px; margin: 0 auto; padding: 10px 32px;
+      display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .marca { display: flex; align-items: center; gap: 14px; color: var(--txt); text-decoration: none; }
+    .sello { width: 52px; height: 52px; border-radius: 14px; flex: none;
+      background: linear-gradient(160deg, #fff, #e7f0fa);
+      display: grid; place-items: center;
+      box-shadow: 0 8px 26px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(228, 196, 138, 0.65);
     }
-    .marca img { height: 58px; width: 58px; object-fit: contain; }
-    .marca strong {
-      display: block;
-      font-family: "Cormorant Garamond", Georgia, serif;
-      font-size: 22px;
-      font-weight: 600;
-      letter-spacing: 0.01em;
-    }
-    .marca span { color: rgba(244, 239, 230, 0.72); font-size: 13px; letter-spacing: 0.04em; }
-    .insignia {
-      color: var(--gold);
-      font-size: 12px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      border: 1px solid rgba(228, 196, 138, 0.45);
-      padding: 8px 12px;
-      border-radius: 999px;
-    }
-    .franja {
-      height: 3px;
-      background: linear-gradient(90deg, transparent, var(--gold), #7ec8ff, var(--gold), transparent);
-      background-size: 200% 100%;
-      animation: brillo 6s linear infinite;
-    }
-    main { max-width: 1120px; margin: 0 auto; padding: 36px 28px 64px; }
-    .hero { margin-bottom: 26px; animation: subir 0.8s ease both; }
-    .etiqueta {
-      margin: 0 0 10px;
-      color: var(--gold);
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      font-size: 12px;
-    }
-    h1 {
-      margin: 0 0 10px;
-      font-family: "Cormorant Garamond", Georgia, serif;
-      font-weight: 600;
-      font-size: 56px;
-      line-height: 0.95;
-      letter-spacing: -0.02em;
-      color: #f7f3ea;
-    }
-    .lead { margin: 0; color: rgba(232, 240, 250, 0.82); max-width: 68ch; font-size: 17px; }
-    .ejemplo-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 14px;
-      color: #f0d49e;
-      font-size: 14px;
-      text-decoration: none;
-      border-bottom: 1px solid rgba(240, 212, 158, 0.55);
-      transition: color 0.2s ease, border-color 0.2s ease;
-    }
-    .ejemplo-link:hover, .ejemplo-link:focus-visible { color: #fff; border-color: #fff; }
-    .panel {
-      background: var(--glass);
-      border: 1px solid rgba(255, 255, 255, 0.55);
-      border-radius: 22px;
-      padding: 26px 26px 24px;
-      margin-bottom: 18px;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(18px);
-      animation: subir 0.9s ease both;
-    }
-    .panel:nth-of-type(2) { animation-delay: 0.12s; }
-    #panelResultados { animation: subir 0.7s ease both; }
-    h2 {
-      margin: 0 0 6px;
-      font-family: "Cormorant Garamond", Georgia, serif;
-      font-size: 32px;
-      font-weight: 600;
-    }
-    .ayuda { margin: 0 0 16px; color: var(--muted); font-size: 14.5px; }
-    .zonas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    .zona {
-      position: relative;
-      border: 1px dashed rgba(12, 110, 200, 0.35);
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(236, 245, 255, 0.55));
-      border-radius: 16px;
-      min-height: 148px;
-      padding: 16px;
-      cursor: pointer;
-      overflow: hidden;
-      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-    }
-    .zona::before {
-      content: "";
-      position: absolute;
-      inset: auto -20% -60% 20%;
-      height: 120px;
-      background: radial-gradient(circle, rgba(12, 110, 200, 0.18), transparent 70%);
-      animation: flotar 8s ease-in-out infinite;
-    }
-    .zona:hover, .zona.sobre, .zona:focus-visible {
-      border-color: var(--tec);
-      transform: translateY(-4px);
-      box-shadow: 0 16px 36px rgba(12, 80, 150, 0.18);
-      outline: none;
-    }
-    .zona b {
-      display: block;
-      position: relative;
-      margin-bottom: 4px;
-      font-family: "Cormorant Garamond", Georgia, serif;
-      font-size: 24px;
-      font-weight: 600;
-    }
-    .zona p { margin: 0; position: relative; color: var(--muted); font-size: 13px; }
-    .zona .cuenta {
-      margin-top: 14px;
-      position: relative;
-      color: var(--tec-deep);
-      font-size: 13px;
-      font-weight: 650;
-    }
-    .controles {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: end;
-      margin-top: 18px;
-    }
-    label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
-    input[type="number"], select {
-      height: 40px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 0 10px;
-      font: inherit;
-      color: var(--ink);
-      background: rgba(255, 255, 255, 0.9);
-    }
-    button {
-      height: 42px;
-      border: 0;
-      border-radius: 999px;
-      background: linear-gradient(180deg, #1a86e8, #0b5eae);
-      color: white;
-      font: inherit;
-      font-weight: 560;
-      letter-spacing: 0.01em;
-      padding: 0 20px;
-      cursor: pointer;
-      box-shadow: 0 10px 24px rgba(11, 94, 174, 0.35);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    #btnAnalizar { animation: pulso 2.8s ease-in-out infinite; }
-    button:hover { transform: translateY(-2px); }
-    button.sec {
-      background: transparent;
-      color: var(--tec-deep);
-      border: 1px solid rgba(12, 110, 200, 0.45);
-      box-shadow: none;
-      animation: none;
-    }
-    button:disabled { opacity: 0.55; cursor: wait; transform: none; animation: none; }
-    .estado { margin: 14px 0 0; min-height: 1.3em; color: var(--tec-deep); font-size: 14px; }
+    .marca img { height: 40px; width: 40px; object-fit: contain; }
+    .marca strong { display: block; font-family: var(--serif); font-weight: 400; font-size: 23px; line-height: 1.05; letter-spacing: 0.01em; }
+    .marca span { display: block; color: var(--muted); font-size: 11.5px; letter-spacing: 0.14em; text-transform: uppercase; margin-top: 2px; }
+    .nav { display: flex; align-items: center; gap: 4px; }
+    .nav a { color: var(--muted); text-decoration: none; font-size: 14px; padding: 8px 14px; border-radius: 999px;
+      transition: color .2s ease, background .2s ease; }
+    .nav a:hover, .nav a:focus-visible { color: #fff; background: rgba(130, 180, 240, 0.12); outline: none; }
+    .nav a.cta { color: var(--gold-hi); border: 1px solid rgba(228, 196, 138, 0.5); margin-left: 8px; }
+    .nav a.cta:hover { background: rgba(228, 196, 138, 0.14); }
+
+    main { max-width: 1240px; margin: 0 auto; padding: 0 32px 40px; }
+
+    /* ───────── Héroe ───────── */
+    .hero { display: grid; grid-template-columns: minmax(0, 1.02fr) minmax(0, 1fr); gap: 56px; align-items: center;
+      padding: 72px 0 48px; min-height: calc(100vh - 140px); }
+    .etiqueta { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 22px;
+      font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold);
+      padding: 7px 14px 7px 12px; border: 1px solid rgba(228, 196, 138, 0.35); border-radius: 999px;
+      background: rgba(228, 196, 138, 0.06); }
+    .punto { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 0 rgba(228, 196, 138, 0.7); animation: latido 2.2s ease-out infinite; }
+    h1 { margin: 0 0 26px; font-family: var(--serif); font-weight: 400;
+      font-size: clamp(50px, 7.4vw, 104px); line-height: 0.94; letter-spacing: -0.025em; color: #fff; }
+    h1 em { font-style: italic; padding-right: 0.06em;
+      background: linear-gradient(100deg, var(--gold-hi) 0%, var(--gold) 38%, var(--cyan) 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .lead { margin: 0 0 14px; color: #c3d3e6; max-width: 56ch; font-size: 18.5px; font-weight: 300; }
+    .condiciones { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 6px 0 28px;
+      font-family: var(--mono); font-size: 12.5px; color: var(--tec-soft); }
+    .condiciones i { width: 4px; height: 4px; border-radius: 50%; background: var(--faint); }
+    .acciones { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+    .btn { display: inline-flex; align-items: center; gap: 10px; height: 50px; padding: 0 26px; border-radius: 999px;
+      border: 0; font: inherit; font-weight: 550; font-size: 15px; letter-spacing: 0.01em; text-decoration: none; cursor: pointer;
+      transition: transform .2s ease, box-shadow .25s ease, background .25s ease, border-color .25s ease; }
+    .btn svg { width: 18px; height: 18px; transition: transform .25s ease; }
+    .btn:hover svg { transform: translateX(3px); }
+    .btn-pri { color: #fff; background: linear-gradient(180deg, #2a97ff, #0d63bd);
+      box-shadow: 0 12px 34px rgba(31, 139, 255, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.35); }
+    .btn-pri:hover { transform: translateY(-2px); box-shadow: 0 16px 42px rgba(31, 139, 255, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.4); }
+    .btn-ghost { color: var(--txt); background: rgba(130, 180, 240, 0.07); border: 1px solid var(--line-hi); }
+    .btn-ghost:hover { background: rgba(130, 180, 240, 0.15); border-color: var(--tec-soft); transform: translateY(-2px); }
+
+    /* Osciloscopio */
+    .osc { position: relative; border-radius: 26px; padding: 1px;
+      background: linear-gradient(150deg, rgba(109, 182, 255, 0.7), rgba(109, 182, 255, 0.08) 38%, rgba(228, 196, 138, 0.5) 100%);
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.55), 0 0 90px rgba(31, 139, 255, 0.2); }
+    .osc-in { border-radius: 25px; overflow: hidden; background: linear-gradient(180deg, #081528, #050d1a); }
+    .osc-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 20px;
+      border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+    .osc-top b { color: var(--txt); font-weight: 500; }
+    .rec { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); }
+    .rec::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--z); box-shadow: 0 0 10px var(--z); animation: parpadeo 1.4s ease-in-out infinite; }
+    .osc.alerta .rec { color: #ffb4ac; }
+    .osc.alerta .rec::before { background: var(--y); box-shadow: 0 0 12px var(--y); animation-duration: .5s; }
+    #cvHero { display: block; width: 100%; height: 340px; background: none; border: 0; border-radius: 0; }
+    .osc-bot { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
+    .osc-bot div { padding: 14px 20px; border-right: 1px solid var(--line); }
+    .osc-bot div:last-child { border-right: 0; }
+    .osc-bot span { display: block; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
+    .osc-bot strong { display: block; font-family: var(--mono); font-weight: 500; font-size: 20px; color: var(--txt); margin-top: 2px; transition: color .3s ease; }
+    .osc.alerta #heroEstado { color: #ff8f84; }
+    .osc:not(.alerta) #heroEstado { color: var(--z); }
+
+    /* Cifras */
+    .cifras { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; margin: 12px 0 0;
+      border: 1px solid var(--line); border-radius: 22px; overflow: hidden; background: var(--line); }
+    .cifra { background: rgba(6, 15, 29, 0.82); padding: 26px 24px 22px; position: relative; backdrop-filter: blur(10px); }
+    .cifra strong { display: block; font-family: var(--serif); font-weight: 400; font-size: 54px; line-height: 1; color: #fff; letter-spacing: -0.02em; }
+    .cifra strong small { font-family: var(--mono); font-size: 13px; color: var(--gold); margin-left: 6px; letter-spacing: 0; }
+    .cifra strong b { font-weight: inherit; }
+    .cifra > span { display: block; margin-top: 10px; color: var(--muted); font-size: 13px; line-height: 1.35; }
+
+    /* ───────── Secciones ───────── */
+    .seccion { padding: 96px 0 8px; }
+    .cab { display: flex; align-items: center; gap: 20px; margin-bottom: 14px; }
+    .num { font-family: var(--mono); font-size: 13px; color: var(--gold); letter-spacing: 0.1em; padding: 6px 12px; border: 1px solid rgba(228, 196, 138, 0.4); border-radius: 8px; }
+    .cab::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--line-hi), transparent); order: 3; }
+    h2 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: clamp(36px, 4.6vw, 58px); line-height: 1; letter-spacing: -0.02em; color: #fff; }
+    h2 em { font-style: italic; color: var(--gold-hi); }
+    .ayuda { margin: 0 0 30px; color: var(--muted); font-size: 16px; max-width: 78ch; font-weight: 300; }
+
+    /* Ciclo regenerativo */
+    .ciclo { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; counter-reset: paso; margin-top: 8px; }
+    .paso { position: relative; padding: 26px 24px 24px; border-radius: 20px; border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(14, 34, 62, 0.7), rgba(8, 20, 38, 0.6)); overflow: hidden; }
+    .paso::before { counter-increment: paso; content: "0" counter(paso);
+      position: absolute; right: 14px; top: -6px; font-family: var(--serif); font-size: 86px; line-height: 1; color: rgba(130, 180, 240, 0.09); }
+    .paso::after { content: "→"; position: absolute; right: -16px; top: 50%; z-index: 2; width: 30px; height: 30px; display: grid; place-items: center;
+      transform: translateY(-50%); border-radius: 50%; background: #0a1b33; border: 1px solid var(--line-hi); color: var(--gold); font-size: 14px; }
+    .paso:last-child::after { content: "↺"; right: 14px; top: auto; bottom: 14px; transform: none; font-size: 16px; background: rgba(228, 196, 138, 0.12); border-color: rgba(228, 196, 138, 0.5); }
+    .paso h4 { margin: 18px 0 8px; font-family: var(--serif); font-weight: 400; font-size: 25px; line-height: 1.1; color: #fff; }
+    .paso p { margin: 0; color: var(--muted); font-size: 14.5px; line-height: 1.55; }
+    .icono { width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center; color: var(--cyan);
+      background: rgba(90, 209, 255, 0.09); border: 1px solid rgba(90, 209, 255, 0.28); }
+    .icono svg { width: 24px; height: 24px; }
+    .cierre { margin: 26px 0 0; padding: 18px 22px; border-radius: 16px; border: 1px solid rgba(228, 196, 138, 0.3); background: rgba(228, 196, 138, 0.05);
+      color: #d7c8a6; font-size: 15.5px; font-weight: 300; }
+    .cierre b { color: var(--gold-hi); font-weight: 500; }
+
+    /* ───────── Paneles ───────── */
+    .panel { background: var(--card); border: 1px solid var(--line); border-radius: 28px; padding: 32px; margin-bottom: 18px;
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05); }
+    .zonas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .zona { position: relative; border: 1px dashed rgba(109, 182, 255, 0.38); border-radius: 20px; min-height: 190px; padding: 24px;
+      cursor: pointer; overflow: hidden; background: rgba(8, 20, 38, 0.6);
+      transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease; }
+    .zona::before, .cifra::before, .met::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .3s ease;
+      background: radial-gradient(360px circle at var(--mx, 50%) var(--my, 50%), rgba(90, 209, 255, 0.16), transparent 60%); }
+    .zona:hover::before, .zona.sobre::before, .cifra:hover::before, .met:hover::before { opacity: 1; }
+    .zona:hover, .zona.sobre, .zona:focus-visible { border-color: var(--cyan); border-style: solid; transform: translateY(-5px);
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.4), 0 0 0 4px rgba(90, 209, 255, 0.08); outline: none; }
+    .zona .icono { position: relative; }
+    .zona b { display: block; position: relative; margin: 16px 0 4px; font-family: var(--serif); font-weight: 400; font-size: 29px; line-height: 1.1; color: #fff; }
+    .zona p { margin: 0; position: relative; color: var(--muted); font-size: 13.5px; }
+    .zona .cuenta { margin-top: 16px; position: relative; display: inline-block; font-family: var(--mono); font-size: 12px; color: var(--gold-hi);
+      padding: 5px 10px; border-radius: 8px; background: rgba(228, 196, 138, 0.09); border: 1px solid rgba(228, 196, 138, 0.22); }
+    .controles { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 26px; }
+    .controles button { height: 46px; border-radius: 999px; font: inherit; font-weight: 500; font-size: 14.5px; padding: 0 22px; cursor: pointer;
+      color: var(--txt); background: rgba(130, 180, 240, 0.07); border: 1px solid var(--line-hi);
+      transition: transform .2s ease, box-shadow .25s ease, background .25s ease, border-color .25s ease; }
+    .controles button:hover { transform: translateY(-2px); background: rgba(130, 180, 240, 0.16); border-color: var(--tec-soft); }
+    #btnPrecargados { color: #1d1405; border: 0; background: linear-gradient(180deg, var(--gold-hi), #d3a95c); box-shadow: 0 10px 28px rgba(228, 196, 138, 0.28); font-weight: 600; }
+    #btnPrecargados:hover { background: linear-gradient(180deg, #fff0cb, #e0b469); box-shadow: 0 14px 36px rgba(228, 196, 138, 0.42); }
+    #btnAnalizar { color: #fff; border: 0; background: linear-gradient(180deg, #2a97ff, #0d63bd); box-shadow: 0 10px 28px rgba(31, 139, 255, 0.4); font-weight: 600; animation: pulso 2.8s ease-in-out infinite; }
+    #btnAnalizar:hover { background: linear-gradient(180deg, #43a5ff, #1471cf); }
+    .controles button:disabled { opacity: 0.5; cursor: wait; transform: none; animation: none; }
+    .estado { margin: 22px 0 0; min-height: 46px; display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px;
+      font-family: var(--mono); font-size: 13px; color: var(--tec-soft); background: rgba(3, 9, 18, 0.7); border: 1px solid var(--line); }
+    .estado::before { content: "›"; color: var(--gold); font-size: 18px; line-height: 1; }
+
+    /* ───────── Resultados ───────── */
+    #panelResultados { animation: subir .8s ease both; padding: 32px; }
+    .grupo { display: flex; align-items: center; gap: 14px; margin: 44px 0 4px; font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); }
+    .grupo::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(228, 196, 138, 0.35), transparent); }
+    .tabla-wrap { overflow-x: auto; border-radius: 16px; border: 1px solid var(--line); background: rgba(3, 9, 18, 0.5); }
     table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
-    th {
-      color: var(--muted);
-      font-weight: 560;
-      font-size: 11px;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-    tr { cursor: pointer; transition: background 0.2s ease; }
-    tr:hover { background: rgba(12, 110, 200, 0.06); }
-    tr.sel { background: linear-gradient(90deg, rgba(228, 196, 138, 0.28), rgba(12, 110, 200, 0.08)); }
-    td.si { color: #9a2f28; font-weight: 650; }
-    td.no { color: #1a8a4d; font-weight: 650; }
-    .tabla-wrap { overflow-x: auto; border-radius: 12px; }
-    .metricas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0; }
-    .met {
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 14px 14px 12px;
-      background: linear-gradient(180deg, #fff, #f3f8fd);
-      animation: subir 0.55s ease both;
-    }
-    .met:nth-child(2) { animation-delay: 0.05s; }
-    .met:nth-child(3) { animation-delay: 0.1s; }
-    .met:nth-child(4) { animation-delay: 0.15s; }
-    .met:nth-child(5) { animation-delay: 0.2s; }
-    .met:nth-child(6) { animation-delay: 0.25s; }
-    .met:nth-child(7) { animation-delay: 0.3s; }
-    .met:nth-child(8) { animation-delay: 0.35s; }
-    .met span { display: block; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; }
-    .met strong {
-      display: block;
-      margin-top: 4px;
-      font-family: "Cormorant Garamond", Georgia, serif;
-      font-size: 26px;
-      font-weight: 600;
-    }
-    .grafica { margin-top: 18px; }
-    .rejilla-graficas {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-    }
-    .rejilla-graficas .grafica { min-width: 0; margin-top: 12px; }
-    @media (max-width: 760px) {
-      .rejilla-graficas { grid-template-columns: minmax(0, 1fr); }
-    }
-    .grafica h3 {
-      margin: 0 0 8px;
-      font-family: "Cormorant Garamond", Georgia, serif;
-      font-size: 24px;
-      font-weight: 600;
-    }
-    canvas {
-      width: 100%;
-      height: 280px;
-      background: linear-gradient(180deg, #fff, #f6fafd);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-    }
+    th, td { text-align: left; padding: 14px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    tbody tr:last-child td { border-bottom: 0; }
+    th { color: var(--faint); font-family: var(--mono); font-weight: 500; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; background: rgba(130, 180, 240, 0.04); }
+    td { font-family: var(--mono); font-size: 12.5px; color: #cfdced; }
+    td:first-child { font-family: var(--sans); font-size: 14px; color: #fff; font-weight: 500; }
+    tr { cursor: pointer; transition: background .2s ease; }
+    tbody tr:hover { background: rgba(90, 209, 255, 0.07); }
+    tr.sel { background: linear-gradient(90deg, rgba(228, 196, 138, 0.16), rgba(31, 139, 255, 0.07)); box-shadow: inset 3px 0 0 var(--gold); }
+    .pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 11px; border-radius: 999px; font-weight: 600; font-size: 12px; }
+    .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .pill.si { color: #ff9086; background: rgba(255, 107, 94, 0.12); border: 1px solid rgba(255, 107, 94, 0.35); }
+    .pill.no { color: #6df0b6; background: rgba(63, 224, 160, 0.1); border: 1px solid rgba(63, 224, 160, 0.3); }
+    .sugerencia { margin: 12px 4px 0; font-family: var(--mono); font-size: 11.5px; color: var(--faint); }
+    .metricas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 18px 0 0; }
+    .met { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 18px; padding: 18px 18px 16px;
+      background: linear-gradient(180deg, rgba(16, 38, 68, 0.62), rgba(8, 20, 38, 0.6)); animation: subir .55s ease both; }
+    .met::after { content: ""; position: absolute; left: 0; top: 18px; bottom: 18px; width: 3px; border-radius: 0 3px 3px 0; background: var(--line-hi); }
+    .met.ex::after { background: var(--x); box-shadow: 0 0 14px var(--x); }
+    .met.ey::after { background: var(--y); box-shadow: 0 0 14px var(--y); }
+    .met.ez::after { background: var(--z); box-shadow: 0 0 14px var(--z); }
+    .met.ok::after { background: var(--z); box-shadow: 0 0 14px var(--z); }
+    .met.alerta::after { background: var(--y); box-shadow: 0 0 14px var(--y); }
+    .met.alerta { border-color: rgba(255, 107, 94, 0.4); background: linear-gradient(180deg, rgba(70, 22, 28, 0.55), rgba(8, 20, 38, 0.6)); }
+    .met.ok { border-color: rgba(63, 224, 160, 0.32); }
+    .met.fn::after { background: var(--gold); box-shadow: 0 0 14px var(--gold); }
+    .met:nth-child(2) { animation-delay: .05s; } .met:nth-child(3) { animation-delay: .1s; } .met:nth-child(4) { animation-delay: .15s; }
+    .met:nth-child(5) { animation-delay: .2s; } .met:nth-child(6) { animation-delay: .25s; } .met:nth-child(7) { animation-delay: .3s; } .met:nth-child(8) { animation-delay: .35s; }
+    .met span { position: relative; display: block; color: var(--muted); font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.12em; }
+    .met strong { position: relative; display: block; margin-top: 8px; font-family: var(--mono); font-size: 24px; font-weight: 500; color: #fff; letter-spacing: -0.02em; }
+    .met.alerta strong { color: #ff9a90; }
+    .met.ok strong { color: #6df0b6; }
+
+    .grafica { margin-top: 14px; padding: 18px 18px 16px; border-radius: 20px; border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(10, 26, 48, 0.7), rgba(5, 13, 26, 0.7)); }
+    .rejilla-graficas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .rejilla-graficas .grafica { min-width: 0; }
+    .grafica h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; font-family: var(--sans); font-weight: 500; font-size: 15px; letter-spacing: 0.01em; color: var(--txt); }
+    .grafica h3::before { content: ""; width: 4px; height: 16px; border-radius: 2px; background: linear-gradient(180deg, var(--cyan), var(--tec)); }
+    canvas { display: block; width: 100%; height: 280px; background: #07111f; border: 1px solid var(--line); border-radius: 14px; }
     canvas.grafica-interactiva { cursor: crosshair; touch-action: none; }
-    .nota { color: var(--muted); font-size: 13.5px; margin: 8px 0 0; }
-    .llm {
-      white-space: pre-wrap;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(244, 248, 253, 0.9));
-      border: 1px solid var(--line);
-      border-left: 3px solid var(--gold-dim);
-      border-radius: 14px;
-      padding: 16px 18px;
-      margin-top: 8px;
-      min-height: 72px;
-    }
+    canvas:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+    .nota { color: var(--faint); font-size: 13px; margin: 12px 2px 0; line-height: 1.55; }
+    .llm { background: linear-gradient(180deg, rgba(16, 38, 68, 0.45), rgba(8, 20, 38, 0.5)); border: 1px solid var(--line); border-left: 3px solid var(--gold);
+      border-radius: 16px; padding: 26px 30px; margin-top: 10px; min-height: 72px; color: #cfdced; font-size: 15.5px; line-height: 1.75; font-weight: 300; }
+    .llm p { margin: 0 0 14px; }
+    .llm p:last-child { margin-bottom: 0; }
+    .llm h4 { margin: 26px 0 10px; font-family: var(--mono); font-weight: 500; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); }
+    .llm h4:first-child { margin-top: 0; }
     .oculto { display: none; }
-    footer { border-top: 1px solid rgba(228, 196, 138, 0.25); background: rgba(6, 16, 32, 0.55); backdrop-filter: blur(12px); }
-    .pie {
-      max-width: 1120px;
-      margin: 0 auto;
-      padding: 18px 28px 24px;
-      display: flex;
-      justify-content: space-between;
-      color: rgba(244, 239, 230, 0.72);
-      font-size: 13px;
-      letter-spacing: 0.04em;
-    }
-    @keyframes aurora {
-      from { transform: translate3d(0, 0, 0) scale(1); }
-      to { transform: translate3d(4%, 6%, 0) scale(1.08); }
-    }
-    @keyframes flotar {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-22px); }
-    }
-    @keyframes deriva {
-      from { background-position: 0 0, 0 0; }
-      to { background-position: 72px 72px, 72px 72px; }
-    }
-    @keyframes brillo {
-      from { background-position: 0% 0; }
-      to { background-position: 200% 0; }
-    }
-    @keyframes subir {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: none; }
-    }
-    @keyframes pulso {
-      0%, 100% { box-shadow: 0 10px 24px rgba(11, 94, 174, 0.35); }
-      50% { box-shadow: 0 10px 28px rgba(11, 94, 174, 0.55), 0 0 0 6px rgba(26, 134, 232, 0.12); }
-    }
-    @keyframes trazo {
-      to { stroke-dashoffset: -220; }
+
+    /* ───────── Comparativo entre pruebas ───────── */
+    #panelComparativo { padding: 32px; }
+    .cmp-controles { display: flex; flex-wrap: wrap; gap: 14px 32px; align-items: center; margin: 4px 0 8px; }
+    .cmp-grupo { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .cmp-grupo > span { margin-right: 4px; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
+    .chip { --c: var(--cyan); display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 999px;
+      font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--txt);
+      background: rgba(130, 180, 240, 0.07); border: 1px solid var(--line-hi);
+      transition: opacity .2s ease, background .2s ease, border-color .2s ease, transform .2s ease; }
+    .chip i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); box-shadow: 0 0 8px var(--c); }
+    .chip:hover { transform: translateY(-1px); background: rgba(130, 180, 240, 0.15); }
+    .chip[aria-pressed="true"] { border-color: var(--c); background: rgba(130, 180, 240, 0.14); }
+    .chip[aria-pressed="false"] { opacity: 0.5; }
+    .chip[aria-pressed="false"] i { background: transparent; box-shadow: inset 0 0 0 1.5px var(--c); }
+    .pestanas { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 6px 0 22px; padding: 8px;
+      border-radius: 22px; border: 1px solid var(--line); background: rgba(3, 9, 18, 0.55); }
+    .pestana { position: relative; display: flex; align-items: center; gap: 14px; min-width: 0; padding: 14px 16px; border-radius: 16px;
+      font: inherit; text-align: left; cursor: pointer; color: var(--muted); background: transparent; border: 1px solid transparent;
+      transition: background .25s ease, border-color .25s ease, color .25s ease, transform .2s ease, box-shadow .25s ease; }
+    .pestana:hover { color: var(--txt); background: rgba(130, 180, 240, 0.09); transform: translateY(-2px); }
+    .pestana:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+    .pestana-ico { flex: none; width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; color: var(--cyan);
+      background: rgba(90, 209, 255, 0.09); border: 1px solid rgba(90, 209, 255, 0.26); transition: background .25s ease, color .25s ease, border-color .25s ease; }
+    .pestana-ico svg { width: 22px; height: 22px; }
+    .pestana-txt { min-width: 0; }
+    .pestana-txt b { display: block; font-family: var(--serif); font-weight: 400; font-size: 22px; line-height: 1.1; letter-spacing: 0.01em; }
+    .pestana-txt small { display: block; margin-top: 2px; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pestana[aria-selected="true"] { color: #fff; border-color: rgba(228, 196, 138, 0.55);
+      background: linear-gradient(135deg, rgba(228, 196, 138, 0.16), rgba(31, 139, 255, 0.12));
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35), 0 0 0 4px rgba(228, 196, 138, 0.06); }
+    .pestana[aria-selected="true"] .pestana-ico { color: #1d1405; background: linear-gradient(180deg, var(--gold-hi), #d3a95c); border-color: transparent; }
+    .pestana[aria-selected="true"] small { color: var(--gold); }
+    .vista { animation: subir .5s ease both; }
+    .vista[hidden], .cmp-controles[hidden] { display: none; }
+    .vista-desc { margin: 0 0 6px; color: var(--muted); font-size: 15px; font-weight: 300; max-width: 78ch; }
+    .grafica.ancha { grid-column: 1 / -1; }
+    .rejilla-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 14px; }
+    .rejilla-2 .grafica { margin-top: 0; min-width: 0; }
+    .grafica .nota { margin-top: 10px; font-size: 12.5px; }
+    #tablaCmp tr { cursor: default; }
+    #tablaCmp td.sube { color: #ff9a90; }
+    #tablaCmp td.baja { color: #6df0b6; }
+    .lecturas { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
+    .lecturas li { padding: 14px 18px; border-radius: 14px; border: 1px solid var(--line); border-left: 3px solid var(--gold);
+      background: rgba(8, 20, 38, 0.6); color: #cfdced; font-size: 14.5px; line-height: 1.65; font-weight: 300; }
+    .lecturas li b { color: var(--gold-hi); font-weight: 500; }
+
+    footer { margin-top: 56px; border-top: 1px solid var(--line); background: rgba(3, 8, 16, 0.7); backdrop-filter: blur(12px); }
+    .pie { max-width: 1240px; margin: 0 auto; padding: 30px 32px 36px; display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; color: var(--muted); font-size: 13px; }
+    .pie strong { font-family: var(--serif); font-weight: 400; font-size: 22px; color: #fff; display: block; letter-spacing: 0.01em; }
+    .pie .mono { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
+
+    /* Revelado al hacer scroll */
+    .js .rv { opacity: 0; transform: translateY(28px); transition: opacity .8s ease, transform .8s cubic-bezier(.2, .7, .2, 1); }
+    .js .rv.in { opacity: 1; transform: none; }
+    .hero > * { animation: subir .9s ease both; }
+    .hero > *:nth-child(2) { animation-delay: .15s; }
+
+    @keyframes aurora { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(4%, 6%, 0) scale(1.08); } }
+    @keyframes deriva { from { background-position: 0 0, 0 0; } to { background-position: 64px 64px, 64px 64px; } }
+    @keyframes subir { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+    @keyframes latido { 0% { box-shadow: 0 0 0 0 rgba(228, 196, 138, 0.65); } 100% { box-shadow: 0 0 0 12px rgba(228, 196, 138, 0); } }
+    @keyframes parpadeo { 50% { opacity: .25; } }
+    @keyframes pulso { 0%, 100% { box-shadow: 0 10px 28px rgba(31, 139, 255, 0.4); } 50% { box-shadow: 0 10px 34px rgba(31, 139, 255, 0.65), 0 0 0 7px rgba(31, 139, 255, 0.12); } }
+
+    @media (max-width: 1060px) {
+      .hero { grid-template-columns: 1fr; gap: 40px; padding-top: 48px; min-height: 0; }
+      .cifras { grid-template-columns: repeat(3, 1fr); }
+      .ciclo { grid-template-columns: repeat(2, 1fr); }
+      .paso:nth-child(2)::after { content: "↓"; right: 14px; top: auto; bottom: -15px; transform: none; display: none; }
+      .metricas { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 860px) {
-      .zonas, .metricas { grid-template-columns: 1fr; }
-      .barra-interior, .pie { flex-direction: column; align-items: flex-start; }
-      h1 { font-size: 40px; }
-      .insignia { display: none; }
+      .nav a:not(.cta) { display: none; }
+      .zonas { grid-template-columns: 1fr; }
+      .rejilla-graficas, .rejilla-2 { grid-template-columns: minmax(0, 1fr); }
+      #panelComparativo { padding: 20px; }
+      .pestanas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      main { padding: 0 18px 32px; }
+      .barra-interior, .pie { padding-left: 18px; padding-right: 18px; }
+      .panel, #panelResultados { padding: 20px; border-radius: 22px; }
+      .seccion { padding-top: 72px; }
+    }
+    @media (max-width: 600px) {
+      .cifras { grid-template-columns: repeat(2, 1fr); }
+      .ciclo { grid-template-columns: 1fr; }
+      .paso::after { display: none; }
+      .marca span { display: none; }
+      .pestana { padding: 10px 12px; gap: 10px; }
+      .pestana-ico { width: 34px; height: 34px; }
+      .pestana-txt b { font-size: 18px; }
+      .pestana-txt small { display: none; }
+      .osc-bot strong { font-size: 16px; }
     }
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation: none !important;
-        transition: none !important;
-      }
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      .js .rv { opacity: 1; transform: none; }
     }
   </style>
 </head>
 <body>
   <div class="escena" aria-hidden="true">
     <div class="aurora"></div>
-    <div class="orb o1"></div>
-    <div class="orb o2"></div>
-    <div class="orb o3"></div>
     <div class="rejilla"></div>
-    <svg class="onda" viewBox="0 0 1200 120" preserveAspectRatio="none">
-      <path d="M0 70 C 150 20, 300 110, 450 60 S 750 10, 900 70 S 1100 120, 1200 50"></path>
-      <path d="M0 90 C 180 40, 360 120, 540 70 S 840 30, 1200 80"></path>
-    </svg>
+    <div class="grano"></div>
   </div>
+
   <header class="barra">
     <div class="barra-interior">
-      <div class="marca">
+      <a class="marca" href="#inicio">
         <div class="sello">
           <img src="logo-tec.svg" alt="Logo del Tecnológico de Monterrey">
         </div>
         <div>
           <strong>Tecnológico de Monterrey</strong>
-          <span>Estancia de investigación · Vibraciones en maquinado</span>
+          <span>Estancia de investigación</span>
+        </div>
+      </a>
+      <nav class="nav" aria-label="Secciones">
+        <a href="#fenomeno">Fenómeno</a>
+        <a href="#datos">Datos</a>
+        <a href="#resultados">Resultados</a>
+        <a href="#comparativo">Comparativo</a>
+        <a href="ejemplo.html">Ejemplo ilustrativo</a>
+        <a class="cta" href="#datos">Analizar ensayos</a>
+      </nav>
+    </div>
+    <div class="progreso" id="progreso"></div>
+  </header>
+
+  <main id="inicio">
+    <section class="hero">
+      <div>
+        <p class="etiqueta"><span class="punto"></span>Vibraciones en maquinado · Laboratorio</p>
+        <h1>Análisis de <em>chatter</em> en tres ejes</h1>
+        <p class="lead">
+          Carga aceleración, fuerza y análisis modal en archivos .lvm. El estudio separa X, Y y Z,
+          calcula RMS, espectro y chatter, y dibuja las señales de la prueba.
+        </p>
+        <p class="condiciones">
+          <span>Condiciones del torno</span><i></i><span>720 rpm</span><i></i><span>avance de 32 mm/in</span>
+        </p>
+        <div class="acciones">
+          <a class="btn btn-pri" href="#datos">Explorar los ensayos
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a class="btn btn-ghost" href="#fenomeno">¿Qué es el chatter?</a>
         </div>
       </div>
-      <div class="insignia">Laboratorio</div>
-    </div>
-  </header>
-  <div class="franja"></div>
-  <main>
-    <section class="hero">
-      <p class="etiqueta">Estancia de investigación</p>
-      <h1>Análisis de chatter en tres ejes</h1>
-      <p class="lead">
-        El chatter es una vibración autoexcitada que puede aparecer durante el torneado. La vibración deja ondulaciones en la superficie y hace que cambie el espesor de la viruta en la siguiente pasada; esto modifica la fuerza de corte y puede reforzar el movimiento, haciendo crecer las vibraciones. Su aparición depende de las condiciones de corte y de la respuesta dinámica del sistema.
-      </p>
-      <p class="lead">
-        Carga aceleración, fuerza y análisis modal en archivos .lvm. El estudio separa X, Y y Z,
-        calcula RMS, espectro y chatter, y dibuja las señales de la prueba.
-      </p>
-      <p class="lead">Condiciones del torno: 720 rpm · avance de 32 mm/in.</p>
-      <a class="ejemplo-link" href="ejemplo.html">Ejemplo ilustrativo <span aria-hidden="true">↗</span></a>
+
+      <div class="osc" id="osc" aria-hidden="true">
+        <div class="osc-in">
+          <div class="osc-top">
+            <span class="rec"><b>Canales X · Y · Z</b></span>
+            <span>Simulación ilustrativa</span>
+          </div>
+          <canvas id="cvHero"></canvas>
+          <div class="osc-bot">
+            <div><span>Estado</span><strong id="heroEstado">Corte estable</strong></div>
+            <div><span>Amplitud rel.</span><strong id="heroAmp">0 %</strong></div>
+            <div><span>Tiempo</span><strong id="heroTiempo">0.0 s</strong></div>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section class="panel">
-      <h2>Archivos de la prueba</h2>
-      <p class="ayuda">
+    <div class="cifras rv">
+      <div class="cifra glow"><strong><b data-cuenta="720">720</b><small>rpm</small></strong><span>Velocidad del husillo</span></div>
+      <div class="cifra glow"><strong><b data-cuenta="12">12</b><small>Hz</small></strong><span>Frecuencia de giro</span></div>
+      <div class="cifra glow"><strong><b data-cuenta="32">32</b><small>mm/in</small></strong><span>Avance reportado</span></div>
+      <div class="cifra glow"><strong><b data-cuenta="3">3</b><small>X · Y · Z</small></strong><span>Ejes medidos en simultáneo</span></div>
+      <div class="cifra glow"><strong><b data-cuenta="4">4</b><small>cortes</small></strong><span>Profundidades: 1 · 1.5 · 2 · 2.5 mm</span></div>
+    </div>
+
+    <section class="seccion" id="fenomeno">
+      <div class="cab rv"><span class="num">01</span><h2>El <em>fenómeno</em></h2></div>
+      <p class="ayuda rv">
+        El chatter es una vibración autoexcitada que puede aparecer durante el torneado. Su aparición depende de las condiciones de corte y de la respuesta dinámica del sistema.
+      </p>
+      <div class="ciclo rv">
+        <div class="paso">
+          <div class="icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12h3l2.5-7 4 14 3-10 2 3H22"/></svg></div>
+          <h4>Vibración</h4>
+          <p>La vibración relativa entre herramienta y pieza deja ondulaciones en la superficie.</p>
+        </div>
+        <div class="paso">
+          <div class="icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 15c3 0 3-6 6-6s3 6 6 6 3-6 6-6M3 20h18"/></svg></div>
+          <h4>Viruta variable</h4>
+          <p>En la siguiente pasada cambia el espesor de la viruta al seguir esa superficie ondulada.</p>
+        </div>
+        <div class="paso">
+          <div class="icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v14M6.5 11.5 12 17l5.5-5.5M4 21h16"/></svg></div>
+          <h4>Fuerza de corte</h4>
+          <p>El cambio de espesor modifica la fuerza de corte que actúa sobre la herramienta.</p>
+        </div>
+        <div class="paso">
+          <div class="icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v5h-5"/></svg></div>
+          <h4>Refuerzo</h4>
+          <p>La fuerza variable puede reforzar el movimiento: las vibraciones crecen y el ciclo se repite.</p>
+        </div>
+      </div>
+      <p class="cierre rv"><b>Por eso se mide en tres ejes.</b> La aceleración muestra cómo vibra el sistema, la fuerza cómo lo excita el corte y el análisis modal dónde está su frecuencia natural.</p>
+    </section>
+
+    <section class="seccion" id="datos">
+      <div class="cab rv"><span class="num">02</span><h2>Archivos de la <em>prueba</em></h2></div>
+      <p class="ayuda rv">
         Si tienes varias pruebas, selecciona su carpeta raíz con el botón de abajo. Se buscarán
         automáticamente los archivos .lvm dentro de las carpetas Aceleración, Fuerza y Modal,
         incluidas sus subcarpetas X, Y y Z. También puedes cargar archivos sueltos en cada recuadro.
       </p>
-      <div class="zonas">
-        <div class="zona" id="zonaA" tabindex="0">
-          <b>Aceleración</b>
-          <p>Una o varias carpetas con A_1.lvm, A__1.lvm o archivos por eje.</p>
-          <div class="cuenta" id="cuentaA">Ningún archivo</div>
+      <div class="panel rv">
+        <div class="zonas">
+          <div class="zona glow" id="zonaA" tabindex="0">
+            <div class="icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12h3l2.5-7 4 14 3-10 2 3H22"/></svg></div>
+            <b>Aceleración</b>
+            <p>Una o varias carpetas con A_1.lvm, A__1.lvm o archivos por eje.</p>
+            <div class="cuenta" id="cuentaA">Ningún archivo</div>
+          </div>
+          <div class="zona glow" id="zonaF" tabindex="0">
+            <div class="icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v14M6.5 11.5 12 17l5.5-5.5M4 21h16"/></svg></div>
+            <b>Fuerza</b>
+            <p>Una o varias carpetas con F_1.lvm o archivos por eje.</p>
+            <div class="cuenta" id="cuentaF">Ningún archivo</div>
+          </div>
+          <div class="zona glow" id="zonaM" tabindex="0">
+            <div class="icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="2.5"/><circle cx="12" cy="12" r="6.5" stroke-dasharray="2 3"/><circle cx="12" cy="12" r="10" stroke-dasharray="1 4"/></svg></div>
+            <b>Análisis modal</b>
+            <p>Impactos A_1.lvm y A_2.lvm.</p>
+            <div class="cuenta" id="cuentaM">Ningún archivo</div>
+          </div>
         </div>
-        <div class="zona" id="zonaF" tabindex="0">
-          <b>Fuerza</b>
-          <p>Una o varias carpetas con F_1.lvm o archivos por eje.</p>
-          <div class="cuenta" id="cuentaF">Ningún archivo</div>
-        </div>
-        <div class="zona" id="zonaM" tabindex="0">
-          <b>Análisis modal</b>
-          <p>Impactos A_1.lvm y A_2.lvm.</p>
-          <div class="cuenta" id="cuentaM">Ningún archivo</div>
-        </div>
-      </div>
-      <input id="inA" type="file" accept=".lvm,.LVM" multiple hidden>
-      <input id="inF" type="file" accept=".lvm,.LVM" multiple hidden>
-      <input id="inM" type="file" accept=".lvm,.LVM" multiple hidden>
-      <input id="inCarpeta" type="file" webkitdirectory directory multiple hidden>
+        <input id="inA" type="file" accept=".lvm,.LVM" multiple hidden>
+        <input id="inF" type="file" accept=".lvm,.LVM" multiple hidden>
+        <input id="inM" type="file" accept=".lvm,.LVM" multiple hidden>
+        <input id="inCarpeta" type="file" webkitdirectory directory multiple hidden>
 
-      <div class="controles">
-        <button type="button" class="sec" id="btnCarpeta">Cargar carpeta raíz (varias pruebas)</button>
-        <button type="button" class="sec" id="btnPrecargados">Cargar datos experimentales precargados</button>
-        <button type="button" id="btnAnalizar">Analizar y graficar</button>
-        <button type="button" class="sec" id="btnLimpiar">Quitar archivos</button>
+        <div class="controles">
+          <button type="button" class="sec" id="btnCarpeta">Cargar carpeta raíz (varias pruebas)</button>
+          <button type="button" class="sec" id="btnPrecargados">Cargar datos experimentales precargados</button>
+          <button type="button" id="btnAnalizar">Analizar y graficar</button>
+          <button type="button" class="sec" id="btnLimpiar">Quitar archivos</button>
+        </div>
+        <p class="estado" id="estado">Selecciona los archivos para comenzar.</p>
       </div>
-      <p class="estado" id="estado">Selecciona los archivos para comenzar.</p>
     </section>
 
-    <section class="panel oculto" id="panelResultados">
-      <h2>Resultados</h2>
-      <div class="tabla-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Prueba</th>
-              <th>RMS X</th>
-              <th>RMS Y</th>
-              <th>RMS Z</th>
-              <th>Fx</th>
-              <th>Fy</th>
-              <th>Fz</th>
-              <th>fn (Hz)</th>
-              <th>Chatter</th>
-              <th>Eje</th>
-              <th>Índice</th>
-            </tr>
-          </thead>
-          <tbody id="tabla"></tbody>
-        </table>
-      </div>
-      <div class="metricas" id="metricas"></div>
-      <div class="grafica">
-        <h3 id="titA">Aceleración en el tiempo</h3>
-        <canvas id="cvA" width="1040" height="280"></canvas>
-      </div>
-      <div class="rejilla-graficas">
-        <div class="grafica"><h3 id="titAX">Aceleración X</h3><canvas id="cvAX" width="1040" height="280" aria-label="Aceleración en el eje X"></canvas></div>
-        <div class="grafica"><h3 id="titAY">Aceleración Y</h3><canvas id="cvAY" width="1040" height="280" aria-label="Aceleración en el eje Y"></canvas></div>
-        <div class="grafica"><h3 id="titAZ">Aceleración Z</h3><canvas id="cvAZ" width="1040" height="280" aria-label="Aceleración en el eje Z"></canvas></div>
-      </div>
-      <div class="grafica">
-        <h3 id="titF">Fuerza en el tiempo</h3>
-        <canvas id="cvF" width="1040" height="280"></canvas>
-      </div>
-      <div class="rejilla-graficas">
-        <div class="grafica"><h3 id="titFX">Fuerza X</h3><canvas id="cvFX" width="1040" height="280" aria-label="Fuerza en el eje X"></canvas></div>
-        <div class="grafica"><h3 id="titFY">Fuerza Y</h3><canvas id="cvFY" width="1040" height="280" aria-label="Fuerza en el eje Y"></canvas></div>
-        <div class="grafica"><h3 id="titFZ">Fuerza Z</h3><canvas id="cvFZ" width="1040" height="280" aria-label="Fuerza en el eje Z"></canvas></div>
-      </div>
-      <div class="grafica">
-        <h3 id="titFFT">Comparación FFT de aceleración XYZ</h3>
-        <canvas id="cvE" width="1040" height="280"></canvas>
-        <p class="nota">Las líneas grises marcan la banda modal. Las gráficas de tiempo usan el tiempo real registrado en cada archivo y conservan los máximos y mínimos de la señal tarada; los cortes en la aceleración son las pausas del adquisidor entre bloques. El RMS y el espectro salen de la misma señal tarada.</p>
-      </div>
-      <div class="rejilla-graficas">
-        <div class="grafica"><h3 id="titFFTX">FFT aceleración X</h3><canvas id="cvEX" width="1040" height="280" aria-label="FFT de aceleración en el eje X"></canvas></div>
-        <div class="grafica"><h3 id="titFFTY">FFT aceleración Y</h3><canvas id="cvEY" width="1040" height="280" aria-label="FFT de aceleración en el eje Y"></canvas></div>
-        <div class="grafica"><h3 id="titFFTZ">FFT aceleración Z</h3><canvas id="cvEZ" width="1040" height="280" aria-label="FFT de aceleración en el eje Z"></canvas></div>
-      </div>
-      <div class="grafica">
-        <h3 id="titFFTF">Comparación FFT de fuerza XYZ</h3>
-        <canvas id="cvFE" width="1040" height="280" aria-label="Comparación FFT de fuerza en X, Y y Z"></canvas>
-      </div>
-      <div class="rejilla-graficas">
-        <div class="grafica"><h3 id="titFFTFX">FFT fuerza X</h3><canvas id="cvFEX" width="1040" height="280" aria-label="FFT de fuerza en el eje X"></canvas></div>
-        <div class="grafica"><h3 id="titFFTFY">FFT fuerza Y</h3><canvas id="cvFEY" width="1040" height="280" aria-label="FFT de fuerza en el eje Y"></canvas></div>
-        <div class="grafica"><h3 id="titFFTFZ">FFT fuerza Z</h3><canvas id="cvFEZ" width="1040" height="280" aria-label="FFT de fuerza en el eje Z"></canvas></div>
-      </div>
-      <p class="nota">Las FFT se calculan por canal con la señal tarada y ventana Hann, como en Analisis_Chatter_XYZ.m. Aceleración en g; fuerza en V.</p>
-      <p class="nota">En las gráficas: coloca el cursor para leer valores; usa la rueda para acercar o alejar, arrastra para desplazar y haz doble clic o pulsa Inicio para restablecer la vista.</p>
-      <div class="grafica">
-        <h3>Señal del análisis modal</h3>
-        <canvas id="cvM" width="1040" height="280"></canvas>
-      </div>
-      <p class="nota" id="notas"></p>
-      <div class="grafica">
-        <h3>Análisis técnico de chatter</h3>
-        <p class="nota" id="llmEstado">Cuando termine el análisis de señales, el modelo contrastará la evidencia por eje, entre pruebas y sus limitaciones.</p>
-        <div class="llm" id="llmTexto"></div>
-      </div>
+    <section class="seccion" id="resultados" style="padding-top: 64px;">
+      <section class="panel oculto" id="panelResultados">
+        <div class="cab"><span class="num">03</span><h2>Resultados</h2></div>
+        <p class="ayuda" style="margin-bottom: 22px;">Elige un ensayo en la tabla para ver su detalle, señales y espectros.</p>
+        <div class="tabla-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Prueba</th>
+                <th>RMS X</th>
+                <th>RMS Y</th>
+                <th>RMS Z</th>
+                <th>Fx</th>
+                <th>Fy</th>
+                <th>Fz</th>
+                <th>fn (Hz)</th>
+                <th>Chatter</th>
+                <th>Eje</th>
+                <th>Índice</th>
+              </tr>
+            </thead>
+            <tbody id="tabla"></tbody>
+          </table>
+        </div>
+        <div class="metricas" id="metricas"></div>
+
+        <div class="grupo">Aceleración</div>
+        <div class="grafica">
+          <h3 id="titA">Aceleración en el tiempo</h3>
+          <canvas id="cvA" width="1040" height="280"></canvas>
+        </div>
+        <div class="rejilla-graficas">
+          <div class="grafica"><h3 id="titAX">Aceleración X</h3><canvas id="cvAX" width="1040" height="280" aria-label="Aceleración en el eje X"></canvas></div>
+          <div class="grafica"><h3 id="titAY">Aceleración Y</h3><canvas id="cvAY" width="1040" height="280" aria-label="Aceleración en el eje Y"></canvas></div>
+          <div class="grafica"><h3 id="titAZ">Aceleración Z</h3><canvas id="cvAZ" width="1040" height="280" aria-label="Aceleración en el eje Z"></canvas></div>
+        </div>
+
+        <div class="grupo">Fuerza de corte</div>
+        <div class="grafica">
+          <h3 id="titF">Fuerza en el tiempo</h3>
+          <canvas id="cvF" width="1040" height="280"></canvas>
+        </div>
+        <div class="rejilla-graficas">
+          <div class="grafica"><h3 id="titFX">Fuerza X</h3><canvas id="cvFX" width="1040" height="280" aria-label="Fuerza en el eje X"></canvas></div>
+          <div class="grafica"><h3 id="titFY">Fuerza Y</h3><canvas id="cvFY" width="1040" height="280" aria-label="Fuerza en el eje Y"></canvas></div>
+          <div class="grafica"><h3 id="titFZ">Fuerza Z</h3><canvas id="cvFZ" width="1040" height="280" aria-label="Fuerza en el eje Z"></canvas></div>
+        </div>
+
+        <div class="grupo">Espectro de aceleración</div>
+        <div class="grafica">
+          <h3 id="titFFT">Comparación FFT de aceleración XYZ</h3>
+          <canvas id="cvE" width="1040" height="280"></canvas>
+          <p class="nota">Las líneas punteadas marcan la banda modal. Las gráficas de tiempo usan el tiempo real registrado en cada archivo y conservan los máximos y mínimos de la señal tarada; los cortes en la aceleración son las pausas del adquisidor entre bloques. El RMS y el espectro salen de la misma señal tarada.</p>
+        </div>
+        <div class="rejilla-graficas">
+          <div class="grafica"><h3 id="titFFTX">FFT aceleración X</h3><canvas id="cvEX" width="1040" height="280" aria-label="FFT de aceleración en el eje X"></canvas></div>
+          <div class="grafica"><h3 id="titFFTY">FFT aceleración Y</h3><canvas id="cvEY" width="1040" height="280" aria-label="FFT de aceleración en el eje Y"></canvas></div>
+          <div class="grafica"><h3 id="titFFTZ">FFT aceleración Z</h3><canvas id="cvEZ" width="1040" height="280" aria-label="FFT de aceleración en el eje Z"></canvas></div>
+        </div>
+
+        <div class="grupo">Espectro de fuerza</div>
+        <div class="grafica">
+          <h3 id="titFFTF">Comparación FFT de fuerza XYZ</h3>
+          <canvas id="cvFE" width="1040" height="280" aria-label="Comparación FFT de fuerza en X, Y y Z"></canvas>
+        </div>
+        <div class="rejilla-graficas">
+          <div class="grafica"><h3 id="titFFTFX">FFT fuerza X</h3><canvas id="cvFEX" width="1040" height="280" aria-label="FFT de fuerza en el eje X"></canvas></div>
+          <div class="grafica"><h3 id="titFFTFY">FFT fuerza Y</h3><canvas id="cvFEY" width="1040" height="280" aria-label="FFT de fuerza en el eje Y"></canvas></div>
+          <div class="grafica"><h3 id="titFFTFZ">FFT fuerza Z</h3><canvas id="cvFEZ" width="1040" height="280" aria-label="FFT de fuerza en el eje Z"></canvas></div>
+        </div>
+        <p class="nota">Las FFT se calculan por canal con la señal tarada y ventana Hann, como en Analisis_Chatter_XYZ.m. Aceleración en g; fuerza en V.</p>
+        <p class="nota">En las gráficas: coloca el cursor para leer valores; usa la rueda para acercar o alejar, arrastra para desplazar y haz doble clic o pulsa Inicio para restablecer la vista.</p>
+
+        <div class="grupo">Análisis modal</div>
+        <div class="grafica">
+          <h3>Señal del análisis modal</h3>
+          <canvas id="cvM" width="1040" height="280"></canvas>
+        </div>
+        <p class="nota" id="notas"></p>
+
+        <div class="grupo">Dictamen</div>
+        <div class="grafica">
+          <h3>Análisis técnico de chatter</h3>
+          <p class="nota" id="llmEstado" style="margin-top: 0;">Cuando termine el análisis de señales, el modelo contrastará la evidencia por eje, entre pruebas y sus limitaciones.</p>
+          <div class="llm" id="llmTexto"></div>
+        </div>
+      </section>
+    </section>
+
+    <section class="seccion oculto" id="comparativo" style="padding-top: 48px;">
+      <section class="panel" id="panelComparativo">
+        <div class="cab"><span class="num">04</span><h2>Comparativo de <em>pruebas</em></h2></div>
+        <p class="ayuda" style="margin-bottom: 22px;">
+          Todas las pruebas cargadas, lado a lado: cómo cambian la vibración, la fuerza y el contraste en la banda
+          modal con la profundidad de corte, y cómo se superponen sus señales y espectros.
+        </p>
+
+        <div class="pestanas" role="tablist" aria-label="Ventanas del comparativo" id="cmpTabs">
+          <button type="button" role="tab" class="pestana" data-vista="resumen" id="tabCmpResumen" aria-controls="vistaCmpResumen" aria-selected="true">
+            <span class="pestana-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span>
+            <span class="pestana-txt"><b>Resumen</b><small>Tabla y lecturas</small></span>
+          </button>
+          <button type="button" role="tab" class="pestana" data-vista="aceleracion" id="tabCmpAceleracion" aria-controls="vistaCmpAceleracion" aria-selected="false" tabindex="-1">
+            <span class="pestana-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12h3l2.5-7 4 14 3-10 2 3H22"/></svg></span>
+            <span class="pestana-txt"><b>Aceleración</b><small>Vibración y espectro</small></span>
+          </button>
+          <button type="button" role="tab" class="pestana" data-vista="fuerza" id="tabCmpFuerza" aria-controls="vistaCmpFuerza" aria-selected="false" tabindex="-1">
+            <span class="pestana-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v14M6.5 11.5 12 17l5.5-5.5M4 21h16"/></svg></span>
+            <span class="pestana-txt"><b>Fuerza</b><small>Corte y espectro</small></span>
+          </button>
+          <button type="button" role="tab" class="pestana" data-vista="chatter" id="tabCmpChatter" aria-controls="vistaCmpChatter" aria-selected="false" tabindex="-1">
+            <span class="pestana-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3zM12 10v4M12 17h.01"/></svg></span>
+            <span class="pestana-txt"><b>Chatter</b><small>Detección e índice</small></span>
+          </button>
+        </div>
+
+        <div class="cmp-controles" id="cmpControles" hidden>
+          <div class="cmp-grupo"><span>Eje</span><div class="cmp-grupo" id="cmpEjes"></div></div>
+          <div class="cmp-grupo"><span>Pruebas</span><div class="cmp-grupo" id="cmpPruebas"></div></div>
+        </div>
+
+        <!-- Ventana 1: resumen -->
+        <div class="vista" role="tabpanel" id="vistaCmpResumen" aria-labelledby="tabCmpResumen">
+          <p class="vista-desc">Vista general de todas las pruebas: cifras clave, comparación numérica y conclusiones calculadas con los datos.</p>
+          <div class="metricas" id="cmpKpis"></div>
+
+          <div class="grupo">Tabla comparativa</div>
+          <div class="tabla-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Prueba</th>
+                  <th>RMS acel. (g)</th>
+                  <th>Δ acel.</th>
+                  <th>RMS fuerza (V)</th>
+                  <th>Δ fuerza</th>
+                  <th>Pico banda (g)</th>
+                  <th>f pico (Hz)</th>
+                  <th>Contraste máx.</th>
+                  <th>Fin / inicio</th>
+                  <th>Chatter</th>
+                  <th>Índice</th>
+                </tr>
+              </thead>
+              <tbody id="tablaCmp"></tbody>
+            </table>
+          </div>
+          <p class="sugerencia" id="cmpRef"></p>
+
+          <div class="grupo">Lecturas automáticas</div>
+          <ul class="lecturas" id="cmpLecturas"></ul>
+          <p class="nota">Las lecturas se calculan con las métricas ya cargadas. Describen asociaciones entre profundidad y respuesta, no causas; conviene confirmarlas con repeticiones y con la inspección de la pieza.</p>
+        </div>
+
+        <!-- Ventana 2: aceleración -->
+        <div class="vista" role="tabpanel" id="vistaCmpAceleracion" aria-labelledby="tabCmpAceleracion" hidden>
+          <p class="vista-desc">Cómo vibra el sistema en cada prueba: nivel por eje, pico en la banda modal y comparación de espectros y señales. Usa los selectores de eje y de pruebas.</p>
+          <div class="rejilla-2">
+            <div class="grafica"><h3>RMS de aceleración por eje</h3><canvas id="cvBAcel" width="520" height="280"></canvas>
+              <p class="nota">Nivel de vibración de cada eje en cada prueba. Pasa el cursor sobre una columna para leer los valores.</p></div>
+            <div class="grafica"><h3>Amplitud del pico en la banda modal</h3><canvas id="cvBPico" width="520" height="280"></canvas>
+              <p class="nota">Amplitud espectral máxima, en g, dentro de la banda alrededor de la frecuencia natural.</p></div>
+            <div class="grafica ancha"><h3 id="titCmpFA">FFT de aceleración</h3><canvas id="cvCmpFA" width="1040" height="280"></canvas>
+              <p class="nota">Las líneas punteadas marcan la banda modal. Rueda para acercar, arrastre para desplazar y doble clic para restablecer.</p></div>
+            <div class="grafica"><h3 id="titCmpEA">Evolución del RMS de aceleración</h3><canvas id="cvCmpEA" width="520" height="280"></canvas>
+              <p class="nota">Cada señal se divide en 60 tramos para ver si la vibración crece durante el corte.</p></div>
+            <div class="grafica"><h3 id="titCmpTA">Aceleración en el tiempo</h3><canvas id="cvCmpTA" width="520" height="280"></canvas>
+              <p class="nota">Señal tarada con máximos y mínimos conservados.</p></div>
+          </div>
+        </div>
+
+        <!-- Ventana 3: fuerza -->
+        <div class="vista" role="tabpanel" id="vistaCmpFuerza" aria-labelledby="tabCmpFuerza" hidden>
+          <p class="vista-desc">Cómo excita el corte a la herramienta: fuerza por eje, relación con la vibración y comparación de espectros y señales. Usa los selectores de eje y de pruebas.</p>
+          <div class="rejilla-2">
+            <div class="grafica"><h3>RMS de fuerza por eje</h3><canvas id="cvBFza" width="520" height="280"></canvas>
+              <p class="nota">Fuerza de corte en volts (sin calibrar a newtons) para Fx, Fy y Fz.</p></div>
+            <div class="grafica"><h3>Vibración por unidad de fuerza</h3><canvas id="cvBRel" width="520" height="280"></canvas>
+              <p class="nota">RMS de aceleración resultante entre RMS de fuerza resultante. Si crece, la vibración aumenta más rápido que la fuerza aplicada.</p></div>
+            <div class="grafica ancha"><h3 id="titCmpFF">FFT de fuerza</h3><canvas id="cvCmpFF" width="1040" height="280"></canvas>
+              <p class="nota">Las líneas punteadas marcan la banda modal. Rueda para acercar, arrastre para desplazar y doble clic para restablecer.</p></div>
+            <div class="grafica"><h3 id="titCmpEF">Evolución del RMS de fuerza</h3><canvas id="cvCmpEF" width="520" height="280"></canvas>
+              <p class="nota">Cada señal se divide en 60 tramos para ver cómo cambia la fuerza durante el corte.</p></div>
+            <div class="grafica"><h3 id="titCmpTF">Fuerza en el tiempo</h3><canvas id="cvCmpTF" width="520" height="280"></canvas>
+              <p class="nota">Señal tarada con máximos y mínimos conservados.</p></div>
+          </div>
+        </div>
+
+        <!-- Ventana 4: chatter -->
+        <div class="vista" role="tabpanel" id="vistaCmpChatter" aria-labelledby="tabCmpChatter" hidden>
+          <p class="vista-desc">Evidencia de chatter y severidad: contraste en la banda modal, frecuencia del pico, crecimiento durante el corte e índice combinado.</p>
+          <div class="rejilla-2">
+            <div class="grafica"><h3>Contraste de chatter por eje</h3><canvas id="cvBCont" width="520" height="280"></canvas>
+              <p class="nota">Pico dentro de la banda modal dividido entre la mediana del resto del espectro. La línea marca el umbral de 4 veces del detector.</p></div>
+            <div class="grafica"><h3>Frecuencia del pico en banda</h3><canvas id="cvBFrec" width="520" height="280"></canvas>
+              <p class="nota">Frecuencia donde cae el pico de cada eje, comparada con la frecuencia natural medida en el análisis modal.</p></div>
+            <div class="grafica"><h3>Crecimiento de la vibración (fin / inicio)</h3><canvas id="cvBCrec" width="520" height="280"></canvas>
+              <p class="nota">RMS del último tercio entre RMS del primer tercio de la señal. Valores sobre 1 indican vibración que crece durante el corte.</p></div>
+            <div class="grafica"><h3>Índice de severidad</h3><canvas id="cvBInd" width="520" height="280"></canvas>
+              <p class="nota">Índice combinado de aceleración, pico modal y fuerza; menor es más favorable. En rojo, las pruebas con alerta de chatter.</p></div>
+            <div class="grafica ancha"><h3>Variación respecto a la primera prueba</h3><canvas id="cvBVar" width="1040" height="280"></canvas>
+              <p class="nota">Cambio porcentual de cada métrica global contra la prueba de menor profundidad.</p></div>
+          </div>
+        </div>
+      </section>
     </section>
   </main>
+
   <footer>
     <div class="pie">
-      <span>Tecnológico de Monterrey · Estancia de investigación</span>
-      <span>Análisis de chatter en X, Y y Z</span>
+      <div>
+        <strong>Tecnológico de Monterrey</strong>
+        <span>Estancia de investigación · Análisis de chatter en X, Y y Z</span>
+      </div>
+      <span class="mono">Vibraciones en maquinado</span>
     </div>
   </footer>
   <script src="analisis.js"></script>
@@ -628,9 +806,9 @@
     });
     document.getElementById("btnLimpiar").addEventListener("click", limpiar);
     document.getElementById("btnAnalizar").addEventListener("click", analizar);
-    document.getElementById("btnPrecargados").addEventListener("click", cargarPrecargados);
+    document.getElementById("btnPrecargados").addEventListener("click", function () { cargarPrecargados(false); });
     fetch("datos/catalogo.json").then(function (resp) {
-      if (resp.ok) cargarPrecargados();
+      if (resp.ok) cargarPrecargados(true);
     }).catch(function () {});
     document.getElementById("tabla").addEventListener("click", function (e) {
       var tr = e.target.closest("tr");
@@ -640,7 +818,10 @@
       pintarDetalle();
     });
     window.addEventListener("resize", function () {
-      if (pruebas.length) pintarDetalle();
+      if (pruebas.length) {
+        pintarDetalle();
+        pintarGraficasCmp();
+      }
     });
 
     function filtrarLvm(lista) {
@@ -674,6 +855,7 @@
       });
       pintarCuentas();
       document.getElementById("panelResultados").classList.add("oculto");
+      document.getElementById("comparativo").classList.add("oculto");
       document.getElementById("estado").textContent = "Selecciona los archivos para comenzar.";
     }
 
@@ -784,6 +966,7 @@
         document.getElementById("panelResultados").classList.remove("oculto");
         pintarTabla();
         pintarDetalle();
+        pintarComparativo();
         document.getElementById("estado").textContent = "Gráficas listas. Consultando el modelo...";
         document.getElementById("panelResultados").scrollIntoView({ behavior: "smooth", block: "start" });
         await interpretar();
@@ -797,7 +980,7 @@
 
     var cargaEnCurso = false;
 
-    async function cargarPrecargados() {
+    async function cargarPrecargados(automatica) {
       if (cargaEnCurso) return;
       cargaEnCurso = true;
       var boton = document.getElementById("btnPrecargados");
@@ -829,8 +1012,9 @@
         document.getElementById("panelResultados").classList.remove("oculto");
         pintarTabla();
         pintarDetalle();
+        pintarComparativo();
         document.getElementById("estado").textContent = "Datos reales precargados. Consultando el análisis técnico...";
-        document.getElementById("panelResultados").scrollIntoView({ behavior: "smooth", block: "start" });
+        if (!automatica) document.getElementById("panelResultados").scrollIntoView({ behavior: "smooth", block: "start" });
         await interpretar();
         document.getElementById("estado").textContent = "Listo. " + pruebas.length + " ensayos precargados y analizados.";
       } catch (err) {
@@ -1021,9 +1205,14 @@
         ];
         vals.forEach(function (v, k) {
           var td = document.createElement("td");
-          td.textContent = v;
-          if (k === 8 && v === "Sí") td.className = "si";
-          if (k === 8 && v === "No") td.className = "no";
+          if (k === 8 && (v === "Sí" || v === "No")) {
+            var pill = document.createElement("span");
+            pill.className = "pill " + (v === "Sí" ? "si" : "no");
+            pill.textContent = v === "Sí" ? "Chatter" : "Estable";
+            td.appendChild(pill);
+          } else {
+            td.textContent = v;
+          }
           tr.appendChild(td);
         });
         tb.appendChild(tr);
@@ -1035,19 +1224,19 @@
       if (!p) return;
       var box = document.getElementById("metricas");
       var items = [
-        ["RMS aceleración X", fmt(p.rms[0], 4) + " g"],
-        ["RMS aceleración Y", fmt(p.rms[1], 4) + " g"],
-        ["RMS aceleración Z", fmt(p.rms[2], 4) + " g"],
-        ["Chatter", p.error ? "Error" : (p.chatter ? "Sí, eje " + (p.eje || "—") : "No")],
-        ["Fuerza X", fmt(p.rmsFxyz[0], 4) + " V"],
-        ["Fuerza Y", fmt(p.rmsFxyz[1], 4) + " V"],
-        ["Fuerza Z", fmt(p.rmsFxyz[2], 4) + " V"],
-        ["Frecuencia natural", fmt(p.fNatural, 1) + " Hz"]
+        ["RMS aceleración X", fmt(p.rms[0], 4) + " g", "ex"],
+        ["RMS aceleración Y", fmt(p.rms[1], 4) + " g", "ey"],
+        ["RMS aceleración Z", fmt(p.rms[2], 4) + " g", "ez"],
+        ["Chatter", p.error ? "Error" : (p.chatter ? "Sí, eje " + (p.eje || "—") : "No"), p.error ? "" : (p.chatter ? "alerta" : "ok")],
+        ["Fuerza X", fmt(p.rmsFxyz[0], 4) + " V", "ex"],
+        ["Fuerza Y", fmt(p.rmsFxyz[1], 4) + " V", "ey"],
+        ["Fuerza Z", fmt(p.rmsFxyz[2], 4) + " V", "ez"],
+        ["Frecuencia natural", fmt(p.fNatural, 1) + " Hz", "fn"]
       ];
       box.innerHTML = "";
       items.forEach(function (it) {
         var d = document.createElement("div");
-        d.className = "met";
+        d.className = "met glow" + (it[2] ? " " + it[2] : "");
         d.innerHTML = "<span></span><strong></strong>";
         d.querySelector("span").textContent = it[0];
         d.querySelector("strong").textContent = it[1];
@@ -1232,11 +1421,24 @@
       return lineas.join("\n");
     }
 
+    function escribirInforme(caja, texto) {
+      caja._texto = String(texto || "");
+      caja.textContent = "";
+      caja._texto.split("\n").forEach(function (linea) {
+        var limpia = linea.replace(/^#+\s*/, "").replace(/\*\*/g, "").trim();
+        if (!limpia) return;
+        var esTitulo = limpia.length > 2 && limpia.length < 60 && limpia === limpia.toUpperCase() && /[A-ZÁÉÍÓÚÑ]/.test(limpia);
+        var el = document.createElement(esTitulo ? "h4" : "p");
+        el.textContent = limpia;
+        caja.appendChild(el);
+      });
+    }
+
     async function interpretar() {
       var estado = document.getElementById("llmEstado");
       var caja = document.getElementById("llmTexto");
       estado.textContent = "El modelo está contrastando el criterio de chatter, las métricas por eje y las diferencias entre pruebas.";
-      caja.textContent = informeTecnicoLocal();
+      escribirInforme(caja, informeTecnicoLocal());
       var url = (location.protocol === "http:" || location.protocol === "https:")
         ? "/api/interpretar"
         : "http://127.0.0.1:3001/api/interpretar";
@@ -1255,14 +1457,14 @@
         }
         if (!resp.ok || data.error) throw new Error(data.error || "No se pudo interpretar.");
         estado.textContent = "Informe basado en métricas derivadas; el modelo no recibe las señales crudas. Confirma los indicios con revisión experimental.";
-        caja.textContent = data.texto;
+        escribirInforme(caja, data.texto);
       } catch (err) {
         estado.textContent = "Informe técnico local disponible; el modelo remoto no respondió: " + (err.message || String(err));
-        caja.textContent += "\n\nServicio remoto: " + (err.message || String(err));
+        escribirInforme(caja, (caja._texto || "") + "\n\nServicio remoto: " + (err.message || String(err)));
       }
     }
 
-    function dibujarSenal(canvas, datos, xlab, ylab, esFuerza, banda) {
+    function dibujarSenal(canvas, datos, xlab, ylab, esFuerza, banda, serieCustom) {
       var rect = canvas.getBoundingClientRect();
       var dpr = window.devicePixelRatio || 1;
       var w = Math.max(320, rect.width || 1040);
@@ -1271,24 +1473,34 @@
       canvas.height = Math.round(h * dpr);
       var ctx = canvas.getContext("2d");
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.fillStyle = "#f4f8fc";
+      ctx.fillStyle = "#07111f";
       ctx.fillRect(0, 0, w, h);
-      if (!datos || !datos.t || !datos.t.length) {
+      if (!serieCustom && (!datos || !datos.t || !datos.t.length)) {
+        canvas._renderGrafica = function () {};
         mensaje(ctx, w, h, "No hay datos para esta gráfica.");
         return;
       }
       var series = [];
       var nombres = esFuerza ? ["Fx", "Fy", "Fz"] : ["X", "Y", "Z"];
-      var colores = ["#2659bf", "#c43b32", "#1a8a4d"];
-      for (var c = 0; c < 3; c++) {
-        if (!datos.y[c]) continue;
-        var hay = false;
-        for (var i = 0; i < datos.y[c].length; i++) {
-          if (Number.isFinite(datos.y[c][i])) { hay = true; break; }
+      var colores = ["#4da3ff", "#ff6b5e", "#3fe0a0"];
+      function tieneValores(col) {
+        for (var i = 0; i < col.length; i++) {
+          if (Number.isFinite(col[i])) return true;
         }
-        if (hay) series.push({ nombre: nombres[c], color: colores[c], x: datos.t, y: datos.y[c] });
+        return false;
+      }
+      if (serieCustom) {
+        serieCustom.forEach(function (s) {
+          if (s.x && s.y && s.x.length && tieneValores(s.y)) series.push(s);
+        });
+      } else {
+        for (var c = 0; c < 3; c++) {
+          if (!datos.y[c]) continue;
+          if (tieneValores(datos.y[c])) series.push({ nombre: nombres[c], color: colores[c], x: datos.t, y: datos.y[c] });
+        }
       }
       if (!series.length) {
+        canvas._renderGrafica = function () {};
         mensaje(ctx, w, h, "No hay datos para esta gráfica.");
         return;
       }
@@ -1456,8 +1668,8 @@
       if (!Number.isFinite(grafica.hoverX)) canvas.removeAttribute("aria-valuetext");
       ctx.setTransform(grafica.dpr, 0, 0, grafica.dpr, 0, 0);
       var fondo = ctx.createLinearGradient(0, 0, 0, h);
-      fondo.addColorStop(0, "#ffffff");
-      fondo.addColorStop(1, "#f4f8fc");
+      fondo.addColorStop(0, "#0b1b32");
+      fondo.addColorStop(1, "#06101e");
       ctx.fillStyle = fondo;
       ctx.fillRect(0, 0, w, h);
       grafica.series.forEach(function (serie) {
@@ -1484,10 +1696,10 @@
       ymax += pad;
       function X(x) { return m.l + (x - xmin) / (xmax - xmin) * (w - m.l - m.r); }
       function Y(y) { return m.t + (ymax - y) / (ymax - ymin) * (h - m.t - m.b); }
-      ctx.strokeStyle = "#e4edf5";
+      ctx.strokeStyle = "rgba(140, 190, 255, 0.10)";
       ctx.lineWidth = 1;
-      ctx.fillStyle = "#5d6b7c";
-      ctx.font = "12px Segoe UI, sans-serif";
+      ctx.fillStyle = "#8ea4be";
+      ctx.font = "11.5px Outfit, Segoe UI, sans-serif";
       ctx.textAlign = "right";
       for (var g = 0; g <= 4; g++) {
         var yy = m.t + (h - m.t - m.b) * g / 4;
@@ -1506,7 +1718,7 @@
       ctx.fillText(grafica.xlab, m.l, h - 6);
       if (grafica.banda && grafica.banda.length === 2) {
         ctx.save();
-        ctx.strokeStyle = "#8aa0b5";
+        ctx.strokeStyle = "rgba(228, 196, 138, 0.7)";
         ctx.setLineDash([4, 4]);
         grafica.banda.forEach(function (xb) {
           if (xb < xmin || xb > xmax) return;
@@ -1520,7 +1732,8 @@
       grafica.series.forEach(function (serie) {
         ctx.beginPath();
         ctx.strokeStyle = serie.color;
-        ctx.lineWidth = 1.4;
+        ctx.lineWidth = 1.5;
+        ctx.lineJoin = "round";
         var empezado = false;
         for (var i = 0; i < serie.x.length; i++) {
           if (serie.x[i] < xmin || serie.x[i] > xmax || !Number.isFinite(serie.y[i])) { empezado = false; continue; }
@@ -1541,7 +1754,7 @@
         }
         function marcarPico(espectro, color, radio) {
           ctx.beginPath();
-          ctx.fillStyle = "#ffffff";
+          ctx.fillStyle = "#06101e";
           ctx.strokeStyle = color;
           ctx.lineWidth = 2.5;
           ctx.arc(X(espectro.x), Y(espectro.y), radio, 0, 2 * Math.PI);
@@ -1549,20 +1762,20 @@
           ctx.stroke();
         }
         marcarPico(pico, pico.color, 5);
-        if (textosPico.length > 1) marcarPico(picoBanda, "#bf7a12", 4);
-        ctx.font = "11px Segoe UI, sans-serif";
+        if (textosPico.length > 1) marcarPico(picoBanda, "#f0b75a", 4);
+        ctx.font = "11px Outfit, Segoe UI, sans-serif";
         var anchoTexto = Math.max.apply(null, textosPico.map(function (texto) { return ctx.measureText(texto).width; }));
         var anchoEtiqueta = Math.min(w - m.l - m.r - 12, anchoTexto + 12);
         var altoEtiqueta = textosPico.length * 15 + 8;
-        ctx.fillStyle = "rgba(255, 255, 255, 0.96)";
+        ctx.fillStyle = "rgba(6, 16, 30, 0.94)";
         ctx.strokeStyle = pico.color;
         ctx.lineWidth = 1;
         ctx.fillRect(m.l + 7, m.t + 7, anchoEtiqueta, altoEtiqueta);
         ctx.strokeRect(m.l + 7, m.t + 7, anchoEtiqueta, altoEtiqueta);
-        ctx.fillStyle = "#172033";
+        ctx.fillStyle = "#e9f1fb";
         ctx.textAlign = "left";
         textosPico.forEach(function (texto, i) {
-          ctx.fillStyle = i === 0 ? pico.color : "#9a5f0b";
+          ctx.fillStyle = i === 0 ? pico.color : "#f0b75a";
           ctx.fillText(texto, m.l + 13, m.t + 19 + i * 15, anchoEtiqueta - 12);
         });
       }
@@ -1571,12 +1784,12 @@
         var ly = m.t + 8 + i * 16;
         ctx.fillStyle = serie.color;
         ctx.fillRect(lx - 78, ly, 12, 8);
-        ctx.fillStyle = "#172033";
+        ctx.fillStyle = "#e9f1fb";
         ctx.fillText(serie.nombre, lx - 62, ly + 8);
       });
-      ctx.strokeStyle = "#c5d0dc";
+      ctx.strokeStyle = "rgba(140, 190, 255, 0.28)";
       ctx.strokeRect(m.l, m.t, w - m.l - m.r, h - m.t - m.b);
-      ctx.fillStyle = "#5d6b7c";
+      ctx.fillStyle = "#8ea4be";
       ctx.save();
       ctx.translate(16, (h - m.b + m.t) / 2);
       ctx.rotate(-Math.PI / 2);
@@ -1600,7 +1813,7 @@
         }
       });
       var filas = [grafica.xlab.replace(/\s*\[[^\]]*\]/, "") + ": " + formatoInteractivo(mejorX) + " " + unidadDeEje(grafica.xlab)];
-      var coloresFila = ["#536579"];
+      var coloresFila = ["#8ea4be"];
       var puntos = [];
       grafica.series.forEach(function (serie) {
         var indice = 0;
@@ -1619,7 +1832,7 @@
       canvas.setAttribute("aria-valuetext", filas.join(". "));
       var xCursor = X(mejorX);
       ctx.save();
-      ctx.strokeStyle = "rgba(18, 32, 51, 0.55)";
+      ctx.strokeStyle = "rgba(233, 241, 251, 0.5)";
       ctx.setLineDash([3, 3]);
       ctx.beginPath();
       ctx.moveTo(xCursor, m.t);
@@ -1628,21 +1841,21 @@
       ctx.setLineDash([]);
       puntos.forEach(function (punto) {
         ctx.beginPath();
-        ctx.fillStyle = "#fff";
+        ctx.fillStyle = "#06101e";
         ctx.strokeStyle = punto.color;
         ctx.lineWidth = 2;
         ctx.arc(punto.x, punto.y, 4, 0, 2 * Math.PI);
         ctx.fill();
         ctx.stroke();
       });
-      ctx.font = "12px Segoe UI, sans-serif";
+      ctx.font = "12px Outfit, Segoe UI, sans-serif";
       var ancho = Math.min(210, Math.max.apply(null, filas.map(function (fila) { return ctx.measureText(fila).width; })) + 20);
       var alto = filas.length * 19 + 12;
       var izquierda = xCursor + ancho + 12 < grafica.ancho ? xCursor + 10 : xCursor - ancho - 10;
       izquierda = Math.max(m.l + 3, Math.min(grafica.ancho - ancho - 4, izquierda));
       var arriba = 24;
-      ctx.fillStyle = "rgba(255, 255, 255, 0.97)";
-      ctx.strokeStyle = "#b8c7d6";
+      ctx.fillStyle = "rgba(6, 16, 30, 0.96)";
+      ctx.strokeStyle = "rgba(140, 190, 255, 0.45)";
       ctx.lineWidth = 1;
       ctx.fillRect(izquierda, arriba, ancho, alto);
       ctx.strokeRect(izquierda, arriba, ancho, alto);
@@ -1665,8 +1878,8 @@
     }
 
     function mensaje(ctx, w, h, texto) {
-      ctx.fillStyle = "#5d6b7c";
-      ctx.font = "14px Segoe UI, sans-serif";
+      ctx.fillStyle = "#8ea4be";
+      ctx.font = "14px Outfit, Segoe UI, sans-serif";
       ctx.textAlign = "center";
       ctx.fillText(texto, w / 2, h / 2);
       ctx.textAlign = "left";
@@ -1684,6 +1897,891 @@
       if (a >= 1) return v.toFixed(2);
       return v.toFixed(3);
     }
+
+    /* ───────── Comparativo entre pruebas ───────── */
+    var PALETA_PRUEBAS = ["#5ad1ff", "#e4c48a", "#c792ff", "#ff9f43", "#ff6fb1", "#9be15d", "#8fa8ff", "#ffd166"];
+    var COLORES_EJE = ["#4da3ff", "#ff6b5e", "#3fe0a0"];
+    var NOMBRES_EJE = ["X", "Y", "Z"];
+    var cmp = { eje: 0, ocultas: {}, origen: null, vista: "resumen" };
+
+    function etiquetaPrueba(p) {
+      return Number.isFinite(p.profundidad) ? p.profundidad + " mm" : p.nombre;
+    }
+
+    function colorPrueba(i) {
+      return PALETA_PRUEBAS[i % PALETA_PRUEBAS.length];
+    }
+
+    function mejorPrueba(f, mayor) {
+      var mejor = null;
+      pruebas.forEach(function (p) {
+        var v = f(p);
+        if (!Number.isFinite(v)) return;
+        if (mejor === null || (mayor ? v > mejor.v : v < mejor.v)) mejor = { p: p, v: v };
+      });
+      return mejor;
+    }
+
+    function contrasteMax(p) {
+      var res = { v: NaN, eje: -1 };
+      for (var c = 0; c < 3; c++) {
+        var v = p.contrasteChatter[c];
+        if (Number.isFinite(v) && (!Number.isFinite(res.v) || v > res.v)) res = { v: v, eje: c };
+      }
+      return res;
+    }
+
+    function valorReferencia(f) {
+      for (var i = 0; i < pruebas.length; i++) {
+        var v = f(pruebas[i]);
+        if (Number.isFinite(v) && v > 0) return { v: v, p: pruebas[i] };
+      }
+      return null;
+    }
+
+    function variacionPct(f, ref) {
+      var v = f;
+      if (!ref || !Number.isFinite(v)) return NaN;
+      return (v / ref.v - 1) * 100;
+    }
+
+    function pintarComparativo() {
+      var seccion = document.getElementById("comparativo");
+      if (!pruebas.length) {
+        seccion.classList.add("oculto");
+        return;
+      }
+      seccion.classList.remove("oculto");
+      if (cmp.origen !== pruebas) {
+        cmp.origen = pruebas;
+        cmp.ocultas = {};
+      }
+      instalarPestanasCmp();
+      pintarControlesCmp();
+      pintarKpisCmp();
+      pintarTablaCmp();
+      pintarLecturasCmp();
+      mostrarVistaCmp(cmp.vista);
+    }
+
+    /* Ventanas del comparativo: solo se dibuja la que está visible, porque un canvas oculto no tiene ancho */
+    var VISTAS_CMP = {
+      resumen: { barras: [], senales: [], controles: false },
+      aceleracion: { barras: ["cvBAcel", "cvBPico"], senales: ["FA", "EA", "TA"], controles: true },
+      fuerza: { barras: ["cvBFza", "cvBRel"], senales: ["FF", "EF", "TF"], controles: true },
+      chatter: { barras: ["cvBCont", "cvBFrec", "cvBCrec", "cvBInd", "cvBVar"], senales: [], controles: false }
+    };
+
+    function instalarPestanasCmp() {
+      var barra = document.getElementById("cmpTabs");
+      if (barra._listo) return;
+      barra._listo = true;
+      var botones = Array.prototype.slice.call(barra.querySelectorAll(".pestana"));
+      botones.forEach(function (b, i) {
+        b.addEventListener("click", function () { mostrarVistaCmp(b.dataset.vista); });
+        b.addEventListener("keydown", function (e) {
+          var destino = -1;
+          if (e.key === "ArrowRight") destino = (i + 1) % botones.length;
+          else if (e.key === "ArrowLeft") destino = (i - 1 + botones.length) % botones.length;
+          else if (e.key === "Home") destino = 0;
+          else if (e.key === "End") destino = botones.length - 1;
+          if (destino < 0) return;
+          e.preventDefault();
+          botones[destino].focus();
+          mostrarVistaCmp(botones[destino].dataset.vista);
+        });
+      });
+    }
+
+    function mostrarVistaCmp(nombre) {
+      if (!VISTAS_CMP[nombre]) nombre = "resumen";
+      cmp.vista = nombre;
+      Array.prototype.forEach.call(document.querySelectorAll("#cmpTabs .pestana"), function (b) {
+        var activa = b.dataset.vista === nombre;
+        b.setAttribute("aria-selected", activa ? "true" : "false");
+        b.tabIndex = activa ? 0 : -1;
+      });
+      Object.keys(VISTAS_CMP).forEach(function (k) {
+        var panel = document.getElementById("vistaCmp" + k.charAt(0).toUpperCase() + k.slice(1));
+        if (panel) panel.hidden = k !== nombre;
+      });
+      document.getElementById("cmpControles").hidden = !VISTAS_CMP[nombre].controles;
+      pintarGraficasCmp();
+    }
+
+    function pintarGraficasCmp() {
+      if (!pruebas.length) return;
+      var vista = VISTAS_CMP[cmp.vista] || VISTAS_CMP.resumen;
+      pintarBarrasCmp(vista.barras);
+      pintarSuperposicionCmp(vista.senales);
+    }
+
+    function crearChip(texto, color, activo) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip";
+      b.style.setProperty("--c", color);
+      b.setAttribute("aria-pressed", activo ? "true" : "false");
+      var punto = document.createElement("i");
+      b.appendChild(punto);
+      b.appendChild(document.createTextNode(texto));
+      return b;
+    }
+
+    function pintarControlesCmp() {
+      var contEjes = document.getElementById("cmpEjes");
+      contEjes.innerHTML = "";
+      NOMBRES_EJE.forEach(function (nombre, c) {
+        var b = crearChip(nombre, COLORES_EJE[c], cmp.eje === c);
+        b.addEventListener("click", function () {
+          cmp.eje = c;
+          pintarControlesCmp();
+          pintarGraficasCmp();
+        });
+        contEjes.appendChild(b);
+      });
+      var contPruebas = document.getElementById("cmpPruebas");
+      contPruebas.innerHTML = "";
+      pruebas.forEach(function (p, i) {
+        var b = crearChip(etiquetaPrueba(p), colorPrueba(i), !cmp.ocultas[i]);
+        b.title = p.nombre;
+        b.addEventListener("click", function () {
+          var visibles = pruebas.filter(function (_, k) { return !cmp.ocultas[k]; }).length;
+          if (!cmp.ocultas[i] && visibles <= 1) return;
+          cmp.ocultas[i] = !cmp.ocultas[i];
+          pintarControlesCmp();
+          pintarGraficasCmp();
+        });
+        contPruebas.appendChild(b);
+      });
+    }
+
+    function pintarKpisCmp() {
+      var box = document.getElementById("cmpKpis");
+      var conAcel = pruebas.filter(function (p) { return !!p.acel; });
+      var alertas = conAcel.filter(function (p) { return p.chatter; }).length;
+      var mAcel = mejorPrueba(function (p) { return p.rmsA; }, true);
+      var mFza = mejorPrueba(function (p) { return p.rmsF; }, true);
+      var mCont = mejorPrueba(function (p) { return contrasteMax(p).v; }, true);
+      var mCrec = mejorPrueba(function (p) { return p.razon; }, true);
+      var iAlto = mejorPrueba(function (p) { return p.indice; }, true);
+      var iBajo = mejorPrueba(function (p) { return p.indice; }, false);
+      function con(m, texto) { return m ? texto(m) : "—"; }
+      var items = [
+        ["Pruebas analizadas", String(pruebas.length), ""],
+        ["Con alerta de chatter", conAcel.length ? alertas + " de " + conAcel.length : "—", conAcel.length ? (alertas ? "alerta" : "ok") : ""],
+        ["Mayor RMS aceleración", con(mAcel, function (m) { return fmt(m.v, 4) + " g · " + etiquetaPrueba(m.p); }), "ex"],
+        ["Mayor RMS fuerza", con(mFza, function (m) { return fmt(m.v, 4) + " V · " + etiquetaPrueba(m.p); }), "ez"],
+        ["Mayor contraste en banda", con(mCont, function (m) {
+          var e = contrasteMax(m.p).eje;
+          return fmt(m.v, 1) + " × · " + etiquetaPrueba(m.p) + (e >= 0 ? " · " + NOMBRES_EJE[e] : "");
+        }), "fn"],
+        ["Mayor crecimiento fin/inicio", con(mCrec, function (m) { return fmt(m.v, 2) + " · " + etiquetaPrueba(m.p); }), "ey"],
+        ["Índice más alto", con(iAlto, function (m) { return fmt(m.v, 3) + " · " + etiquetaPrueba(m.p); }), ""],
+        ["Índice más favorable", con(iBajo, function (m) { return fmt(m.v, 3) + " · " + etiquetaPrueba(m.p); }), "ok"]
+      ];
+      box.innerHTML = "";
+      items.forEach(function (it) {
+        var d = document.createElement("div");
+        d.className = "met glow" + (it[2] ? " " + it[2] : "");
+        d.innerHTML = "<span></span><strong></strong>";
+        d.querySelector("span").textContent = it[0];
+        var fuerte = d.querySelector("strong");
+        fuerte.textContent = it[1];
+        if (it[1].length > 14) fuerte.style.fontSize = "17px";
+        box.appendChild(d);
+      });
+    }
+
+    function pintarTablaCmp() {
+      var tb = document.getElementById("tablaCmp");
+      tb.innerHTML = "";
+      var refA = valorReferencia(function (p) { return p.rmsA; });
+      var refF = valorReferencia(function (p) { return p.rmsF; });
+      pruebas.forEach(function (p) {
+        var tr = document.createElement("tr");
+        var dA = variacionPct(p.rmsA, refA);
+        var dF = variacionPct(p.rmsF, refF);
+        var cm = contrasteMax(p);
+        var celdas = [
+          { t: etiquetaPrueba(p) },
+          { t: fmt(p.rmsA, 4) },
+          { t: signoPct(dA), c: claseVariacion(dA, p === (refA && refA.p)) },
+          { t: fmt(p.rmsF, 4) },
+          { t: signoPct(dF), c: claseVariacion(dF, p === (refF && refF.p)) },
+          { t: fmt(p.ampModal, 5) },
+          { t: fmt(p.fModal, 1) },
+          { t: Number.isFinite(cm.v) ? fmt(cm.v, 1) + " × (" + NOMBRES_EJE[cm.eje] + ")" : "—" },
+          { t: fmt(p.razon, 2) },
+          { pill: p.error ? "" : (p.acel ? (p.chatter ? "si" : "no") : "") },
+          { t: fmt(p.indice, 3) }
+        ];
+        celdas.forEach(function (cel) {
+          var td = document.createElement("td");
+          if (cel.pill) {
+            var pill = document.createElement("span");
+            pill.className = "pill " + cel.pill;
+            pill.textContent = cel.pill === "si" ? "Chatter" : "Estable";
+            td.appendChild(pill);
+          } else {
+            td.textContent = cel.pill === "" ? "—" : cel.t;
+            if (cel.c) td.className = cel.c;
+          }
+          tr.appendChild(td);
+        });
+        tb.appendChild(tr);
+      });
+      document.getElementById("cmpRef").textContent = refA
+        ? "Las columnas Δ comparan cada prueba contra " + etiquetaPrueba(refA.p) + ". Rojo: aumenta respecto de esa prueba; verde: disminuye."
+        : "";
+    }
+
+    function signoPct(v) {
+      if (!Number.isFinite(v)) return "—";
+      if (Math.abs(v) < 0.05) return "0.0 %";
+      return (v > 0 ? "+" : "") + v.toFixed(1) + " %";
+    }
+
+    function claseVariacion(v, esReferencia) {
+      if (esReferencia || !Number.isFinite(v) || Math.abs(v) < 0.05) return "";
+      return v > 0 ? "sube" : "baja";
+    }
+
+    function serieEjesCmp(extraer) {
+      return NOMBRES_EJE.map(function (nombre, c) {
+        return {
+          nombre: nombre,
+          color: COLORES_EJE[c],
+          valores: pruebas.map(function (p) { return extraer(p)[c]; })
+        };
+      });
+    }
+
+    function pintarBarrasCmp(ids) {
+      if (!ids || !ids.length) return;
+      function dib(id, cfg) {
+        if (ids.indexOf(id) >= 0) dibujarBarras(document.getElementById(id), cfg);
+      }
+      var cats = pruebas.map(etiquetaPrueba);
+      var fn = pruebas.length ? pruebas[0].fNatural : NaN;
+      var refA = valorReferencia(function (p) { return p.rmsA; });
+      var refF = valorReferencia(function (p) { return p.rmsF; });
+      var refP = valorReferencia(function (p) { return p.ampModal; });
+      var porPrueba = function (f) { return pruebas.map(f); };
+      dib("cvBAcel", {
+        titulo: "RMS de aceleración por eje", categorias: cats, ylab: "RMS [g]",
+        series: serieEjesCmp(function (p) { return p.rms; })
+      });
+      dib("cvBFza", {
+        titulo: "RMS de fuerza por eje", categorias: cats, ylab: "RMS [V]",
+        series: serieEjesCmp(function (p) { return p.rmsFxyz; }).map(function (s, c) {
+          s.nombre = ["Fx", "Fy", "Fz"][c];
+          return s;
+        })
+      });
+      dib("cvBRel", {
+        titulo: "Vibración por unidad de fuerza", categorias: cats, ylab: "RMS acel. / RMS fuerza [g/V]",
+        series: [{
+          nombre: "g/V", color: "#c792ff",
+          valores: porPrueba(function (p) { return Number.isFinite(p.rmsA) && p.rmsF > 0 ? p.rmsA / p.rmsF : NaN; })
+        }]
+      });
+      dib("cvBCont", {
+        titulo: "Contraste de chatter por eje", categorias: cats, ylab: "Pico / mediana [×]",
+        series: serieEjesCmp(function (p) { return p.contrasteChatter; }),
+        lineas: [{ valor: 4, etiqueta: "umbral", color: "#f0b75a" }]
+      });
+      dib("cvBPico", {
+        titulo: "Amplitud del pico en la banda modal", categorias: cats, ylab: "Amplitud [g]",
+        series: serieEjesCmp(function (p) { return p.amplitudBanda; })
+      });
+      dib("cvBFrec", {
+        titulo: "Frecuencia del pico en banda", categorias: cats, ylab: "Frecuencia [Hz]", tipo: "puntos",
+        series: serieEjesCmp(function (p) { return p.picoBandaHz; }),
+        lineas: Number.isFinite(fn) ? [{ valor: fn, etiqueta: "fn", color: "#f0b75a" }] : []
+      });
+      dib("cvBCrec", {
+        titulo: "Crecimiento fin / inicio", categorias: cats, ylab: "RMS fin / RMS inicio",
+        series: [{ nombre: "Fin / inicio", color: "#5ad1ff", valores: porPrueba(function (p) { return p.razon; }) }],
+        lineas: [{ valor: 1, etiqueta: "sin cambio", color: "#f0b75a" }]
+      });
+      dib("cvBInd", {
+        titulo: "Índice de severidad", categorias: cats, ylab: "Índice [adim.]",
+        series: [{
+          nombre: "Índice", color: "#3fe0a0",
+          colores: pruebas.map(function (p) { return p.chatter ? "#ff6b5e" : "#3fe0a0"; }),
+          valores: porPrueba(function (p) { return p.indice; })
+        }]
+      });
+      dib("cvBVar", {
+        titulo: "Variación respecto a la primera prueba", categorias: cats, ylab: "Cambio [%]", sufijo: " %",
+        series: [
+          { nombre: "RMS aceleración", color: "#5ad1ff", valores: porPrueba(function (p) { return variacionPct(p.rmsA, refA); }) },
+          { nombre: "RMS fuerza", color: "#e4c48a", valores: porPrueba(function (p) { return variacionPct(p.rmsF, refF); }) },
+          { nombre: "Pico en banda", color: "#c792ff", valores: porPrueba(function (p) { return variacionPct(p.ampModal, refP); }) }
+        ]
+      });
+    }
+
+    function seriesCmp(extraer) {
+      var out = [];
+      pruebas.forEach(function (p, i) {
+        if (cmp.ocultas[i]) return;
+        var s = extraer(p);
+        if (s && s.x && s.y) out.push({ nombre: etiquetaPrueba(p), color: colorPrueba(i), x: s.x, y: s.y });
+      });
+      return out;
+    }
+
+    function pintarSuperposicionCmp(ids) {
+      if (!ids || !ids.length) return;
+      var c = cmp.eje;
+      var eje = NOMBRES_EJE[c];
+      var banda = null;
+      for (var i = 0; i < pruebas.length; i++) {
+        if (!cmp.ocultas[i] && pruebas[i].banda) { banda = pruebas[i].banda; break; }
+      }
+      var espectro = function (campo) {
+        return function (p) { return p[campo] ? { x: p[campo].f, y: p[campo].p[c] } : null; };
+      };
+      var tiempo = function (campo) {
+        return function (p) { return p[campo] ? { x: p[campo].t, y: p[campo].y[c] } : null; };
+      };
+      var evolucion = function (campo) {
+        return function (p) { return p[campo] && p[campo].evol ? { x: p[campo].evol.t, y: p[campo].evol.y[c] } : null; };
+      };
+      var definiciones = [
+        ["FA", "FFT de aceleración · eje " + eje, espectro("acel"), "Frecuencia [Hz]", "Amplitud [g]", banda],
+        ["FF", "FFT de fuerza · eje " + eje, espectro("fuerza"), "Frecuencia [Hz]", "Amplitud [V]", banda],
+        ["EA", "Evolución del RMS de aceleración · eje " + eje, evolucion("acel"), "Tiempo [s]", "RMS [g]", null],
+        ["EF", "Evolución del RMS de fuerza · eje " + eje, evolucion("fuerza"), "Tiempo [s]", "RMS [V]", null],
+        ["TA", "Aceleración en el tiempo · eje " + eje, tiempo("acel"), "Tiempo [s]", "Aceleración [g]", null],
+        ["TF", "Fuerza en el tiempo · eje " + eje, tiempo("fuerza"), "Tiempo [s]", "Fuerza [V]", null]
+      ];
+      definiciones.forEach(function (d) {
+        if (ids.indexOf(d[0]) < 0) return;
+        document.getElementById("titCmp" + d[0]).textContent = d[1];
+        dibujarSenal(document.getElementById("cvCmp" + d[0]), null, d[3], d[4], false, d[5], seriesCmp(d[2]));
+      });
+    }
+
+    /* Gráfica de barras (o puntos) con categorías: una columna de texto por prueba */
+    function formatoEje(v) {
+      if (!Number.isFinite(v)) return "—";
+      var a = Math.abs(v);
+      if (a === 0) return "0";
+      if (a >= 100) return v.toFixed(0);
+      if (a >= 10) return v.toFixed(1);
+      if (a >= 1) return v.toFixed(2);
+      if (a >= 0.01) return v.toFixed(3);
+      return Number(v.toPrecision(2)).toString();
+    }
+
+    function geometriaBarras(b) {
+      var m = { l: 66, r: 14, t: 36, b: 40 };
+      var n = Math.max(1, b.cfg.categorias.length);
+      return { m: m, n: n, banda: (b.w - m.l - m.r) / n };
+    }
+
+    function dibujarBarras(canvas, cfg) {
+      var rect = canvas.getBoundingClientRect();
+      var dpr = window.devicePixelRatio || 1;
+      var w = Math.max(280, rect.width || 520);
+      var h = 280;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      canvas._barras = { cfg: cfg, w: w, h: h, dpr: dpr, hover: -1 };
+      canvas.setAttribute("aria-label", (cfg.titulo || "Gráfica") + ". Pasa el cursor sobre una columna para leer los valores.");
+      if (!canvas._eventosBarras) {
+        canvas._eventosBarras = true;
+        canvas.addEventListener("pointermove", function (e) {
+          var b = canvas._barras;
+          var g = geometriaBarras(b);
+          var idx = -1;
+          if (e.offsetX >= g.m.l && e.offsetX <= b.w - g.m.r && e.offsetY >= g.m.t && e.offsetY <= b.h - g.m.b) {
+            idx = Math.min(g.n - 1, Math.floor((e.offsetX - g.m.l) / g.banda));
+          }
+          if (idx !== b.hover) {
+            b.hover = idx;
+            renderizarBarras(canvas);
+          }
+        });
+        canvas.addEventListener("pointerleave", function () {
+          var b = canvas._barras;
+          if (b.hover !== -1) {
+            b.hover = -1;
+            renderizarBarras(canvas);
+          }
+        });
+      }
+      renderizarBarras(canvas);
+    }
+
+    function renderizarBarras(canvas) {
+      var b = canvas._barras;
+      var cfg = b.cfg;
+      var w = b.w;
+      var h = b.h;
+      var g = geometriaBarras(b);
+      var m = g.m;
+      var puntos = cfg.tipo === "puntos";
+      var ctx = canvas.getContext("2d");
+      ctx.setTransform(b.dpr, 0, 0, b.dpr, 0, 0);
+      var fondo = ctx.createLinearGradient(0, 0, 0, h);
+      fondo.addColorStop(0, "#0b1b32");
+      fondo.addColorStop(1, "#06101e");
+      ctx.fillStyle = fondo;
+      ctx.fillRect(0, 0, w, h);
+
+      var vmin = Infinity;
+      var vmax = -Infinity;
+      cfg.series.forEach(function (s) {
+        s.valores.forEach(function (v) {
+          if (!Number.isFinite(v)) return;
+          vmin = Math.min(vmin, v);
+          vmax = Math.max(vmax, v);
+        });
+      });
+      if (!Number.isFinite(vmin)) {
+        mensaje(ctx, w, h, "No hay datos para esta gráfica.");
+        return;
+      }
+      (cfg.lineas || []).forEach(function (l) {
+        vmin = Math.min(vmin, l.valor);
+        vmax = Math.max(vmax, l.valor);
+      });
+      if (!puntos) {
+        vmin = Math.min(0, vmin);
+        vmax = Math.max(0, vmax);
+      }
+      if (vmin === vmax) vmax = vmin + 1;
+      var pad = (vmax - vmin) * 0.12;
+      if (puntos || vmin < 0) vmin -= pad;
+      vmax += pad;
+      function Y(v) { return m.t + (vmax - v) / (vmax - vmin) * (h - m.t - m.b); }
+
+      // Rejilla y eje Y
+      ctx.font = "11.5px Outfit, Segoe UI, sans-serif";
+      ctx.lineWidth = 1;
+      ctx.textAlign = "right";
+      for (var k = 0; k <= 4; k++) {
+        var yy = m.t + (h - m.t - m.b) * k / 4;
+        ctx.strokeStyle = "rgba(140, 190, 255, 0.10)";
+        ctx.beginPath();
+        ctx.moveTo(m.l, yy);
+        ctx.lineTo(w - m.r, yy);
+        ctx.stroke();
+        ctx.fillStyle = "#8ea4be";
+        ctx.fillText(formatoEje(vmax - (vmax - vmin) * k / 4), m.l - 8, yy + 4);
+      }
+      if (vmin < 0 && vmax > 0) {
+        ctx.strokeStyle = "rgba(233, 241, 251, 0.35)";
+        ctx.beginPath();
+        ctx.moveTo(m.l, Y(0));
+        ctx.lineTo(w - m.r, Y(0));
+        ctx.stroke();
+      }
+
+      // Resalte de la categoría bajo el cursor
+      if (b.hover >= 0) {
+        ctx.fillStyle = "rgba(130, 180, 240, 0.08)";
+        ctx.fillRect(m.l + b.hover * g.banda, m.t, g.banda, h - m.t - m.b);
+      }
+
+      // Categorías
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#c3d3e6";
+      cfg.categorias.forEach(function (cat, i) {
+        ctx.fillText(cat, m.l + (i + 0.5) * g.banda, h - m.b + 18, g.banda - 6);
+      });
+
+      // Columnas o puntos
+      var ns = cfg.series.length;
+      var grupo = g.banda * (ns === 1 ? 0.5 : 0.74);
+      var ancho = grupo / ns;
+      ctx.font = "10.5px 'JetBrains Mono', Consolas, monospace";
+      cfg.series.forEach(function (s, k2) {
+        s.valores.forEach(function (v, i) {
+          if (!Number.isFinite(v)) return;
+          var color = (s.colores && s.colores[i]) || s.color;
+          var x0 = m.l + i * g.banda + (g.banda - grupo) / 2 + k2 * ancho;
+          var cx = x0 + ancho / 2;
+          ctx.globalAlpha = b.hover < 0 || b.hover === i ? 1 : 0.55;
+          if (puntos) {
+            ctx.beginPath();
+            ctx.fillStyle = color;
+            ctx.strokeStyle = "#06101e";
+            ctx.lineWidth = 2;
+            ctx.arc(cx, Y(v), 6, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.stroke();
+          } else {
+            var yTop = Y(Math.max(v, 0));
+            var yBase = Y(Math.min(v, 0));
+            var grad = ctx.createLinearGradient(0, yTop, 0, yBase);
+            grad.addColorStop(0, color);
+            grad.addColorStop(1, color + "88");
+            ctx.fillStyle = grad;
+            ctx.fillRect(x0 + 1.5, yTop, Math.max(4, ancho - 3), Math.max(1, yBase - yTop));
+          }
+          ctx.globalAlpha = 1;
+          if (ns === 1 || ancho >= 38) {
+            ctx.fillStyle = "#e9f1fb";
+            ctx.textAlign = "center";
+            ctx.fillText(formatoEje(v) + (cfg.sufijo || ""), cx, v >= 0 || puntos ? Y(v) - (puntos ? 11 : 6) : Y(v) + 14);
+          }
+        });
+      });
+
+      // Líneas de referencia
+      (cfg.lineas || []).forEach(function (l) {
+        var y = Y(l.valor);
+        ctx.save();
+        ctx.strokeStyle = l.color || "#f0b75a";
+        ctx.lineWidth = 1.2;
+        ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        ctx.moveTo(m.l, y);
+        ctx.lineTo(w - m.r, y);
+        ctx.stroke();
+        ctx.restore();
+        ctx.font = "11px Outfit, Segoe UI, sans-serif";
+        ctx.fillStyle = l.color || "#f0b75a";
+        ctx.textAlign = "right";
+        ctx.fillText(l.etiqueta + " " + formatoEje(l.valor), w - m.r - 4, y - 5);
+      });
+
+      // Marco, título del eje y leyenda
+      ctx.strokeStyle = "rgba(140, 190, 255, 0.28)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(m.l, m.t, w - m.l - m.r, h - m.t - m.b);
+      ctx.font = "11.5px Outfit, Segoe UI, sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillStyle = "#8ea4be";
+      ctx.fillText(cfg.ylab, m.l, 20);
+      if (ns > 1) {
+        var total = 0;
+        cfg.series.forEach(function (s) { total += ctx.measureText(s.nombre).width + 24; });
+        var lx = Math.max(m.l + ctx.measureText(cfg.ylab).width + 16, w - m.r - total);
+        cfg.series.forEach(function (s) {
+          ctx.fillStyle = s.color;
+          ctx.fillRect(lx, 12, 12, 8);
+          ctx.fillStyle = "#e9f1fb";
+          ctx.fillText(s.nombre, lx + 17, 20);
+          lx += ctx.measureText(s.nombre).width + 24;
+        });
+      }
+
+      // Lectura al pasar el cursor
+      if (b.hover >= 0) {
+        var filas = [cfg.categorias[b.hover]];
+        var colores = ["#8ea4be"];
+        cfg.series.forEach(function (s) {
+          var v = s.valores[b.hover];
+          filas.push((ns > 1 ? s.nombre + ": " : "") + (Number.isFinite(v) ? formatoInteractivo(v) + (cfg.sufijo || "") : "—"));
+          colores.push((s.colores && s.colores[b.hover]) || s.color);
+        });
+        ctx.font = "12px Outfit, Segoe UI, sans-serif";
+        var ancho2 = Math.max.apply(null, filas.map(function (f) { return ctx.measureText(f).width; })) + 20;
+        var alto2 = filas.length * 19 + 10;
+        var cx2 = m.l + (b.hover + 0.5) * g.banda;
+        var izq = cx2 + g.banda / 2 + ancho2 + 8 < w ? cx2 + g.banda / 2 + 6 : cx2 - g.banda / 2 - ancho2 - 6;
+        izq = Math.max(m.l + 3, Math.min(w - ancho2 - 4, izq));
+        ctx.fillStyle = "rgba(6, 16, 30, 0.96)";
+        ctx.strokeStyle = "rgba(140, 190, 255, 0.45)";
+        ctx.fillRect(izq, m.t + 8, ancho2, alto2);
+        ctx.strokeRect(izq, m.t + 8, ancho2, alto2);
+        ctx.textAlign = "left";
+        filas.forEach(function (f, i) {
+          ctx.fillStyle = colores[i];
+          ctx.fillText(f, izq + 10, m.t + 8 + 18 + i * 19);
+        });
+      }
+    }
+
+    /* Lecturas automáticas calculadas con las métricas cargadas */
+    function pearson(xs, ys) {
+      var px = [];
+      var py = [];
+      for (var i = 0; i < xs.length; i++) {
+        if (Number.isFinite(xs[i]) && Number.isFinite(ys[i])) { px.push(xs[i]); py.push(ys[i]); }
+      }
+      var n = px.length;
+      if (n < 3) return NaN;
+      var mx = px.reduce(function (s, v) { return s + v; }, 0) / n;
+      var my = py.reduce(function (s, v) { return s + v; }, 0) / n;
+      var sxy = 0;
+      var sxx = 0;
+      var syy = 0;
+      for (var j = 0; j < n; j++) {
+        sxy += (px[j] - mx) * (py[j] - my);
+        sxx += (px[j] - mx) * (px[j] - mx);
+        syy += (py[j] - my) * (py[j] - my);
+      }
+      return sxx > 0 && syy > 0 ? sxy / Math.sqrt(sxx * syy) : NaN;
+    }
+
+    function lecturaTendencia(titulo, unidad, extraer, decimales) {
+      var pts = pruebas.filter(function (p) {
+        return Number.isFinite(extraer(p)) && Number.isFinite(p.profundidad);
+      }).sort(function (a, b) { return a.profundidad - b.profundidad; });
+      if (pts.length < 2) return null;
+      var a = pts[0];
+      var z = pts[pts.length - 1];
+      var va = extraer(a);
+      var vz = extraer(z);
+      var cambio = va > 0 ? (vz / va - 1) * 100 : NaN;
+      var sube = 0;
+      var baja = 0;
+      for (var i = 1; i < pts.length; i++) {
+        var d = extraer(pts[i]) - extraer(pts[i - 1]);
+        if (d > 0) sube++; else if (d < 0) baja++;
+      }
+      var forma = !baja && sube ? "crece en cada incremento de profundidad"
+        : (!sube && baja ? "disminuye en cada incremento de profundidad" : "no sigue una tendencia monótona");
+      var r = pearson(pts.map(function (p) { return p.profundidad; }), pts.map(extraer));
+      var u = unidad ? " " + unidad : "";
+      var texto = " pasa de " + fmt(va, decimales) + u + " en " + etiquetaPrueba(a) + " a " +
+        fmt(vz, decimales) + u + " en " + etiquetaPrueba(z) +
+        (Number.isFinite(cambio) ? " (" + signoPct(cambio) + ")" : "") + "; " + forma +
+        (Number.isFinite(r) ? " (correlación con la profundidad r = " + r.toFixed(2) + ")" : "") + ".";
+      return { titulo: titulo, texto: texto };
+    }
+
+    function pintarLecturasCmp() {
+      var lista = document.getElementById("cmpLecturas");
+      lista.innerHTML = "";
+      var lecturas = [];
+      [
+        ["RMS de aceleración resultante", "g", function (p) { return p.rmsA; }, 4],
+        ["RMS de fuerza resultante", "V", function (p) { return p.rmsF; }, 4],
+        ["Amplitud del pico modal", "g", function (p) { return p.ampModal; }, 5],
+        ["Índice de severidad", "", function (p) { return p.indice; }, 3]
+      ].forEach(function (d) {
+        var l = lecturaTendencia(d[0], d[1], d[2], d[3]);
+        if (l) lecturas.push(l);
+      });
+
+      var conAcel = pruebas.filter(function (p) { return !!p.acel; });
+      if (conAcel.length) {
+        var alertas = conAcel.filter(function (p) { return p.chatter; });
+        var cont = mejorPrueba(function (p) { return contrasteMax(p).v; }, true);
+        var texto = alertas.length === 0
+          ? "El detector no supera el umbral de 4 veces en ninguna prueba."
+          : "El detector marca alerta en " + alertas.map(etiquetaPrueba).join(", ") + " (" + alertas.length + " de " + conAcel.length + ").";
+        if (cont) texto += " El mayor contraste es " + fmt(cont.v, 1) + " × en " + etiquetaPrueba(cont.p) + ", eje " + NOMBRES_EJE[contrasteMax(cont.p).eje] + ".";
+        lecturas.push({ titulo: "Detección de chatter", texto: " " + texto });
+
+        var dominantes = conAcel.map(function (p) {
+          var c = 0;
+          for (var k = 1; k < 3; k++) if (Number.isFinite(p.rms[k]) && !(p.rms[k] < p.rms[c])) c = k;
+          return etiquetaPrueba(p) + " → " + NOMBRES_EJE[c];
+        });
+        lecturas.push({ titulo: "Eje más excitado", texto: " según el RMS de aceleración: " + dominantes.join("; ") + "." });
+      }
+
+      var picos = pruebas.map(function (p) { return p.fModal; }).filter(Number.isFinite);
+      var fn = pruebas.length ? pruebas[0].fNatural : NaN;
+      if (picos.length) {
+        var pmin = Math.min.apply(null, picos);
+        var pmax = Math.max.apply(null, picos);
+        lecturas.push({
+          titulo: "Frecuencia del pico",
+          texto: " los picos en banda caen entre " + fmt(pmin, 1) + " y " + fmt(pmax, 1) + " Hz" +
+            (Number.isFinite(fn) ? "; la frecuencia natural usada es " + fmt(fn, 1) + " Hz (desviación máxima " +
+              fmt(Math.max(Math.abs(pmin - fn), Math.abs(pmax - fn)), 1) + " Hz)" : "") + "."
+        });
+      }
+
+      var crecen = pruebas.filter(function (p) { return Number.isFinite(p.razon) && p.razon > 1.2; });
+      if (pruebas.some(function (p) { return Number.isFinite(p.razon); })) {
+        lecturas.push({
+          titulo: "Crecimiento durante el corte",
+          texto: crecen.length
+            ? " la vibración del último tercio supera en más de 20 % a la del primero en " + crecen.map(function (p) {
+                return etiquetaPrueba(p) + " (" + fmt(p.razon, 2) + ")";
+              }).join(", ") + "."
+            : " ninguna prueba muestra un aumento mayor a 20 % entre el primer y el último tercio de la señal."
+        });
+      }
+
+      if (!lecturas.length) {
+        lecturas.push({ titulo: "Sin datos", texto: " no hay métricas suficientes para comparar las pruebas." });
+      }
+      lecturas.forEach(function (l) {
+        var li = document.createElement("li");
+        var b = document.createElement("b");
+        b.textContent = l.titulo + ":";
+        li.appendChild(b);
+        li.appendChild(document.createTextNode(l.texto));
+        lista.appendChild(li);
+      });
+    }
+  </script>
+  <script>
+    /* Efectos de presentación: no intervienen en el análisis de datos. */
+    (function () {
+      var reducir = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      // Barra de progreso de lectura
+      var barra = document.getElementById("progreso");
+      function progreso() {
+        var max = document.documentElement.scrollHeight - window.innerHeight;
+        barra.style.transform = "scaleX(" + (max > 0 ? Math.min(1, window.scrollY / max) : 0) + ")";
+      }
+      window.addEventListener("scroll", progreso, { passive: true });
+      window.addEventListener("resize", progreso);
+      progreso();
+
+      // Resplandor que sigue al cursor
+      document.addEventListener("pointermove", function (e) {
+        var el = e.target.closest && e.target.closest(".glow");
+        if (!el) return;
+        var r = el.getBoundingClientRect();
+        el.style.setProperty("--mx", (e.clientX - r.left) + "px");
+        el.style.setProperty("--my", (e.clientY - r.top) + "px");
+      });
+
+      // Revelado al hacer scroll y cifras animadas
+      var cuentas = document.querySelectorAll("[data-cuenta]");
+      function contar(el) {
+        var meta = Number(el.dataset.cuenta);
+        if (reducir) { el.textContent = meta; return; }
+        var t0 = performance.now();
+        (function paso(t) {
+          var k = Math.min(1, (t - t0) / 1400);
+          el.textContent = Math.round(meta * (1 - Math.pow(1 - k, 3)));
+          if (k < 1) requestAnimationFrame(paso);
+        })(t0);
+      }
+      var revelar = document.querySelectorAll(".rv");
+      if ("IntersectionObserver" in window) {
+        var obs = new IntersectionObserver(function (entradas) {
+          entradas.forEach(function (en) {
+            if (!en.isIntersecting) return;
+            en.target.classList.add("in");
+            en.target.querySelectorAll("[data-cuenta]").forEach(contar);
+            obs.unobserve(en.target);
+          });
+        }, { threshold: 0.12 });
+        revelar.forEach(function (el) { obs.observe(el); });
+      } else {
+        revelar.forEach(function (el) { el.classList.add("in"); });
+        cuentas.forEach(contar);
+      }
+
+      // Osciloscopio del héroe: simulación ilustrativa del crecimiento del chatter
+      var cv = document.getElementById("cvHero");
+      if (!cv) return;
+      var ctx = cv.getContext("2d");
+      var osc = document.getElementById("osc");
+      var elEstado = document.getElementById("heroEstado");
+      var elAmp = document.getElementById("heroAmp");
+      var elTiempo = document.getElementById("heroTiempo");
+      var carriles = [
+        { n: "X", c: [77, 163, 255], fase: 0.0, g: 1.0 },
+        { n: "Y", c: [255, 107, 94], fase: 1.9, g: 0.78 },
+        { n: "Z", c: [63, 224, 160], fase: 3.6, g: 0.52 }
+      ];
+      var CICLO = 20;
+      var VENTANA = 8;
+      var W = 0, H = 0, visible = true, ultimoEstado = "";
+
+      function ajustar() {
+        var r = cv.getBoundingClientRect();
+        var dpr = Math.min(2, window.devicePixelRatio || 1);
+        W = r.width; H = r.height;
+        cv.width = Math.round(W * dpr);
+        cv.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      function suave(a, b, x) { x = Math.max(0, Math.min(1, (x - a) / (b - a))); return x * x * (3 - 2 * x); }
+      function envolvente(tau) {
+        var p = (((tau % CICLO) + CICLO) % CICLO) / CICLO;
+        var a = p < 0.78 ? Math.pow(p / 0.78, 2.3) : (p < 0.9 ? 1 : 1 - suave(0.9, 0.99, p));
+        return 0.06 + 0.94 * a;
+      }
+      function senal(tau, k) {
+        var a = envolvente(tau);
+        var f = 1.15 + 0.5 * a;
+        var base = Math.sin(6.2832 * f * tau + k.fase) + 0.35 * Math.sin(6.2832 * 3.1 * tau + k.fase * 2) * a;
+        var ruido = 0.05 * Math.sin(6.2832 * 17.3 * tau + k.fase) + 0.03 * Math.sin(6.2832 * 29.1 * tau);
+        return (a * base / 1.35 + ruido * (1 - 0.5 * a)) * k.g;
+      }
+      function dibujar(ahora) {
+        ctx.clearRect(0, 0, W, H);
+        var alto = H / 3;
+        // cuadrícula
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "rgba(140, 190, 255, 0.07)";
+        ctx.beginPath();
+        for (var gx = 0; gx <= 8; gx++) { var x = Math.round(W * gx / 8) + 0.5; ctx.moveTo(x, 0); ctx.lineTo(x, H); }
+        for (var gy = 0; gy <= 6; gy++) { var y = Math.round(H * gy / 6) + 0.5; ctx.moveTo(0, y); ctx.lineTo(W, y); }
+        ctx.stroke();
+        var xAhora = W - 18;
+        var pxs = (xAhora - 18) / VENTANA;
+        carriles.forEach(function (k, i) {
+          var cy = alto * (i + 0.5);
+          var esc = alto * 0.42;
+          ctx.strokeStyle = "rgba(140, 190, 255, 0.14)";
+          ctx.setLineDash([3, 6]);
+          ctx.beginPath(); ctx.moveTo(0, cy + 0.5); ctx.lineTo(W, cy + 0.5); ctx.stroke();
+          ctx.setLineDash([]);
+          var col = k.c.join(",");
+          var gr = ctx.createLinearGradient(18, 0, xAhora, 0);
+          gr.addColorStop(0, "rgba(" + col + ",0)");
+          gr.addColorStop(0.35, "rgba(" + col + ",0.55)");
+          gr.addColorStop(1, "rgba(" + col + ",1)");
+          ctx.strokeStyle = gr;
+          ctx.lineWidth = 1.8;
+          ctx.lineJoin = "round";
+          ctx.shadowColor = "rgba(" + col + ",0.9)";
+          ctx.shadowBlur = 9;
+          ctx.beginPath();
+          for (var x2 = 18; x2 <= xAhora; x2 += 2) {
+            var tau = ahora - (xAhora - x2) / pxs;
+            var yy = cy - senal(tau, k) * esc;
+            if (x2 === 18) ctx.moveTo(x2, yy); else ctx.lineTo(x2, yy);
+          }
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+          var yNow = cy - senal(ahora, k) * esc;
+          ctx.fillStyle = "rgb(" + col + ")";
+          ctx.shadowColor = "rgb(" + col + ")";
+          ctx.shadowBlur = 14;
+          ctx.beginPath(); ctx.arc(xAhora, yNow, 4, 0, 6.2832); ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.font = "600 11px 'JetBrains Mono', Consolas, monospace";
+          ctx.fillStyle = "rgba(" + col + ",0.95)";
+          ctx.textAlign = "left";
+          ctx.fillText(k.n, 12, cy - alto * 0.34);
+        });
+        ctx.strokeStyle = "rgba(228, 196, 138, 0.45)";
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(xAhora + 0.5, 0); ctx.lineTo(xAhora + 0.5, H); ctx.stroke();
+        var a = envolvente(ahora);
+        var alerta = a > 0.42;
+        var estado = alerta ? "Chatter" : "Corte estable";
+        if (estado !== ultimoEstado) {
+          ultimoEstado = estado;
+          elEstado.textContent = estado;
+          osc.classList.toggle("alerta", alerta);
+        }
+        elAmp.textContent = Math.round(a * 100) + " %";
+        elTiempo.textContent = (ahora % CICLO).toFixed(1) + " s";
+      }
+      ajustar();
+      window.addEventListener("resize", function () { ajustar(); if (reducir) dibujar(CICLO * 0.7); });
+      if (reducir) { dibujar(CICLO * 0.7); return; }
+      if ("IntersectionObserver" in window) {
+        new IntersectionObserver(function (e) { visible = e[0].isIntersecting; }, { threshold: 0 }).observe(cv);
+      }
+      var inicio = performance.now() - CICLO * 0.12 * 1000;
+      (function bucle(t) {
+        if (visible && !document.hidden) dibujar((t - inicio) / 1000);
+        requestAnimationFrame(bucle);
+      })(performance.now());
+    })();
   </script>
 </body>
 </html>
