@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Análisis de chatter · Tecnológico de Monterrey</title>
+  <meta http-equiv="refresh" content="0; url=../Analisis%20de%20chatter.html">
+  <script>window.location.replace("../Analisis%20de%20chatter.html");</script>
+  <style>
+    :root {
+      --tec: #0658a6;
+      --tec-dark: #043e78;
+      --ink: #172033;
+      --muted: #5d6b7c;
+      --line: #d9e1ea;
+      --paper: #f4f7fb;
+      --white: #ffffff;
+      --x: #2659bf;
+      --y: #c43b32;
+      --z: #1a8a4d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    .barra { background: var(--white); border-bottom: 1px solid var(--line); }
+    .barra-interior {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 16px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .marca { display: flex; align-items: center; gap: 14px; }
+    .marca img { height: 72px; width: 72px; object-fit: contain; }
+    .marca strong { display: block; font-size: 15px; }
+    .marca span { color: var(--muted); font-size: 13px; }
+    .franja { height: 6px; background: var(--tec); }
+    main { max-width: 1120px; margin: 0 auto; padding: 28px 28px 56px; }
+    h1 { margin: 0 0 8px; font-size: 32px; letter-spacing: -0.02em; }
+    .lead { margin: 0 0 18px; color: #314056; max-width: 75ch; }
+    .panel {
+      background: var(--white);
+      border: 1px solid var(--line);
+      padding: 22px 24px 24px;
+      margin-bottom: 18px;
+    }
+    h2 { margin: 0 0 6px; font-size: 20px; }
+    .ayuda { margin: 0 0 16px; color: var(--muted); font-size: 14.5px; }
+    .zonas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .zona {
+      border: 1px dashed #b7c6d6;
+      background: #f8fbfe;
+      min-height: 128px;
+      padding: 14px;
+      cursor: pointer;
+    }
+    .zona:hover, .zona.sobre { border-color: var(--tec); background: #eef5fb; }
+    .zona b { display: block; margin-bottom: 4px; }
+    .zona p { margin: 0; color: var(--muted); font-size: 13px; }
+    .zona .cuenta { margin-top: 10px; color: var(--tec); font-size: 13px; font-weight: 650; }
+    .controles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: end;
+      margin-top: 16px;
+    }
+    label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+    input[type="number"], select {
+      height: 36px;
+      border: 1px solid var(--line);
+      padding: 0 8px;
+      font: inherit;
+      color: var(--ink);
+      background: white;
+    }
+    button {
+      height: 40px;
+      border: 0;
+      background: var(--tec);
+      color: white;
+      font: inherit;
+      font-weight: 650;
+      padding: 0 18px;
+      cursor: pointer;
+    }
+    button.sec { background: white; color: var(--tec); border: 1px solid var(--tec); }
+    button:disabled { opacity: 0.55; cursor: wait; }
+    .estado { margin: 12px 0 0; min-height: 1.3em; color: var(--tec-dark); font-size: 14px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    th, td { text-align: left; padding: 8px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    th { color: var(--muted); font-weight: 650; font-size: 12px; }
+    tr.sel { background: #e8f1fa; }
+    tr { cursor: pointer; }
+    .tabla-wrap { overflow-x: auto; }
+    .metricas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+    .met { border: 1px solid var(--line); padding: 12px 14px; background: #fbfcfe; }
+    .met span { display: block; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .met strong { display: block; margin-top: 3px; font-size: 18px; }
+    .grafica { margin-top: 16px; }
+    .grafica h3 { margin: 0 0 6px; font-size: 16px; }
+    canvas { width: 100%; height: 280px; background: white; border: 1px solid var(--line); }
+    .nota { color: var(--muted); font-size: 13.5px; margin: 8px 0 0; }
+    .llm {
+      white-space: pre-wrap;
+      background: #f8fbfe;
+      border: 1px solid var(--line);
+      padding: 14px 16px;
+      margin-top: 8px;
+      min-height: 72px;
+    }
+    .oculto { display: none; }
+    footer { border-top: 1px solid var(--line); background: white; }
+    .pie {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 18px 28px 24px;
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    @media (max-width: 860px) {
+      .zonas, .metricas { grid-template-columns: 1fr; }
+      .barra-interior, .pie { flex-direction: column; align-items: flex-start; }
+      h1 { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="barra">
+    <div class="barra-interior">
+      <div class="marca">
+        <img src="logo-tec.svg" alt="Logo del Tecnológico de Monterrey">
+        <div>
+          <strong>Tecnológico de Monterrey</strong>
+          <span>Estancia de investigación · Análisis de chatter</span>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="franja"></div>
+  <main>
+    <h1>Sube los archivos y genera las gráficas</h1>
+    <p class="lead">
+      Carga aceleración, fuerza y análisis modal en archivos .lvm. El análisis separa X, Y y Z,
+      calcula RMS, espectro y chatter, y dibuja las señales.
+    </p>
+
+    <section class="panel">
+      <h2>Archivos de la prueba</h2>
+      <p class="ayuda">
+        Si tienes varias pruebas, selecciona su carpeta raíz con el botón de abajo. Se buscarán
+        automáticamente los archivos .lvm dentro de las carpetas Aceleración, Fuerza y Modal,
+        incluidas sus subcarpetas X, Y y Z. También puedes cargar archivos sueltos en cada recuadro.
+      </p>
+      <div class="zonas">
+        <div class="zona" id="zonaA" tabindex="0">
+          <b>Aceleración</b>
+          <p>Una o varias carpetas con A_1.lvm, A__1.lvm o archivos por eje.</p>
+          <div class="cuenta" id="cuentaA">Ningún archivo</div>
+        </div>
+        <div class="zona" id="zonaF" tabindex="0">
+          <b>Fuerza</b>
+          <p>Una o varias carpetas con F_1.lvm o archivos por eje.</p>
+          <div class="cuenta" id="cuentaF">Ningún archivo</div>
+        </div>
+        <div class="zona" id="zonaM" tabindex="0">
+          <b>Análisis modal</b>
+          <p>Impactos A_1.lvm y A_2.lvm.</p>
+          <div class="cuenta" id="cuentaM">Ningún archivo</div>
+        </div>
+      </div>
+      <input id="inA" type="file" accept=".lvm,.LVM" multiple hidden>
+      <input id="inF" type="file" accept=".lvm,.LVM" multiple hidden>
+      <input id="inM" type="file" accept=".lvm,.LVM" multiple hidden>
+      <input id="inCarpeta" type="file" webkitdirectory directory multiple hidden>
+
+      <div class="controles">
+        <button type="button" class="sec" id="btnCarpeta">Cargar carpeta raíz (varias pruebas)</button>
+        <button type="button" id="btnAnalizar">Analizar y graficar</button>
+        <button type="button" class="sec" id="btnLimpiar">Quitar archivos</button>
+      </div>
+      <p class="estado" id="estado">Selecciona los archivos para comenzar.</p>
+    </section>
+
+    <section class="panel oculto" id="panelResultados">
+      <h2>Resultados</h2>
+      <div class="tabla-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Prueba</th>
+              <th>RMS X</th>
+              <th>RMS Y</th>
+              <th>RMS Z</th>
+              <th>Fx</th>
+              <th>Fy</th>
+              <th>Fz</th>
+              <th>fn (Hz)</th>
+              <th>Chatter</th>
+              <th>Eje</th>
+              <th>Índice</th>
+            </tr>
+          </thead>
+          <tbody id="tabla"></tbody>
+        </table>
+      </div>
+      <div class="metricas" id="metricas"></div>
+      <div class="grafica">
+        <h3>Aceleración en el tiempo</h3>
+        <canvas id="cvA" width="1040" height="280"></canvas>
+      </div>
+      <div class="grafica">
+        <h3>Fuerza en el tiempo</h3>
+        <canvas id="cvF" width="1040" height="280"></canvas>
+      </div>
+      <div class="grafica">
+        <h3>Espectro de aceleración</h3>
+        <canvas id="cvE" width="1040" height="280"></canvas>
+        <p class="nota">Las líneas grises marcan la banda modal. El suavizado solo se usa en las gráficas de tiempo; el RMS y el espectro salen de la señal tarada.</p>
+      </div>
+      <div class="grafica">
+        <h3>Señal del análisis modal</h3>
+        <canvas id="cvM" width="1040" height="280"></canvas>
+      </div>
+      <p class="nota" id="notas"></p>
+      <div class="grafica">
+        <h3>Análisis técnico de chatter</h3>
+        <p class="nota" id="llmEstado">Cuando termine el análisis de señales, el modelo contrastará la evidencia por eje, entre pruebas y sus limitaciones.</p>
+        <div class="llm" id="llmTexto"></div>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <div class="pie">
+      <span>Tecnológico de Monterrey</span>
+      <span>Análisis de chatter en X, Y y Z</span>
+    </div>
+  </footer>
+  <script src="analisis.js"></script>
+  <script>
+    var CA = window.ChatterAnalisis;
+    document.body.dataset.analisis = CA ? "listo" : "falta";
+    var store = { aceleracion: [], fuerza: [], modal: [], carpeta: [] };
+    var pruebas = [];
+    var seleccion = 0;
+
+    var zonas = [
+      { id: "zonaA", input: "inA", clave: "aceleracion", cuenta: "cuentaA" },
+      { id: "zonaF", input: "inF", clave: "fuerza", cuenta: "cuentaF" },
+      { id: "zonaM", input: "inM", clave: "modal", cuenta: "cuentaM" }
+    ];
+
+    zonas.forEach(function (z) {
+      var zona = document.getElementById(z.id);
+      var input = document.getElementById(z.input);
+      zona.addEventListener("click", function () { input.click(); });
+      zona.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") input.click();
+      });
+      input.addEventListener("change", function () {
+        store[z.clave] = filtrarLvm(input.files);
+        store.carpeta = [];
+        pintarCuentas();
+      });
+      ["dragenter", "dragover"].forEach(function (ev) {
+        zona.addEventListener(ev, function (e) {
+          e.preventDefault();
+          zona.classList.add("sobre");
+        });
+      });
+      zona.addEventListener("dragleave", function () { zona.classList.remove("sobre"); });
+      zona.addEventListener("drop", function (e) {
+        e.preventDefault();
+        zona.classList.remove("sobre");
+        store[z.clave] = filtrarLvm(e.dataTransfer.files);
+        store.carpeta = [];
+        pintarCuentas();
+      });
+    });
+
+    document.getElementById("btnCarpeta").addEventListener("click", function () {
+      document.getElementById("inCarpeta").click();
+    });
+    document.getElementById("inCarpeta").addEventListener("change", function (e) {
+      store.carpeta = filtrarLvm(e.target.files);
+      store.aceleracion = [];
+      store.fuerza = [];
+      store.modal = [];
+      pintarCuentas();
+      document.getElementById("estado").textContent = store.carpeta.length
+        ? "Carpeta cargada con " + store.carpeta.length + " archivos .lvm. Pulsa Analizar y graficar."
+        : "Esa carpeta no tiene archivos .lvm.";
+    });
+    document.getElementById("btnLimpiar").addEventListener("click", limpiar);
+    document.getElementById("btnAnalizar").addEventListener("click", analizar);
+    document.getElementById("tabla").addEventListener("click", function (e) {
+      var tr = e.target.closest("tr");
+      if (!tr || tr.dataset.i === undefined) return;
+      seleccion = Number(tr.dataset.i);
+      pintarTabla();
+      pintarDetalle();
+    });
+    window.addEventListener("resize", function () {
+      if (pruebas.length) pintarDetalle();
+    });
+
+    function filtrarLvm(lista) {
+      return Array.prototype.filter.call(lista, function (f) {
+        return /\.lvm$/i.test(f.name);
+      });
+    }
+
+    function pintarCuentas() {
+      document.getElementById("cuentaA").textContent = textoCuenta(store.aceleracion);
+      document.getElementById("cuentaF").textContent = textoCuenta(store.fuerza);
+      document.getElementById("cuentaM").textContent = textoCuenta(store.modal);
+      if (store.carpeta.length) {
+        document.getElementById("cuentaA").textContent = "Se usará la carpeta (" + store.carpeta.length + " archivos)";
+        document.getElementById("cuentaF").textContent = "Se usará la carpeta";
+        document.getElementById("cuentaM").textContent = "Se usará la carpeta";
+      }
+    }
+
+    function textoCuenta(arr) {
+      if (!arr.length) return "Ningún archivo";
+      if (arr.length === 1) return arr[0].name;
+      return arr.length + " archivos";
+    }
+
+    function limpiar() {
+      store = { aceleracion: [], fuerza: [], modal: [], carpeta: [] };
+      pruebas = [];
+      ["inA", "inF", "inM", "inCarpeta"].forEach(function (id) {
+        document.getElementById(id).value = "";
+      });
+      pintarCuentas();
+      document.getElementById("panelResultados").classList.add("oculto");
+      document.getElementById("estado").textContent = "Selecciona los archivos para comenzar.";
+    }
+
+    function gruposDesdeCarpeta(files) {
+      var mapa = new Map();
+      files.forEach(function (file) {
+        var rel = file.webkitRelativePath || file.name;
+        var partes = rel.split(/[/\\]/);
+        var idx = -1;
+        var tipo = "";
+        for (var i = 0; i < partes.length; i++) {
+          tipo = CA.tipoCarpeta(partes[i]);
+          if (tipo) { idx = i; break; }
+        }
+        var nombre = idx > 0 ? partes.slice(0, idx).join(" / ") : (idx === 0 ? "Prueba" : "Archivos sueltos");
+        if (!mapa.has(nombre)) {
+          mapa.set(nombre, { nombre: nombre, aceleracion: [], fuerza: [], modal: [] });
+        }
+        var destino = tipo || (file.name.charAt(0).toLowerCase() === "f" ? "fuerza" : "aceleracion");
+        if (destino === "modal" || destino === "fuerza" || destino === "aceleracion") {
+          mapa.get(nombre)[destino].push(file);
+        }
+      });
+      return Array.from(mapa.values()).filter(function (g) {
+        return g.aceleracion.length || g.fuerza.length || g.modal.length;
+      });
+    }
+
+    async function analizar() {
+      var grupos;
+      if (store.carpeta.length) grupos = gruposDesdeCarpeta(store.carpeta);
+      else {
+        grupos = [{
+          nombre: "Prueba cargada",
+          aceleracion: store.aceleracion,
+          fuerza: store.fuerza,
+          modal: store.modal
+        }];
+      }
+      grupos = grupos.filter(function (g) {
+        return g.aceleracion.length || g.fuerza.length || g.modal.length;
+      });
+      if (!grupos.length) {
+        document.getElementById("estado").textContent = "Falta subir al menos un archivo .lvm.";
+        return;
+      }
+      var btn = document.getElementById("btnAnalizar");
+      btn.disabled = true;
+      var descartar = 0;
+      var ejeUnico = "X";
+      pruebas = [];
+      try {
+        for (var i = 0; i < grupos.length; i++) {
+          document.getElementById("estado").textContent = "Analizando " + (i + 1) + " de " + grupos.length + ": " + grupos[i].nombre;
+          await esperar();
+          pruebas.push(await analizarGrupo(grupos[i], descartar, ejeUnico));
+        }
+        CA.indices(pruebas);
+        seleccion = 0;
+        document.getElementById("panelResultados").classList.remove("oculto");
+        pintarTabla();
+        pintarDetalle();
+        document.getElementById("estado").textContent = "Gráficas listas. Consultando el modelo...";
+        document.getElementById("panelResultados").scrollIntoView({ behavior: "smooth", block: "start" });
+        await interpretar();
+        document.getElementById("estado").textContent = "Listo. " + pruebas.length + (pruebas.length === 1 ? " prueba analizada." : " pruebas analizadas.");
+      } catch (err) {
+        document.getElementById("estado").textContent = err.message || String(err);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function esperar() {
+      return new Promise(function (resolve) { setTimeout(resolve, 30); });
+    }
+
+    async function leerGrupo(files, ejeUnico) {
+      var leidos = [];
+      for (var i = 0; i < files.length; i++) {
+        var texto = await files[i].text();
+        var datos = CA.parseLVM(texto, files[i].name);
+        var ruta = files[i].webkitRelativePath || files[i].name;
+        leidos.push({
+          nombre: files[i].name,
+          orden: CA.ordenArchivo(ruta),
+          eje: CA.ejeDeRuta(ruta),
+          datos: datos
+        });
+      }
+      return CA.armarXYZ(leidos, ejeUnico);
+    }
+
+    async function analizarGrupo(grupo, descartar, ejeUnico) {
+      var meta = CA.metaDeNombre(grupo.nombre);
+      var p = {
+        nombre: grupo.nombre,
+        profundidad: meta.profundidad,
+        refrigerante: meta.refrigerante,
+        herramienta: meta.herramienta,
+        rms: [NaN, NaN, NaN],
+        rmsA: NaN,
+        rmsFxyz: [NaN, NaN, NaN],
+        rmsF: NaN,
+        fn: [NaN, NaN, NaN],
+        fNatural: NaN,
+        fModal: NaN,
+        ampModal: NaN,
+        chatter: false,
+        eje: "",
+        contrasteChatter: [NaN, NaN, NaN],
+        picoBandaHz: [NaN, NaN, NaN],
+        amplitudBanda: [NaN, NaN, NaN],
+        medianaFueraBanda: [NaN, NaN, NaN],
+        razon: NaN,
+        indice: NaN,
+        banda: [1300, 1550],
+        notas: [],
+        error: "",
+        acel: null,
+        fuerza: null,
+        modal: null
+      };
+      if (grupo.modal.length) {
+        try {
+          var modal = await leerGrupo(grupo.modal, "X");
+          var resM = CA.analizarModal(modal, descartar);
+          p.fn = resM.fn;
+          p.fNatural = resM.fNatural;
+          p.banda = resM.banda;
+          p.modal = resM;
+          p.notas.push("Modal: " + resM.detalle + ".");
+        } catch (err) {
+          p.notas.push("Modal: " + err.message);
+        }
+      }
+      if (grupo.aceleracion.length) {
+        try {
+          var acel = await leerGrupo(grupo.aceleracion, ejeUnico);
+          var resA = CA.analizarSenal(acel, p.banda);
+          p.rms = resA.rms;
+          p.rmsA = resA.rmsR;
+          p.fModal = resA.fModal;
+          p.ampModal = resA.ampModal;
+          p.chatter = resA.chatter;
+          p.eje = resA.eje;
+          p.contrasteChatter = resA.contrasteEje;
+          p.picoBandaHz = resA.frecuenciaPicoEje;
+          p.amplitudBanda = resA.amplitudPicoEje;
+          p.medianaFueraBanda = resA.medianaFueraBandaEje;
+          p.razon = resA.razon;
+          p.acel = resA;
+          p.notas.push(resA.nota + " Fs " + Math.round(resA.fs) + " Hz.");
+        } catch (err) {
+          p.notas.push("Aceleración: " + err.message);
+          if (!grupo.fuerza.length && !p.modal) p.error = err.message;
+        }
+      }
+      if (grupo.fuerza.length) {
+        try {
+          var fuerza = await leerGrupo(grupo.fuerza, "X");
+          var presentes = fuerza.canales.filter(Boolean).length;
+          if (presentes < 3) throw new Error("La fuerza necesita Fx, Fy y Fz.");
+          var resF = CA.analizarSenal(fuerza, p.banda);
+          p.rmsFxyz = resF.rms;
+          p.rmsF = resF.rmsR;
+          p.fuerza = resF;
+          p.notas.push("Fuerza. Fs " + Math.round(resF.fs) + " Hz.");
+        } catch (err) {
+          p.notas.push("Fuerza: " + err.message);
+        }
+      }
+      if (!p.acel && !p.fuerza && !p.modal) p.error = p.notas.join(" ");
+      return p;
+    }
+
+    function pintarTabla() {
+      var tb = document.getElementById("tabla");
+      tb.innerHTML = "";
+      pruebas.forEach(function (p, i) {
+        var tr = document.createElement("tr");
+        tr.dataset.i = String(i);
+        if (i === seleccion) tr.className = "sel";
+        var vals = [
+          p.nombre,
+          fmt(p.rms[0], 4), fmt(p.rms[1], 4), fmt(p.rms[2], 4),
+          fmt(p.rmsFxyz[0], 4), fmt(p.rmsFxyz[1], 4), fmt(p.rmsFxyz[2], 4),
+          fmt(p.fNatural, 1),
+          p.error ? "Error" : (p.chatter ? "Sí" : "No"),
+          p.eje || "—",
+          fmt(p.indice, 3)
+        ];
+        vals.forEach(function (v) {
+          var td = document.createElement("td");
+          td.textContent = v;
+          tr.appendChild(td);
+        });
+        tb.appendChild(tr);
+      });
+    }
+
+    function pintarDetalle() {
+      var p = pruebas[seleccion];
+      if (!p) return;
+      var box = document.getElementById("metricas");
+      var items = [
+        ["RMS aceleración X", fmt(p.rms[0], 4) + " g"],
+        ["RMS aceleración Y", fmt(p.rms[1], 4) + " g"],
+        ["RMS aceleración Z", fmt(p.rms[2], 4) + " g"],
+        ["Chatter", p.error ? "Error" : (p.chatter ? "Sí, eje " + (p.eje || "—") : "No")],
+        ["Fuerza X", fmt(p.rmsFxyz[0], 4) + " V"],
+        ["Fuerza Y", fmt(p.rmsFxyz[1], 4) + " V"],
+        ["Fuerza Z", fmt(p.rmsFxyz[2], 4) + " V"],
+        ["Frecuencia natural", fmt(p.fNatural, 1) + " Hz"]
+      ];
+      box.innerHTML = "";
+      items.forEach(function (it) {
+        var d = document.createElement("div");
+        d.className = "met";
+        d.innerHTML = "<span></span><strong></strong>";
+        d.querySelector("span").textContent = it[0];
+        d.querySelector("strong").textContent = it[1];
+        box.appendChild(d);
+      });
+      dibujarSenal(document.getElementById("cvA"), p.acel, "Tiempo [s]", "Aceleración [g]", false, null);
+      dibujarSenal(document.getElementById("cvF"), p.fuerza, "Tiempo [s]", "Fuerza [V]", true, null);
+      dibujarSenal(document.getElementById("cvE"), p.acel ? { t: p.acel.f, y: p.acel.p } : null, "Frecuencia [Hz]", "Amplitud [g]", false, p.banda);
+      dibujarSenal(document.getElementById("cvM"), p.modal, "Tiempo [s]", "Aceleración [g]", false, null);
+      var extra = "";
+      if (Number.isFinite(p.razon)) extra = " Vibración al final / al inicio = " + p.razon.toFixed(2) + ".";
+      document.getElementById("notas").textContent = (p.notas.join(" ") + extra).trim();
+    }
+
+    function resumenModelo() {
+      return {
+        condiciones_torno: {
+          velocidad_husillo_rpm: 720,
+          frecuencia_giro_husillo_Hz: 12,
+          avance_reportado: "32 mm/in"
+        },
+        criterio: {
+          banda: "frecuencia natural ± 125 Hz; si no hay modal, 1300-1550 Hz",
+          chatter: "pico de la banda mayor a 4 veces la mediana del resto del espectro",
+          indice: "más bajo es más favorable; vibración 45%, pico modal 35%, fuerza 20%"
+        },
+        pruebas: pruebas.map(function (p) {
+          return {
+            nombre: p.nombre,
+            profundidad_mm: num(p.profundidad),
+            refrigerante: p.refrigerante,
+            herramienta: p.herramienta,
+            rms_aceleracion_g: ejes(p.rms),
+            rms_fuerza_V: ejes(p.rmsFxyz),
+            frecuencia_natural_Hz: ejes(p.fn),
+            frecuencia_natural_usada_Hz: num(p.fNatural),
+            frecuencia_muestreo_aceleracion_Hz: num(p.acel && p.acel.fs),
+            frecuencia_muestreo_fuerza_Hz: num(p.fuerza && p.fuerza.fs),
+            banda_Hz: p.banda,
+            pico_banda_Hz_por_eje: ejes(p.picoBandaHz),
+            amplitud_pico_banda_g_por_eje: ejes(p.amplitudBanda),
+            mediana_espectro_fuera_banda_g_por_eje: ejes(p.medianaFueraBanda),
+            pico_espectral_Hz: num(p.fModal),
+            amplitud_pico_g: num(p.ampModal),
+            contraste_pico_banda_mediana_por_eje: ejes(p.contrasteChatter),
+            chatter: p.chatter,
+            eje_chatter: p.eje,
+            impactos_modal_usados: p.modal ? p.modal.n : null,
+            detalle_modal: p.modal ? p.modal.detalle : null,
+            crecimiento_fin_entre_inicio: num(p.razon),
+            indice: num(p.indice),
+            picos_espectro: picosEspectro(p.acel),
+            notas: p.notas,
+            error: p.error
+          };
+        })
+      };
+    }
+
+    function ejes(vals) {
+      return {
+        X: num(vals && vals[0]),
+        Y: num(vals && vals[1]),
+        Z: num(vals && vals[2])
+      };
+    }
+
+    function num(v) {
+      return Number.isFinite(v) ? Math.round(v * 1e6) / 1e6 : null;
+    }
+
+    function picosEspectro(datos) {
+      if (!datos || !datos.f) return { X: [], Y: [], Z: [] };
+      var letras = ["X", "Y", "Z"];
+      var salida = {};
+      letras.forEach(function (letra, c) {
+        var f = datos.f;
+        var p = datos.y[c];
+        var candidatos = [];
+        if (!p) {
+          salida[letra] = [];
+          return;
+        }
+        for (var i = 1; i < f.length - 1; i++) {
+          if (!Number.isFinite(p[i]) || f[i] < 20 || f[i] > 4000) continue;
+          if (p[i] >= p[i - 1] && p[i] >= p[i + 1]) {
+            candidatos.push({ hz: num(f[i]), amplitud_g: num(p[i]) });
+          }
+        }
+        candidatos.sort(function (a, b) { return b.amplitud_g - a.amplitud_g; });
+        salida[letra] = candidatos.slice(0, 5);
+      });
+      return salida;
+    }
+
+    async function interpretar() {
+      var estado = document.getElementById("llmEstado");
+      var caja = document.getElementById("llmTexto");
+      estado.textContent = "El modelo está contrastando el criterio de chatter, las métricas por eje y las diferencias entre pruebas.";
+      caja.textContent = "";
+      var url = (location.protocol === "http:" || location.protocol === "https:")
+        ? "/api/interpretar"
+        : "http://127.0.0.1:3001/api/interpretar";
+      try {
+        var resp = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(resumenModelo())
+        });
+        var data = await resp.json();
+        if (!resp.ok || data.error) throw new Error(data.error || "No se pudo interpretar.");
+        estado.textContent = "Informe basado en métricas derivadas; el modelo no recibe las señales crudas. Confirma los indicios con revisión experimental.";
+        caja.textContent = data.texto;
+      } catch (err) {
+        estado.textContent = "No se pudo consultar el modelo. Déjalo encendido con node servidor_chatter.js y abre http://127.0.0.1:3001";
+        caja.textContent = err.message || String(err);
+      }
+    }
+
+    function dibujarSenal(canvas, datos, xlab, ylab, esFuerza, banda) {
+      var rect = canvas.getBoundingClientRect();
+      var dpr = window.devicePixelRatio || 1;
+      var w = Math.max(320, rect.width || 1040);
+      var h = 280;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      var ctx = canvas.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, w, h);
+      if (!datos || !datos.t || !datos.t.length) {
+        mensaje(ctx, w, h, "No hay datos para esta gráfica.");
+        return;
+      }
+      var series = [];
+      var nombres = esFuerza ? ["Fx", "Fy", "Fz"] : ["X", "Y", "Z"];
+      var colores = ["#2659bf", "#c43b32", "#1a8a4d"];
+      for (var c = 0; c < 3; c++) {
+        if (!datos.y[c]) continue;
+        var hay = false;
+        for (var i = 0; i < datos.y[c].length; i++) {
+          if (Number.isFinite(datos.y[c][i])) { hay = true; break; }
+        }
+        if (hay) series.push({ nombre: nombres[c], color: colores[c], x: datos.t, y: datos.y[c] });
+      }
+      if (!series.length) {
+        mensaje(ctx, w, h, "No hay datos para esta gráfica.");
+        return;
+      }
+      var m = { l: 64, r: 16, t: 16, b: 42 };
+      var xmin = Infinity, xmax = -Infinity, ymin = Infinity, ymax = -Infinity;
+      var esFFT = xlab.indexOf("Frecuencia") === 0;
+      var pico = null;
+      var picoBanda = null;
+      series.forEach(function (s) {
+        for (var i = 0; i < s.x.length; i++) {
+          if (!Number.isFinite(s.y[i])) continue;
+          if (s.x[i] < xmin) xmin = s.x[i];
+          if (s.x[i] > xmax) xmax = s.x[i];
+          if (s.y[i] < ymin) ymin = s.y[i];
+          if (s.y[i] > ymax) ymax = s.y[i];
+          if (esFFT && (!pico || s.y[i] > pico.y)) {
+            pico = { x: s.x[i], y: s.y[i], nombre: s.nombre, color: s.color };
+          }
+          if (esFFT && banda && s.x[i] >= banda[0] && s.x[i] <= banda[1] && (!picoBanda || s.y[i] > picoBanda.y)) {
+            picoBanda = { x: s.x[i], y: s.y[i], nombre: s.nombre, color: s.color };
+          }
+        }
+      });
+      if (xmin === xmax) xmax = xmin + 1;
+      var pad = (ymax - ymin) * 0.08 || 1;
+      ymin -= pad;
+      ymax += pad;
+      function X(x) { return m.l + (x - xmin) / (xmax - xmin) * (w - m.l - m.r); }
+      function Y(y) { return m.t + (ymax - y) / (ymax - ymin) * (h - m.t - m.b); }
+      ctx.strokeStyle = "#e3eaf1";
+      ctx.lineWidth = 1;
+      ctx.fillStyle = "#5d6b7c";
+      ctx.font = "12px Segoe UI, sans-serif";
+      for (var g = 0; g <= 4; g++) {
+        var yy = m.t + (h - m.t - m.b) * g / 4;
+        ctx.beginPath();
+        ctx.moveTo(m.l, yy);
+        ctx.lineTo(w - m.r, yy);
+        ctx.stroke();
+        var val = ymax - (ymax - ymin) * g / 4;
+        ctx.fillText(formatoCorto(val), 8, yy + 4);
+      }
+      ctx.textAlign = "center";
+      for (var gx = 0; gx <= 4; gx++) {
+        var xv = xmin + (xmax - xmin) * gx / 4;
+        ctx.fillText(formatoCorto(xv), X(xv), h - 22);
+      }
+      ctx.textAlign = "left";
+      ctx.fillText(xlab, m.l, h - 6);
+      if (banda && banda.length === 2) {
+        ctx.save();
+        ctx.strokeStyle = "#8aa0b5";
+        ctx.setLineDash([4, 4]);
+        [banda[0], banda[1]].forEach(function (xb) {
+          if (xb < xmin || xb > xmax) return;
+          ctx.beginPath();
+          ctx.moveTo(X(xb), m.t);
+          ctx.lineTo(X(xb), h - m.b);
+          ctx.stroke();
+        });
+        ctx.restore();
+      }
+      series.forEach(function (s) {
+        ctx.beginPath();
+        ctx.strokeStyle = s.color;
+        ctx.lineWidth = 1.4;
+        var empezado = false;
+        for (var i = 0; i < s.x.length; i++) {
+          if (!Number.isFinite(s.y[i])) { empezado = false; continue; }
+          var px = X(s.x[i]);
+          var py = Y(s.y[i]);
+          if (!empezado) { ctx.moveTo(px, py); empezado = true; }
+          else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+      });
+      if (pico) {
+        var unidad = ylab.match(/\[([^\]]+)\]/);
+        function formatoPico(valor) { return Number(valor.toPrecision(5)).toString(); }
+        var textosPico = ["Máximo global " + pico.nombre + ": " + formatoPico(pico.x) + " Hz | " +
+          formatoPico(pico.y) + (unidad ? " " + unidad[1] : "")];
+        if (picoBanda && (picoBanda.x !== pico.x || picoBanda.nombre !== pico.nombre)) {
+          textosPico.push("Pico en banda " + picoBanda.nombre + ": " + formatoPico(picoBanda.x) + " Hz | " +
+            formatoPico(picoBanda.y) + (unidad ? " " + unidad[1] : ""));
+        }
+        function marcarPico(espectro, color, radio) {
+          ctx.beginPath();
+          ctx.fillStyle = "#ffffff";
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 2.5;
+          ctx.arc(X(espectro.x), Y(espectro.y), radio, 0, 2 * Math.PI);
+          ctx.fill();
+          ctx.stroke();
+        }
+        marcarPico(pico, pico.color, 5);
+        if (textosPico.length > 1) marcarPico(picoBanda, "#bf7a12", 4);
+        ctx.font = "11px Segoe UI, sans-serif";
+        var anchoTexto = Math.max.apply(null, textosPico.map(function (texto) { return ctx.measureText(texto).width; }));
+        var anchoEtiqueta = Math.min(w - m.l - m.r - 12, anchoTexto + 12);
+        var altoEtiqueta = textosPico.length * 15 + 8;
+        ctx.fillStyle = "rgba(255, 255, 255, 0.96)";
+        ctx.strokeStyle = pico.color;
+        ctx.lineWidth = 1;
+        ctx.fillRect(m.l + 7, m.t + 7, anchoEtiqueta, altoEtiqueta);
+        ctx.strokeRect(m.l + 7, m.t + 7, anchoEtiqueta, altoEtiqueta);
+        ctx.fillStyle = "#172033";
+        ctx.textAlign = "left";
+        textosPico.forEach(function (texto, i) {
+          ctx.fillStyle = i === 0 ? pico.color : "#9a5f0b";
+          ctx.fillText(texto, m.l + 13, m.t + 19 + i * 15, anchoEtiqueta - 12);
+        });
+      }
+      var lx = w - m.r - 8;
+      series.forEach(function (s, i) {
+        var y = m.t + 8 + i * 16;
+        ctx.fillStyle = s.color;
+        ctx.fillRect(lx - 78, y, 12, 8);
+        ctx.fillStyle = "#172033";
+        ctx.fillText(s.nombre, lx - 62, y + 8);
+      });
+      ctx.strokeStyle = "#c5d0dc";
+      ctx.strokeRect(m.l, m.t, w - m.l - m.r, h - m.t - m.b);
+      ctx.fillStyle = "#5d6b7c";
+      ctx.save();
+      ctx.translate(16, (h - m.b + m.t) / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.textAlign = "center";
+      ctx.fillText(ylab, 0, 0);
+      ctx.restore();
+    }
+
+    function mensaje(ctx, w, h, texto) {
+      ctx.fillStyle = "#5d6b7c";
+      ctx.font = "14px Segoe UI, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(texto, w / 2, h / 2);
+      ctx.textAlign = "left";
+    }
+
+    function fmt(v, d) {
+      return Number.isFinite(v) ? v.toFixed(d) : "—";
+    }
+
+    function formatoCorto(v) {
+      if (!Number.isFinite(v)) return "";
+      var a = Math.abs(v);
+      if (a >= 100) return v.toFixed(0);
+      if (a >= 10) return v.toFixed(1);
+      if (a >= 1) return v.toFixed(2);
+      return v.toFixed(3);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Análisis de chatter · Tecnológico de Monterrey</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Outfit:wght@300..700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --tec: #0c6ec8;
+      --tec-deep: #06315c;
+      --gold: #e4c48a;
+      --gold-dim: #b89255;
+      --ink: #122033;
+      --muted: #5a6d82;
+      --line: rgba(12, 70, 130, 0.14);
+      --glass: rgba(255, 252, 247, 0.86);
+      --x: #2659bf;
+      --y: #c43b32;
+      --z: #1a8a4d;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #06101c;
+      font-family: "Outfit", "Segoe UI", sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+      min-height: 100vh;
+    }
+    .escena {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+      background:
+        radial-gradient(1200px 700px at 10% -10%, rgba(18, 92, 180, 0.55), transparent 60%),
+        radial-gradient(900px 600px at 100% 0%, rgba(212, 168, 92, 0.22), transparent 55%),
+        linear-gradient(165deg, #071426 0%, #0a1c34 42%, #071018 100%);
+    }
+    .aurora {
+      position: absolute;
+      width: 140%;
+      height: 70%;
+      left: -20%;
+      top: -10%;
+      background:
+        radial-gradient(closest-side, rgba(46, 160, 255, 0.45), transparent 70%),
+        radial-gradient(closest-side, rgba(228, 196, 138, 0.28), transparent 72%);
+      background-size: 55% 80%, 40% 70%;
+      background-position: 20% 40%, 80% 20%;
+      background-repeat: no-repeat;
+      filter: blur(8px);
+      animation: aurora 18s ease-in-out infinite alternate;
+    }
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(2px);
+      opacity: 0.85;
+    }
+    .o1 {
+      width: 420px; height: 420px; left: -80px; top: 18%;
+      background: radial-gradient(circle, rgba(28, 130, 230, 0.45), transparent 68%);
+      animation: flotar 14s ease-in-out infinite;
+    }
+    .o2 {
+      width: 340px; height: 340px; right: -60px; top: 48%;
+      background: radial-gradient(circle, rgba(228, 196, 138, 0.32), transparent 70%);
+      animation: flotar 18s ease-in-out infinite reverse;
+    }
+    .o3 {
+      width: 260px; height: 260px; left: 42%; bottom: -40px;
+      background: radial-gradient(circle, rgba(70, 210, 190, 0.22), transparent 70%);
+      animation: flotar 16s ease-in-out infinite 2s;
+    }
+    .rejilla {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(180, 214, 255, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(180, 214, 255, 0.07) 1px, transparent 1px);
+      background-size: 72px 72px;
+      mask-image: radial-gradient(ellipse at 50% 20%, #000 20%, transparent 75%);
+      animation: deriva 28s linear infinite;
+    }
+    .onda {
+      position: absolute;
+      left: 0; right: 0; bottom: 8%;
+      height: 120px;
+      opacity: 0.35;
+    }
+    .onda path {
+      fill: none;
+      stroke: rgba(180, 220, 255, 0.55);
+      stroke-width: 1.4;
+      stroke-dasharray: 8 14;
+      animation: trazo 12s linear infinite;
+    }
+    header, main, footer { position: relative; z-index: 1; }
+    .barra {
+      background: rgba(6, 16, 32, 0.45);
+      border-bottom: 1px solid rgba(228, 196, 138, 0.22);
+      backdrop-filter: blur(16px);
+    }
+    .barra-interior {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .marca { display: flex; align-items: center; gap: 14px; color: #f4efe6; }
+    .sello {
+      width: 74px; height: 74px;
+      border-radius: 18px;
+      background: linear-gradient(160deg, #fff, #eef4fb);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28), inset 0 0 0 1px rgba(228, 196, 138, 0.7);
+    }
+    .marca img { height: 58px; width: 58px; object-fit: contain; }
+    .marca strong {
+      display: block;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+    .marca span { color: rgba(244, 239, 230, 0.72); font-size: 13px; letter-spacing: 0.04em; }
+    .insignia {
+      color: var(--gold);
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      border: 1px solid rgba(228, 196, 138, 0.45);
+      padding: 8px 12px;
+      border-radius: 999px;
+    }
+    .franja {
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold), #7ec8ff, var(--gold), transparent);
+      background-size: 200% 100%;
+      animation: brillo 6s linear infinite;
+    }
+    main { max-width: 1120px; margin: 0 auto; padding: 36px 28px 64px; }
+    .hero { margin-bottom: 26px; animation: subir 0.8s ease both; }
+    .etiqueta {
+      margin: 0 0 10px;
+      color: var(--gold);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-weight: 600;
+      font-size: 56px;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      color: #f7f3ea;
+    }
+    .lead { margin: 0; color: rgba(232, 240, 250, 0.82); max-width: 68ch; font-size: 17px; }
+    .ejemplo-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+      color: #f0d49e;
+      font-size: 14px;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(240, 212, 158, 0.55);
+      transition: color 0.2s ease, border-color 0.2s ease;
+    }
+    .ejemplo-link:hover, .ejemplo-link:focus-visible { color: #fff; border-color: #fff; }
+    .panel {
+      background: var(--glass);
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      border-radius: 22px;
+      padding: 26px 26px 24px;
+      margin-bottom: 18px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(18px);
+      animation: subir 0.9s ease both;
+    }
+    .panel:nth-of-type(2) { animation-delay: 0.12s; }
+    #panelResultados { animation: subir 0.7s ease both; }
+    h2 {
+      margin: 0 0 6px;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 32px;
+      font-weight: 600;
+    }
+    .ayuda { margin: 0 0 16px; color: var(--muted); font-size: 14.5px; }
+    .zonas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .zona {
+      position: relative;
+      border: 1px dashed rgba(12, 110, 200, 0.35);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(236, 245, 255, 0.55));
+      border-radius: 16px;
+      min-height: 148px;
+      padding: 16px;
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    .zona::before {
+      content: "";
+      position: absolute;
+      inset: auto -20% -60% 20%;
+      height: 120px;
+      background: radial-gradient(circle, rgba(12, 110, 200, 0.18), transparent 70%);
+      animation: flotar 8s ease-in-out infinite;
+    }
+    .zona:hover, .zona.sobre, .zona:focus-visible {
+      border-color: var(--tec);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 36px rgba(12, 80, 150, 0.18);
+      outline: none;
+    }
+    .zona b {
+      display: block;
+      position: relative;
+      margin-bottom: 4px;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    .zona p { margin: 0; position: relative; color: var(--muted); font-size: 13px; }
+    .zona .cuenta {
+      margin-top: 14px;
+      position: relative;
+      color: var(--tec-deep);
+      font-size: 13px;
+      font-weight: 650;
+    }
+    .controles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: end;
+      margin-top: 18px;
+    }
+    label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+    input[type="number"], select {
+      height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0 10px;
+      font: inherit;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.9);
+    }
+    button {
+      height: 42px;
+      border: 0;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #1a86e8, #0b5eae);
+      color: white;
+      font: inherit;
+      font-weight: 560;
+      letter-spacing: 0.01em;
+      padding: 0 20px;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(11, 94, 174, 0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    #btnAnalizar { animation: pulso 2.8s ease-in-out infinite; }
+    button:hover { transform: translateY(-2px); }
+    button.sec {
+      background: transparent;
+      color: var(--tec-deep);
+      border: 1px solid rgba(12, 110, 200, 0.45);
+      box-shadow: none;
+      animation: none;
+    }
+    button:disabled { opacity: 0.55; cursor: wait; transform: none; animation: none; }
+    .estado { margin: 14px 0 0; min-height: 1.3em; color: var(--tec-deep); font-size: 14px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    th {
+      color: var(--muted);
+      font-weight: 560;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    tr { cursor: pointer; transition: background 0.2s ease; }
+    tr:hover { background: rgba(12, 110, 200, 0.06); }
+    tr.sel { background: linear-gradient(90deg, rgba(228, 196, 138, 0.28), rgba(12, 110, 200, 0.08)); }
+    td.si { color: #9a2f28; font-weight: 650; }
+    td.no { color: #1a8a4d; font-weight: 650; }
+    .tabla-wrap { overflow-x: auto; border-radius: 12px; }
+    .metricas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0; }
+    .met {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 14px 12px;
+      background: linear-gradient(180deg, #fff, #f3f8fd);
+      animation: subir 0.55s ease both;
+    }
+    .met:nth-child(2) { animation-delay: 0.05s; }
+    .met:nth-child(3) { animation-delay: 0.1s; }
+    .met:nth-child(4) { animation-delay: 0.15s; }
+    .met:nth-child(5) { animation-delay: 0.2s; }
+    .met:nth-child(6) { animation-delay: 0.25s; }
+    .met:nth-child(7) { animation-delay: 0.3s; }
+    .met:nth-child(8) { animation-delay: 0.35s; }
+    .met span { display: block; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; }
+    .met strong {
+      display: block;
+      margin-top: 4px;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 26px;
+      font-weight: 600;
+    }
+    .grafica { margin-top: 18px; }
+    .rejilla-graficas {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .rejilla-graficas .grafica { min-width: 0; margin-top: 12px; }
+    @media (max-width: 760px) {
+      .rejilla-graficas { grid-template-columns: minmax(0, 1fr); }
+    }
+    .grafica h3 {
+      margin: 0 0 8px;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    canvas {
+      width: 100%;
+      height: 280px;
+      background: linear-gradient(180deg, #fff, #f6fafd);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+    canvas.grafica-interactiva { cursor: crosshair; touch-action: none; }
+    .nota { color: var(--muted); font-size: 13.5px; margin: 8px 0 0; }
+    .llm {
+      white-space: pre-wrap;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(244, 248, 253, 0.9));
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--gold-dim);
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin-top: 8px;
+      min-height: 72px;
+    }
+    .oculto { display: none; }
+    footer { border-top: 1px solid rgba(228, 196, 138, 0.25); background: rgba(6, 16, 32, 0.55); backdrop-filter: blur(12px); }
+    .pie {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 18px 28px 24px;
+      display: flex;
+      justify-content: space-between;
+      color: rgba(244, 239, 230, 0.72);
+      font-size: 13px;
+      letter-spacing: 0.04em;
+    }
+    @keyframes aurora {
+      from { transform: translate3d(0, 0, 0) scale(1); }
+      to { transform: translate3d(4%, 6%, 0) scale(1.08); }
+    }
+    @keyframes flotar {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-22px); }
+    }
+    @keyframes deriva {
+      from { background-position: 0 0, 0 0; }
+      to { background-position: 72px 72px, 72px 72px; }
+    }
+    @keyframes brillo {
+      from { background-position: 0% 0; }
+      to { background-position: 200% 0; }
+    }
+    @keyframes subir {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: none; }
+    }
+    @keyframes pulso {
+      0%, 100% { box-shadow: 0 10px 24px rgba(11, 94, 174, 0.35); }
+      50% { box-shadow: 0 10px 28px rgba(11, 94, 174, 0.55), 0 0 0 6px rgba(26, 134, 232, 0.12); }
+    }
+    @keyframes trazo {
+      to { stroke-dashoffset: -220; }
+    }
+    @media (max-width: 860px) {
+      .zonas, .metricas { grid-template-columns: 1fr; }
+      .barra-interior, .pie { flex-direction: column; align-items: flex-start; }
+      h1 { font-size: 40px; }
+      .insignia { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="escena" aria-hidden="true">
+    <div class="aurora"></div>
+    <div class="orb o1"></div>
+    <div class="orb o2"></div>
+    <div class="orb o3"></div>
+    <div class="rejilla"></div>
+    <svg class="onda" viewBox="0 0 1200 120" preserveAspectRatio="none">
+      <path d="M0 70 C 150 20, 300 110, 450 60 S 750 10, 900 70 S 1100 120, 1200 50"></path>
+      <path d="M0 90 C 180 40, 360 120, 540 70 S 840 30, 1200 80"></path>
+    </svg>
+  </div>
+  <header class="barra">
+    <div class="barra-interior">
+      <div class="marca">
+        <div class="sello">
+          <img src="logo-tec.svg" alt="Logo del Tecnológico de Monterrey">
+        </div>
+        <div>
+          <strong>Tecnológico de Monterrey</strong>
+          <span>Estancia de investigación · Vibraciones en maquinado</span>
+        </div>
+      </div>
+      <div class="insignia">Laboratorio</div>
+    </div>
+  </header>
+  <div class="franja"></div>
+  <main>
+    <section class="hero">
+      <p class="etiqueta">Estancia de investigación</p>
+      <h1>Análisis de chatter en tres ejes</h1>
+      <p class="lead">
+        El chatter es una vibración autoexcitada que puede aparecer durante el torneado. La vibración deja ondulaciones en la superficie y hace que cambie el espesor de la viruta en la siguiente pasada; esto modifica la fuerza de corte y puede reforzar el movimiento, haciendo crecer las vibraciones. Su aparición depende de las condiciones de corte y de la respuesta dinámica del sistema.
+      </p>
+      <p class="lead">
+        Carga aceleración, fuerza y análisis modal en archivos .lvm. El estudio separa X, Y y Z,
+        calcula RMS, espectro y chatter, y dibuja las señales de la prueba.
+      </p>
+      <p class="lead">Condiciones del torno: 720 rpm · avance de 32 mm/in.</p>
+      <a class="ejemplo-link" href="ejemplo.html">Ejemplo ilustrativo <span aria-hidden="true">↗</span></a>
+    </section>
+
+    <section class="panel">
+      <h2>Archivos de la prueba</h2>
+      <p class="ayuda">
+        Si tienes varias pruebas, selecciona su carpeta raíz con el botón de abajo. Se buscarán
+        automáticamente los archivos .lvm dentro de las carpetas Aceleración, Fuerza y Modal,
+        incluidas sus subcarpetas X, Y y Z. También puedes cargar archivos sueltos en cada recuadro.
+      </p>
+      <div class="zonas">
+        <div class="zona" id="zonaA" tabindex="0">
+          <b>Aceleración</b>
+          <p>Una o varias carpetas con A_1.lvm, A__1.lvm o archivos por eje.</p>
+          <div class="cuenta" id="cuentaA">Ningún archivo</div>
+        </div>
+        <div class="zona" id="zonaF" tabindex="0">
+          <b>Fuerza</b>
+          <p>Una o varias carpetas con F_1.lvm o archivos por eje.</p>
+          <div class="cuenta" id="cuentaF">Ningún archivo</div>
+        </div>
+        <div class="zona" id="zonaM" tabindex="0">
+          <b>Análisis modal</b>
+          <p>Impactos A_1.lvm y A_2.lvm.</p>
+          <div class="cuenta" id="cuentaM">Ningún archivo</div>
+        </div>
+      </div>
+      <input id="inA" type="file" accept=".lvm,.LVM" multiple hidden>
+      <input id="inF" type="file" accept=".lvm,.LVM" multiple hidden>
+      <input id="inM" type="file" accept=".lvm,.LVM" multiple hidden>
+      <input id="inCarpeta" type="file" webkitdirectory directory multiple hidden>
+
+      <div class="controles">
+        <button type="button" class="sec" id="btnCarpeta">Cargar carpeta raíz (varias pruebas)</button>
+        <button type="button" class="sec" id="btnPrecargados">Cargar datos experimentales precargados</button>
+        <button type="button" id="btnAnalizar">Analizar y graficar</button>
+        <button type="button" class="sec" id="btnLimpiar">Quitar archivos</button>
+      </div>
+      <p class="estado" id="estado">Selecciona los archivos para comenzar.</p>
+    </section>
+
+    <section class="panel oculto" id="panelResultados">
+      <h2>Resultados</h2>
+      <div class="tabla-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Prueba</th>
+              <th>RMS X</th>
+              <th>RMS Y</th>
+              <th>RMS Z</th>
+              <th>Fx</th>
+              <th>Fy</th>
+              <th>Fz</th>
+              <th>fn (Hz)</th>
+              <th>Chatter</th>
+              <th>Eje</th>
+              <th>Índice</th>
+            </tr>
+          </thead>
+          <tbody id="tabla"></tbody>
+        </table>
+      </div>
+      <div class="metricas" id="metricas"></div>
+      <div class="grafica">
+        <h3 id="titA">Aceleración en el tiempo</h3>
+        <canvas id="cvA" width="1040" height="280"></canvas>
+      </div>
+      <div class="rejilla-graficas">
+        <div class="grafica"><h3 id="titAX">Aceleración X</h3><canvas id="cvAX" width="1040" height="280" aria-label="Aceleración en el eje X"></canvas></div>
+        <div class="grafica"><h3 id="titAY">Aceleración Y</h3><canvas id="cvAY" width="1040" height="280" aria-label="Aceleración en el eje Y"></canvas></div>
+        <div class="grafica"><h3 id="titAZ">Aceleración Z</h3><canvas id="cvAZ" width="1040" height="280" aria-label="Aceleración en el eje Z"></canvas></div>
+      </div>
+      <div class="grafica">
+        <h3 id="titF">Fuerza en el tiempo</h3>
+        <canvas id="cvF" width="1040" height="280"></canvas>
+      </div>
+      <div class="rejilla-graficas">
+        <div class="grafica"><h3 id="titFX">Fuerza X</h3><canvas id="cvFX" width="1040" height="280" aria-label="Fuerza en el eje X"></canvas></div>
+        <div class="grafica"><h3 id="titFY">Fuerza Y</h3><canvas id="cvFY" width="1040" height="280" aria-label="Fuerza en el eje Y"></canvas></div>
+        <div class="grafica"><h3 id="titFZ">Fuerza Z</h3><canvas id="cvFZ" width="1040" height="280" aria-label="Fuerza en el eje Z"></canvas></div>
+      </div>
+      <div class="grafica">
+        <h3 id="titFFT">Comparación FFT de aceleración XYZ</h3>
+        <canvas id="cvE" width="1040" height="280"></canvas>
+        <p class="nota">Las líneas grises marcan la banda modal. Las gráficas de tiempo usan el tiempo real registrado en cada archivo y conservan los máximos y mínimos de la señal tarada; los cortes en la aceleración son las pausas del adquisidor entre bloques. El RMS y el espectro salen de la misma señal tarada.</p>
+      </div>
+      <div class="rejilla-graficas">
+        <div class="grafica"><h3 id="titFFTX">FFT aceleración X</h3><canvas id="cvEX" width="1040" height="280" aria-label="FFT de aceleración en el eje X"></canvas></div>
+        <div class="grafica"><h3 id="titFFTY">FFT aceleración Y</h3><canvas id="cvEY" width="1040" height="280" aria-label="FFT de aceleración en el eje Y"></canvas></div>
+        <div class="grafica"><h3 id="titFFTZ">FFT aceleración Z</h3><canvas id="cvEZ" width="1040" height="280" aria-label="FFT de aceleración en el eje Z"></canvas></div>
+      </div>
+      <div class="grafica">
+        <h3 id="titFFTF">Comparación FFT de fuerza XYZ</h3>
+        <canvas id="cvFE" width="1040" height="280" aria-label="Comparación FFT de fuerza en X, Y y Z"></canvas>
+      </div>
+      <div class="rejilla-graficas">
+        <div class="grafica"><h3 id="titFFTFX">FFT fuerza X</h3><canvas id="cvFEX" width="1040" height="280" aria-label="FFT de fuerza en el eje X"></canvas></div>
+        <div class="grafica"><h3 id="titFFTFY">FFT fuerza Y</h3><canvas id="cvFEY" width="1040" height="280" aria-label="FFT de fuerza en el eje Y"></canvas></div>
+        <div class="grafica"><h3 id="titFFTFZ">FFT fuerza Z</h3><canvas id="cvFEZ" width="1040" height="280" aria-label="FFT de fuerza en el eje Z"></canvas></div>
+      </div>
+      <p class="nota">Las FFT se calculan por canal con la señal tarada y ventana Hann, como en Analisis_Chatter_XYZ.m. Aceleración en g; fuerza en V.</p>
+      <p class="nota">En las gráficas: coloca el cursor para leer valores; usa la rueda para acercar o alejar, arrastra para desplazar y haz doble clic o pulsa Inicio para restablecer la vista.</p>
+      <div class="grafica">
+        <h3>Señal del análisis modal</h3>
+        <canvas id="cvM" width="1040" height="280"></canvas>
+      </div>
+      <p class="nota" id="notas"></p>
+      <div class="grafica">
+        <h3>Análisis técnico de chatter</h3>
+        <p class="nota" id="llmEstado">Cuando termine el análisis de señales, el modelo contrastará la evidencia por eje, entre pruebas y sus limitaciones.</p>
+        <div class="llm" id="llmTexto"></div>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <div class="pie">
+      <span>Tecnológico de Monterrey · Estancia de investigación</span>
+      <span>Análisis de chatter en X, Y y Z</span>
+    </div>
+  </footer>
+  <script src="analisis.js"></script>
+  <script>
+    var CA = window.ChatterAnalisis;
+    document.body.dataset.analisis = CA ? "listo" : "falta";
+    var store = { aceleracion: [], fuerza: [], modal: [], carpeta: [] };
+    var pruebas = [];
+    var seleccion = 0;
+
+    var zonas = [
+      { id: "zonaA", input: "inA", clave: "aceleracion", cuenta: "cuentaA" },
+      { id: "zonaF", input: "inF", clave: "fuerza", cuenta: "cuentaF" },
+      { id: "zonaM", input: "inM", clave: "modal", cuenta: "cuentaM" }
+    ];
+
+    zonas.forEach(function (z) {
+      var zona = document.getElementById(z.id);
+      var input = document.getElementById(z.input);
+      zona.addEventListener("click", function () { input.click(); });
+      zona.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") input.click();
+      });
+      input.addEventListener("change", function () {
+        store[z.clave] = filtrarLvm(input.files);
+        store.carpeta = [];
+        pintarCuentas();
+      });
+      ["dragenter", "dragover"].forEach(function (ev) {
+        zona.addEventListener(ev, function (e) {
+          e.preventDefault();
+          zona.classList.add("sobre");
+        });
+      });
+      zona.addEventListener("dragleave", function () { zona.classList.remove("sobre"); });
+      zona.addEventListener("drop", function (e) {
+        e.preventDefault();
+        zona.classList.remove("sobre");
+        store[z.clave] = filtrarLvm(e.dataTransfer.files);
+        store.carpeta = [];
+        pintarCuentas();
+      });
+    });
+
+    document.getElementById("btnCarpeta").addEventListener("click", function () {
+      document.getElementById("inCarpeta").click();
+    });
+    document.getElementById("inCarpeta").addEventListener("change", function (e) {
+      store.carpeta = filtrarLvm(e.target.files);
+      store.aceleracion = [];
+      store.fuerza = [];
+      store.modal = [];
+      pintarCuentas();
+      document.getElementById("estado").textContent = store.carpeta.length
+        ? "Carpeta cargada con " + store.carpeta.length + " archivos .lvm. Pulsa Analizar y graficar."
+        : "Esa carpeta no tiene archivos .lvm.";
+    });
+    document.getElementById("btnLimpiar").addEventListener("click", limpiar);
+    document.getElementById("btnAnalizar").addEventListener("click", analizar);
+    document.getElementById("btnPrecargados").addEventListener("click", cargarPrecargados);
+    document.getElementById("tabla").addEventListener("click", function (e) {
+      var tr = e.target.closest("tr");
+      if (!tr || tr.dataset.i === undefined) return;
+      seleccion = Number(tr.dataset.i);
+      pintarTabla();
+      pintarDetalle();
+    });
+    window.addEventListener("resize", function () {
+      if (pruebas.length) pintarDetalle();
+    });
+
+    function filtrarLvm(lista) {
+      return Array.prototype.filter.call(lista, function (f) {
+        return /\.lvm$/i.test(f.name);
+      });
+    }
+
+    function pintarCuentas() {
+      document.getElementById("cuentaA").textContent = textoCuenta(store.aceleracion);
+      document.getElementById("cuentaF").textContent = textoCuenta(store.fuerza);
+      document.getElementById("cuentaM").textContent = textoCuenta(store.modal);
+      if (store.carpeta.length) {
+        document.getElementById("cuentaA").textContent = "Se usará la carpeta (" + store.carpeta.length + " archivos)";
+        document.getElementById("cuentaF").textContent = "Se usará la carpeta";
+        document.getElementById("cuentaM").textContent = "Se usará la carpeta";
+      }
+    }
+
+    function textoCuenta(arr) {
+      if (!arr.length) return "Ningún archivo";
+      if (arr.length === 1) return arr[0].name;
+      return arr.length + " archivos";
+    }
+
+    function limpiar() {
+      store = { aceleracion: [], fuerza: [], modal: [], carpeta: [] };
+      pruebas = [];
+      ["inA", "inF", "inM", "inCarpeta"].forEach(function (id) {
+        document.getElementById(id).value = "";
+      });
+      pintarCuentas();
+      document.getElementById("panelResultados").classList.add("oculto");
+      document.getElementById("estado").textContent = "Selecciona los archivos para comenzar.";
+    }
+
+    function gruposDesdeCarpeta(files) {
+      var mapa = new Map();
+      files.forEach(function (file) {
+        var rel = file.webkitRelativePath || file.name;
+        var partes = rel.split(/[/\\]/);
+        var directorios = partes.slice(0, -1);
+        var idx = -1;
+        var tipo = "";
+        for (var i = directorios.length - 1; i >= 0; i--) {
+          tipo = CA.tipoCarpeta(directorios[i]);
+          if (tipo) { idx = i; break; }
+        }
+        var nombre;
+        if (idx === directorios.length - 1) {
+          nombre = directorios.slice(0, idx).join(" / ") || "Prueba";
+        } else if (idx >= 0) {
+          var siguiente = directorios[idx + 1];
+          nombre = /^[xyz]$/i.test(siguiente)
+            ? (directorios.slice(0, idx).join(" / ") || "Prueba")
+            : siguiente;
+        } else {
+          nombre = directorios.length ? directorios[directorios.length - 1] : "Archivos sueltos";
+        }
+        var clave = clavePrueba(nombre);
+        if (!mapa.has(clave)) {
+          mapa.set(clave, { nombre: nombre, aceleracion: [], fuerza: [], modal: [] });
+        }
+        var destino = tipo;
+        var prefijo = file.name.match(/^([af])_*/i);
+        if (tipo !== "modal" && prefijo) {
+          destino = prefijo[1].toLowerCase() === "f" ? "fuerza" : "aceleracion";
+        }
+        if (!destino) destino = prefijo && prefijo[1].toLowerCase() === "f" ? "fuerza" : "aceleracion";
+        if (destino === "modal" || destino === "fuerza" || destino === "aceleracion") {
+          mapa.get(clave)[destino].push(file);
+        }
+      });
+      var grupos = Array.from(mapa.values()).filter(function (g) {
+        return g.aceleracion.length || g.fuerza.length || g.modal.length;
+      });
+      var conDatosDeCorte = grupos.filter(function (g) {
+        return g.aceleracion.length || g.fuerza.length;
+      });
+      var modalCompartido = grupos.filter(function (g) {
+        return g.modal.length && !g.aceleracion.length && !g.fuerza.length;
+      }).reduce(function (archivos, g) {
+        return archivos.concat(g.modal);
+      }, []);
+      if (modalCompartido.length && conDatosDeCorte.length) {
+        conDatosDeCorte.forEach(function (g) {
+          if (!g.modal.length) g.modal = modalCompartido.slice();
+        });
+        grupos = conDatosDeCorte;
+      }
+      return grupos;
+    }
+
+    function clavePrueba(nombre) {
+      return String(nombre).toLowerCase()
+        .replace(/(\d)\s*(cm|mm)\b/g, "$1 $2")
+        .replace(/\b20\s*cm\b/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    async function analizar() {
+      var grupos;
+      if (store.carpeta.length) grupos = gruposDesdeCarpeta(store.carpeta);
+      else {
+        grupos = [{
+          nombre: "Prueba cargada",
+          aceleracion: store.aceleracion,
+          fuerza: store.fuerza,
+          modal: store.modal
+        }];
+      }
+      grupos = grupos.filter(function (g) {
+        return g.aceleracion.length || g.fuerza.length || g.modal.length;
+      });
+      grupos.sort(function (a, b) {
+        var profundidadA = CA.metaDeNombre(a.nombre).profundidad;
+        var profundidadB = CA.metaDeNombre(b.nombre).profundidad;
+        if (Number.isFinite(profundidadA) && Number.isFinite(profundidadB)) return profundidadA - profundidadB;
+        if (Number.isFinite(profundidadA)) return -1;
+        if (Number.isFinite(profundidadB)) return 1;
+        return a.nombre.localeCompare(b.nombre);
+      });
+      if (!grupos.length) {
+        document.getElementById("estado").textContent = "Falta subir al menos un archivo .lvm.";
+        return;
+      }
+      var btn = document.getElementById("btnAnalizar");
+      btn.disabled = true;
+      var descartar = 0;
+      var ejeUnico = "X";
+      pruebas = [];
+      try {
+        for (var i = 0; i < grupos.length; i++) {
+          document.getElementById("estado").textContent = "Analizando " + (i + 1) + " de " + grupos.length + ": " + grupos[i].nombre;
+          await esperar();
+          pruebas.push(await analizarGrupo(grupos[i], descartar, ejeUnico));
+        }
+        CA.indices(pruebas);
+        seleccion = 0;
+        document.getElementById("panelResultados").classList.remove("oculto");
+        pintarTabla();
+        pintarDetalle();
+        document.getElementById("estado").textContent = "Gráficas listas. Consultando el modelo...";
+        document.getElementById("panelResultados").scrollIntoView({ behavior: "smooth", block: "start" });
+        await interpretar();
+        document.getElementById("estado").textContent = "Listo. " + pruebas.length + (pruebas.length === 1 ? " prueba analizada." : " pruebas analizadas.");
+      } catch (err) {
+        document.getElementById("estado").textContent = err.message || String(err);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function cargarPrecargados() {
+      var boton = document.getElementById("btnPrecargados");
+      var botonAnalizar = document.getElementById("btnAnalizar");
+      boton.disabled = true;
+      botonAnalizar.disabled = true;
+      pruebas = [];
+      try {
+        var catalogoResp = await fetch("/api/datos-precargados");
+        if (!catalogoResp.ok) throw new Error("No se pudo consultar el catálogo de datos.");
+        var catalogo = await catalogoResp.json();
+        if (!catalogo.pruebas || !catalogo.pruebas.length) throw new Error("No hay ensayos precargados disponibles.");
+        var descartar = 0;
+        var ejeUnico = "X";
+        for (var i = 0; i < catalogo.pruebas.length; i++) {
+          var ficha = catalogo.pruebas[i];
+          document.getElementById("estado").textContent = "Cargando datos reales: " + ficha.profundidad_mm + " mm...";
+          var resp = await fetch("/api/datos-precargados", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ profundidad_mm: ficha.profundidad_mm })
+          });
+          var datos = await resp.json();
+          if (!resp.ok || datos.error) throw new Error(datos.error || "No se pudo cargar " + ficha.profundidad_mm + " mm.");
+          var grupo = {
+            nombre: datos.nombre,
+            aceleracion: archivosEnMemoria(datos.aceleracion, "Aceleracion"),
+            fuerza: archivosEnMemoria(datos.fuerza, "Fuerza"),
+            modal: archivosEnMemoria(datos.modal || [], "Modal")
+          };
+          pruebas.push(await analizarGrupo(grupo, descartar, ejeUnico));
+        }
+        CA.indices(pruebas);
+        seleccion = 0;
+        document.getElementById("panelResultados").classList.remove("oculto");
+        pintarTabla();
+        pintarDetalle();
+        document.getElementById("estado").textContent = "Datos reales precargados. Consultando el análisis técnico...";
+        document.getElementById("panelResultados").scrollIntoView({ behavior: "smooth", block: "start" });
+        await interpretar();
+        document.getElementById("estado").textContent = "Listo. " + pruebas.length + " ensayos precargados y analizados.";
+      } catch (err) {
+        document.getElementById("estado").textContent = err.message || String(err);
+      } finally {
+        boton.disabled = false;
+        botonAnalizar.disabled = false;
+      }
+    }
+
+    function archivosEnMemoria(archivos, carpeta) {
+      return archivos.map(function (archivo) {
+        return {
+          name: archivo.nombre,
+          webkitRelativePath: carpeta + "/" + archivo.nombre,
+          text: function () { return Promise.resolve(archivo.texto); }
+        };
+      });
+    }
+
+    function esperar() {
+      return new Promise(function (resolve) { setTimeout(resolve, 30); });
+    }
+
+    async function leerGrupo(files, ejeUnico) {
+      var leidos = [];
+      var contenidos = new Map();
+      for (var i = 0; i < files.length; i++) {
+        var texto = await files[i].text();
+        var anteriores = contenidos.get(files[i].name) || [];
+        if (anteriores.indexOf(texto) >= 0) continue;
+        anteriores.push(texto);
+        contenidos.set(files[i].name, anteriores);
+        var datos = CA.parseLVM(texto, files[i].name);
+        var ruta = files[i].webkitRelativePath || files[i].name;
+        leidos.push({
+          nombre: files[i].name,
+          orden: CA.ordenArchivo(ruta),
+          eje: CA.ejeDeRuta(ruta),
+          datos: datos
+        });
+      }
+      return CA.armarXYZ(leidos, ejeUnico);
+    }
+
+    async function analizarGrupo(grupo, descartar, ejeUnico) {
+      var meta = CA.metaDeNombre(grupo.nombre);
+      var p = {
+        nombre: grupo.nombre,
+        profundidad: meta.profundidad,
+        refrigerante: meta.refrigerante,
+        herramienta: meta.herramienta,
+        rms: [NaN, NaN, NaN],
+        rmsA: NaN,
+        rmsFxyz: [NaN, NaN, NaN],
+        rmsF: NaN,
+        fn: [NaN, NaN, NaN],
+        fNatural: NaN,
+        fModal: NaN,
+        ampModal: NaN,
+        chatter: false,
+        eje: "",
+        contrasteChatter: [NaN, NaN, NaN],
+        picoBandaHz: [NaN, NaN, NaN],
+        amplitudBanda: [NaN, NaN, NaN],
+        medianaFueraBanda: [NaN, NaN, NaN],
+        razon: NaN,
+        indice: NaN,
+        banda: [1300, 1550],
+        notas: [],
+        error: "",
+        acel: null,
+        fuerza: null,
+        modal: null
+      };
+      if (grupo.modal.length) {
+        try {
+          var modal = await leerGrupo(grupo.modal, "X");
+          var resM = CA.analizarModal(modal, descartar);
+          p.fn = resM.fn;
+          p.fNatural = resM.fNatural;
+          p.banda = resM.banda;
+          p.modal = resM;
+          p.notas.push("Modal: " + resM.detalle + ".");
+        } catch (err) {
+          p.notas.push("Modal: " + err.message);
+        }
+      }
+      if (grupo.aceleracion.length) {
+        try {
+          var acel = await leerGrupo(grupo.aceleracion, ejeUnico);
+          var resA = CA.analizarSenal(acel, p.banda);
+          p.rms = resA.rms;
+          p.rmsA = resA.rmsR;
+          p.fModal = resA.fModal;
+          p.ampModal = resA.ampModal;
+          p.chatter = resA.chatter;
+          p.eje = resA.eje;
+          p.contrasteChatter = resA.contrasteEje;
+          p.picoBandaHz = resA.frecuenciaPicoEje;
+          p.amplitudBanda = resA.amplitudPicoEje;
+          p.medianaFueraBanda = resA.medianaFueraBandaEje;
+          p.razon = resA.razon;
+          p.acel = resA;
+          p.notas.push(resA.nota + " Fs " + Math.round(resA.fs) + " Hz.");
+        } catch (err) {
+          p.notas.push("Aceleración: " + err.message);
+          if (!grupo.fuerza.length && !p.modal) p.error = err.message;
+        }
+      }
+      if (grupo.fuerza.length) {
+        try {
+          var fuerza = await leerGrupo(grupo.fuerza, "X");
+          var presentes = fuerza.canales.filter(Boolean).length;
+          if (presentes < 3) throw new Error("La fuerza necesita Fx, Fy y Fz.");
+          var resF = CA.analizarSenal(fuerza, p.banda);
+          p.rmsFxyz = resF.rms;
+          p.rmsF = resF.rmsR;
+          p.fuerza = resF;
+          p.notas.push("Fuerza. Fs " + Math.round(resF.fs) + " Hz.");
+        } catch (err) {
+          p.notas.push("Fuerza: " + err.message);
+        }
+      }
+      if (!p.acel && !p.fuerza && !p.modal) p.error = p.notas.join(" ");
+      return p;
+    }
+
+    function pintarTabla() {
+      var tb = document.getElementById("tabla");
+      tb.innerHTML = "";
+      pruebas.forEach(function (p, i) {
+        var tr = document.createElement("tr");
+        tr.dataset.i = String(i);
+        if (i === seleccion) tr.className = "sel";
+        var vals = [
+          p.nombre,
+          fmt(p.rms[0], 4), fmt(p.rms[1], 4), fmt(p.rms[2], 4),
+          fmt(p.rmsFxyz[0], 4), fmt(p.rmsFxyz[1], 4), fmt(p.rmsFxyz[2], 4),
+          fmt(p.fNatural, 1),
+          p.error ? "Error" : (p.chatter ? "Sí" : "No"),
+          p.eje || "—",
+          fmt(p.indice, 3)
+        ];
+        vals.forEach(function (v, k) {
+          var td = document.createElement("td");
+          td.textContent = v;
+          if (k === 8 && v === "Sí") td.className = "si";
+          if (k === 8 && v === "No") td.className = "no";
+          tr.appendChild(td);
+        });
+        tb.appendChild(tr);
+      });
+    }
+
+    function pintarDetalle() {
+      var p = pruebas[seleccion];
+      if (!p) return;
+      var box = document.getElementById("metricas");
+      var items = [
+        ["RMS aceleración X", fmt(p.rms[0], 4) + " g"],
+        ["RMS aceleración Y", fmt(p.rms[1], 4) + " g"],
+        ["RMS aceleración Z", fmt(p.rms[2], 4) + " g"],
+        ["Chatter", p.error ? "Error" : (p.chatter ? "Sí, eje " + (p.eje || "—") : "No")],
+        ["Fuerza X", fmt(p.rmsFxyz[0], 4) + " V"],
+        ["Fuerza Y", fmt(p.rmsFxyz[1], 4) + " V"],
+        ["Fuerza Z", fmt(p.rmsFxyz[2], 4) + " V"],
+        ["Frecuencia natural", fmt(p.fNatural, 1) + " Hz"]
+      ];
+      box.innerHTML = "";
+      items.forEach(function (it) {
+        var d = document.createElement("div");
+        d.className = "met";
+        d.innerHTML = "<span></span><strong></strong>";
+        d.querySelector("span").textContent = it[0];
+        d.querySelector("strong").textContent = it[1];
+        box.appendChild(d);
+      });
+      var etiquetaGeneral = Number.isFinite(p.profundidad) ? p.profundidad + " mm" : "espesor no identificado";
+      document.getElementById("titA").textContent = "Aceleración XYZ en el tiempo · " + etiquetaGeneral;
+      document.getElementById("titF").textContent = "Fuerza XYZ en el tiempo · " + etiquetaGeneral;
+      dibujarSenal(document.getElementById("cvA"), p.acel, "Tiempo [s]", "Aceleración [g]", false, null);
+      dibujarSenal(document.getElementById("cvF"), p.fuerza, "Tiempo [s]", "Fuerza [V]", true, null);
+      dibujarSenal(document.getElementById("cvE"), p.acel ? { t: p.acel.f, y: p.acel.p } : null, "Frecuencia [Hz]", "Amplitud [g]", false, p.banda);
+      dibujarSenal(document.getElementById("cvFE"), p.fuerza ? { t: p.fuerza.f, y: p.fuerza.p } : null, "Frecuencia [Hz]", "Amplitud [V]", true, p.banda);
+      var ejes = ["X", "Y", "Z"];
+      ejes.forEach(function (eje, c) {
+        var etiqueta = Number.isFinite(p.profundidad) ? p.profundidad + " mm" : "espesor no identificado";
+        document.getElementById("titA" + eje).textContent = "Aceleración " + eje + " · " + etiqueta;
+        document.getElementById("titF" + eje).textContent = "Fuerza " + eje + " · " + etiqueta;
+        document.getElementById("titFFT" + eje).textContent = "FFT aceleración " + eje + " · " + etiqueta;
+        document.getElementById("titFFTF" + eje).textContent = "FFT fuerza " + eje + " · " + etiqueta;
+        dibujarSenal(document.getElementById("cvA" + eje), serieEje(p.acel, c, false), "Tiempo [s]", "Aceleración [g]", false, null);
+        dibujarSenal(document.getElementById("cvF" + eje), serieEje(p.fuerza, c, false), "Tiempo [s]", "Fuerza [V]", true, null);
+        dibujarSenal(document.getElementById("cvE" + eje), serieEje(p.acel, c, true), "Frecuencia [Hz]", "Amplitud [g]", false, p.banda);
+        dibujarSenal(document.getElementById("cvFE" + eje), serieEje(p.fuerza, c, true), "Frecuencia [Hz]", "Amplitud [V]", true, p.banda);
+      });
+      document.getElementById("titFFT").textContent = "Comparación FFT de aceleración XYZ · " +
+        (Number.isFinite(p.profundidad) ? p.profundidad + " mm" : "espesor no identificado");
+      document.getElementById("titFFTF").textContent = "Comparación FFT de fuerza XYZ · " +
+        (Number.isFinite(p.profundidad) ? p.profundidad + " mm" : "espesor no identificado");
+      dibujarSenal(document.getElementById("cvM"), p.modal, "Tiempo [s]", "Aceleración [g]", false, null);
+      var extra = "";
+      if (Number.isFinite(p.razon)) extra = " Vibración al final / al inicio = " + p.razon.toFixed(2) + ".";
+      document.getElementById("notas").textContent = (p.notas.join(" ") + extra).trim();
+    }
+
+    function serieEje(datos, indice, espectro) {
+      if (!datos) return null;
+      var x = espectro ? datos.f : datos.t;
+      var columnas = espectro ? datos.p : datos.y;
+      if (!x || !columnas || !columnas[indice]) return null;
+      var y = [null, null, null];
+      y[indice] = columnas[indice];
+      return { t: x, y: y };
+    }
+
+    function resumenModelo() {
+      return {
+        condiciones_torno: {
+          velocidad_husillo_rpm: 720,
+          frecuencia_giro_husillo_Hz: 12,
+          avance_reportado: "32 mm/in"
+        },
+        criterio: {
+          banda: "frecuencia natural ± 125 Hz; si no hay modal, 1300-1550 Hz",
+          chatter: "pico de la banda mayor a 4 veces la mediana del resto del espectro",
+          indice: "más bajo es más favorable; vibración 45%, pico modal 35%, fuerza 20%"
+        },
+        pruebas: pruebas.map(function (p) {
+          return {
+            nombre: p.nombre,
+            profundidad_mm: num(p.profundidad),
+            refrigerante: p.refrigerante,
+            herramienta: p.herramienta,
+            rms_aceleracion_g: ejes(p.rms),
+            rms_resultante_aceleracion_g: num(p.rmsA),
+            rms_fuerza_V: ejes(p.rmsFxyz),
+            rms_resultante_fuerza_V: num(p.rmsF),
+            frecuencia_natural_Hz: ejes(p.fn),
+            frecuencia_natural_usada_Hz: num(p.fNatural),
+            frecuencia_muestreo_aceleracion_Hz: num(p.acel && p.acel.fs),
+            frecuencia_muestreo_fuerza_Hz: num(p.fuerza && p.fuerza.fs),
+            banda_Hz: p.banda,
+            pico_banda_Hz_por_eje: ejes(p.picoBandaHz),
+            amplitud_pico_banda_g_por_eje: ejes(p.amplitudBanda),
+            mediana_espectro_fuera_banda_g_por_eje: ejes(p.medianaFueraBanda),
+            pico_espectral_Hz: num(p.fModal),
+            amplitud_pico_g: num(p.ampModal),
+            contraste_pico_banda_mediana_por_eje: ejes(p.contrasteChatter),
+            chatter: p.chatter,
+            eje_chatter: p.eje,
+            impactos_modal_usados: p.modal ? p.modal.n : null,
+            detalle_modal: p.modal ? p.modal.detalle : null,
+            crecimiento_fin_entre_inicio: num(p.razon),
+            indice: num(p.indice),
+            picos_espectro_aceleracion: picosEspectro(p.acel, "g"),
+            picos_espectro_fuerza: picosEspectro(p.fuerza, "V"),
+            notas: p.notas,
+            error: p.error
+          };
+        })
+      };
+    }
+
+    function ejes(vals) {
+      return {
+        X: num(vals && vals[0]),
+        Y: num(vals && vals[1]),
+        Z: num(vals && vals[2])
+      };
+    }
+
+    function num(v) {
+      return Number.isFinite(v) ? Math.round(v * 1e6) / 1e6 : null;
+    }
+
+    function picosEspectro(datos, unidad) {
+      if (!datos || !datos.f) return { X: [], Y: [], Z: [] };
+      var letras = ["X", "Y", "Z"];
+      var salida = {};
+      letras.forEach(function (letra, c) {
+        var f = datos.f;
+        var p = datos.p[c];
+        var candidatos = [];
+        if (!p) {
+          salida[letra] = [];
+          return;
+        }
+        for (var i = 1; i < f.length - 1; i++) {
+          if (!Number.isFinite(p[i]) || f[i] < 20 || f[i] > 4000) continue;
+          if (p[i] >= p[i - 1] && p[i] >= p[i + 1]) {
+            candidatos.push({ hz: num(f[i]), amplitud: num(p[i]), unidad: unidad || "g" });
+          }
+        }
+        candidatos.sort(function (a, b) { return b.amplitud - a.amplitud; });
+        salida[letra] = candidatos.slice(0, 5);
+      });
+      return salida;
+    }
+
+    function informeTecnicoLocal() {
+      var disponibles = pruebas.filter(function (p) { return !!p.acel; });
+      var indicios = disponibles.filter(function (p) { return p.chatter; });
+      var lineas = ["DICTAMEN", ""];
+      if (!disponibles.length) {
+        lineas.push("El resultado es indeterminado porque no hay señales de aceleración válidas para aplicar el detector.");
+      } else if (indicios.length === disponibles.length) {
+        lineas.push("El detector activa una alerta en los " + disponibles.length + " ensayos con aceleración. La cobertura triaxial y la respuesta modal permiten una comparación consistente, aunque el criterio no confirma por sí solo chatter autoexcitado.");
+      } else if (indicios.length) {
+        lineas.push("El detector activa una alerta en " + indicios.length + " de " + disponibles.length + " ensayos. La respuesta depende de la condición y debe tratarse como indicio, no como confirmación física.");
+      } else {
+        lineas.push("El detector no activa alertas en los " + disponibles.length + " ensayos. No alcanzar el umbral no demuestra por sí solo la ausencia de chatter.");
+      }
+      lineas.push("Confianza moderada por la cobertura de cuatro profundidades, tres ejes y dos impactos modales. La evaluación usa métricas procesadas, no una inspección física de las señales.");
+      lineas.push("", "MÉTODO", "");
+      lineas.push("Se aplicó tarado inicial y FFT de un solo lado con ventana Hann. La frecuencia natural es " + fmt(disponibles.length ? disponibles[0].fNatural : NaN, 1) + " Hz y la banda analizada es " + fmt(disponibles.length ? disponibles[0].banda[0] : NaN, 1) + " a " + fmt(disponibles.length ? disponibles[0].banda[1] : NaN, 1) + " Hz. El detector requiere que el pico de banda supere cuatro veces la mediana fuera de banda. Fuerza se reporta en V, sin calibración para convertir a N. El avance informado es 32 mm/in y se conserva esa unidad.");
+      lineas.push("", "HALLAZGOS POR ESPESOR");
+      pruebas.forEach(function (p) {
+        var profundidad = Number.isFinite(p.profundidad) ? p.profundidad + " mm" : p.nombre;
+        var ejesConIndicio = [];
+        var contrastes = [];
+        ["X", "Y", "Z"].forEach(function (eje, c) {
+          var contraste = p.contrasteChatter[c];
+          if (Number.isFinite(contraste)) {
+            contrastes.push(eje + " " + fmt(contraste, 1) + " veces");
+            if (contraste > 4) {
+              ejesConIndicio.push(eje);
+            }
+          }
+        });
+        var picoEje = -1;
+        for (var c = 0; c < 3; c++) {
+          if (picoEje < 0 || (Number.isFinite(p.amplitudBanda[c]) && p.amplitudBanda[c] > p.amplitudBanda[picoEje])) picoEje = c;
+        }
+        var nombresEje = ["X", "Y", "Z"];
+        var picoPrincipal = picoEje >= 0 && Number.isFinite(p.picoBandaHz[picoEje])
+          ? "; pico principal " + nombresEje[picoEje] + " a " + fmt(p.picoBandaHz[picoEje], 1) + " Hz con " + fmt(p.amplitudBanda[picoEje], 5) + " g"
+          : "";
+        var resumen = "Prueba " + profundidad + ": " + (p.chatter ? "alerta en " + (ejesConIndicio.join(", ") || p.eje || "eje no identificado") : (p.acel ? "sin alerta" : "no evaluable")) + ". Contraste X/Y/Z: " + (contrastes.join(", ") || "sin datos") + picoPrincipal + ". RMS global: aceleración " + fmt(p.rmsA, 3) + " g y fuerza " + fmt(p.rmsF, 3) + " V. Crecimiento fin/inicio " + fmt(p.razon, 2) + "; índice " + fmt(p.indice, 3) + ".";
+        if (p.error) resumen += " Error: " + p.error + ".";
+        lineas.push("", resumen);
+      });
+      lineas.push("", "COMPARACIÓN E INTERPRETACIÓN", "");
+      var ordenadas = pruebas.filter(function (p) { return Number.isFinite(p.indice); }).slice().sort(function (a, b) { return a.indice - b.indice; });
+      if (ordenadas.length > 1) {
+        lineas.push("Orden por índice, de menor a mayor: " + ordenadas.map(function (p) { return (Number.isFinite(p.profundidad) ? p.profundidad + " mm" : p.nombre) + " " + fmt(p.indice, 3); }).join("; ") + ". El índice menor es relativamente más favorable y no representa probabilidad. " + (indicios.length === disponibles.length ? "La alerta se mantiene en todos los espesores." : "La activación del detector varía entre espesores."));
+        lineas.push("El aumento de aceleración y del índice hacia los espesores mayores sugiere una respuesta más severa en este conjunto. La comparación es asociativa, no causal; deben controlarse las demás condiciones de corte y montaje.");
+      } else {
+        lineas.push("No hay suficientes pruebas con índice válido para establecer una tendencia entre espesores.");
+      }
+      lineas.push("La FFT sitúa los picos relevantes respecto de la banda modal, mientras que aceleración y fuerza cuantifican respuestas distintas del sistema; su coincidencia no demuestra causalidad. El crecimiento fin/inicio y el índice apoyan la comparación, pero no establecen una frontera de estabilidad.");
+      lineas.push("", "RECOMENDACIÓN Y ALCANCE", "");
+      lineas.push("Repetir las condiciones críticas manteniendo constantes velocidad, avance, herramienta y montaje, y contrastar espectros con marcas de la pieza. El análisis es preliminar: resume señales procesadas y no sustituye revisar datos crudos, calibrar fuerza ni confirmar chatter experimentalmente.");
+      return lineas.join("\n");
+    }
+
+    async function interpretar() {
+      var estado = document.getElementById("llmEstado");
+      var caja = document.getElementById("llmTexto");
+      estado.textContent = "El modelo está contrastando el criterio de chatter, las métricas por eje y las diferencias entre pruebas.";
+      caja.textContent = informeTecnicoLocal();
+      var url = (location.protocol === "http:" || location.protocol === "https:")
+        ? "/api/interpretar"
+        : "http://127.0.0.1:3001/api/interpretar";
+      try {
+        var resp = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(resumenModelo())
+        });
+        var respuesta = await resp.text();
+        var data;
+        try {
+          data = JSON.parse(respuesta);
+        } catch (parseError) {
+          throw new Error("Respuesta no válida del servidor (HTTP " + resp.status + ").");
+        }
+        if (!resp.ok || data.error) throw new Error(data.error || "No se pudo interpretar.");
+        estado.textContent = "Informe basado en métricas derivadas; el modelo no recibe las señales crudas. Confirma los indicios con revisión experimental.";
+        caja.textContent = data.texto;
+      } catch (err) {
+        estado.textContent = "Informe técnico local disponible; el modelo remoto no respondió: " + (err.message || String(err));
+        caja.textContent += "\n\nServicio remoto: " + (err.message || String(err));
+      }
+    }
+
+    function dibujarSenal(canvas, datos, xlab, ylab, esFuerza, banda) {
+      var rect = canvas.getBoundingClientRect();
+      var dpr = window.devicePixelRatio || 1;
+      var w = Math.max(320, rect.width || 1040);
+      var h = 280;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      var ctx = canvas.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.fillStyle = "#f4f8fc";
+      ctx.fillRect(0, 0, w, h);
+      if (!datos || !datos.t || !datos.t.length) {
+        mensaje(ctx, w, h, "No hay datos para esta gráfica.");
+        return;
+      }
+      var series = [];
+      var nombres = esFuerza ? ["Fx", "Fy", "Fz"] : ["X", "Y", "Z"];
+      var colores = ["#2659bf", "#c43b32", "#1a8a4d"];
+      for (var c = 0; c < 3; c++) {
+        if (!datos.y[c]) continue;
+        var hay = false;
+        for (var i = 0; i < datos.y[c].length; i++) {
+          if (Number.isFinite(datos.y[c][i])) { hay = true; break; }
+        }
+        if (hay) series.push({ nombre: nombres[c], color: colores[c], x: datos.t, y: datos.y[c] });
+      }
+      if (!series.length) {
+        mensaje(ctx, w, h, "No hay datos para esta gráfica.");
+        return;
+      }
+      var anterior = canvas._grafica;
+      var mismaSenal = anterior && anterior.series.length === series.length && series.every(function (serie, i) {
+        return anterior.series[i].x === serie.x && anterior.series[i].y === serie.y;
+      });
+      var xmin = Infinity;
+      var xmax = -Infinity;
+      series.forEach(function (s) {
+        if (s.x[0] < xmin) xmin = s.x[0];
+        if (s.x[s.x.length - 1] > xmax) xmax = s.x[s.x.length - 1];
+      });
+      if (xmin === xmax) xmax = xmin + 1;
+      canvas._grafica = {
+        series: series,
+        xmin: xmin,
+        xmax: xmax,
+        vistaMin: mismaSenal ? Math.max(xmin, anterior.vistaMin) : xmin,
+        vistaMax: mismaSenal ? Math.min(xmax, anterior.vistaMax) : xmax,
+        hoverX: null,
+        arrastre: null,
+        banda: banda,
+        xlab: xlab,
+        ylab: ylab,
+        ancho: w,
+        alto: h,
+        dpr: dpr
+      };
+      var encabezado = canvas.parentElement.querySelector("h3");
+      if (encabezado) canvas.setAttribute("aria-label", encabezado.textContent + ". Gráfica interactiva.");
+      canvas.tabIndex = 0;
+      canvas.classList.add("grafica-interactiva");
+      canvas.title = "Cursor para inspeccionar valores. Rueda para zoom. Arrastre para desplazar. Doble clic para restablecer.";
+      canvas._renderGrafica = function () { renderizarGrafica(canvas); };
+      instalarInteraccionGrafica(canvas);
+      renderizarGrafica(canvas);
+    }
+
+    function instalarInteraccionGrafica(canvas) {
+      if (canvas._eventosGrafica) return;
+      canvas._eventosGrafica = true;
+      canvas.addEventListener("pointerdown", function (evento) {
+        if (evento.button !== undefined && evento.button !== 0) return;
+        var grafica = canvas._grafica;
+        var marco = marcoGrafica(grafica);
+        if (!dentroDeMarco(evento.offsetX, evento.offsetY, marco)) return;
+        grafica.arrastre = { x: evento.offsetX, min: grafica.vistaMin, max: grafica.vistaMax };
+        canvas.setPointerCapture(evento.pointerId);
+        canvas.style.cursor = "grabbing";
+      });
+      canvas.addEventListener("pointermove", function (evento) {
+        var grafica = canvas._grafica;
+        var marco = marcoGrafica(grafica);
+        if (grafica.arrastre) {
+          var delta = (evento.offsetX - grafica.arrastre.x) / marco.ancho * (grafica.arrastre.max - grafica.arrastre.min);
+          moverVista(grafica, grafica.arrastre.min - delta, grafica.arrastre.max - delta);
+        } else if (dentroDeMarco(evento.offsetX, evento.offsetY, marco)) {
+          grafica.hoverX = grafica.vistaMin + (evento.offsetX - marco.izquierda) / marco.ancho * (grafica.vistaMax - grafica.vistaMin);
+        } else {
+          grafica.hoverX = null;
+        }
+        canvas._renderGrafica();
+      });
+      ["pointerup", "pointercancel", "lostpointercapture"].forEach(function (nombre) {
+        canvas.addEventListener(nombre, function () {
+          if (!canvas._grafica) return;
+          canvas._grafica.arrastre = null;
+          canvas.style.cursor = "crosshair";
+        });
+      });
+      canvas.addEventListener("pointerleave", function () {
+        if (!canvas._grafica.arrastre) {
+          canvas._grafica.hoverX = null;
+          canvas._renderGrafica();
+        }
+      });
+      canvas.addEventListener("wheel", function (evento) {
+        var grafica = canvas._grafica;
+        var marco = marcoGrafica(grafica);
+        if (!dentroDeMarco(evento.offsetX, evento.offsetY, marco)) return;
+        evento.preventDefault();
+        var proporcion = (evento.offsetX - marco.izquierda) / marco.ancho;
+        var ancla = grafica.vistaMin + proporcion * (grafica.vistaMax - grafica.vistaMin);
+        var factor = evento.deltaY < 0 ? 0.8 : 1.25;
+        var ancho = Math.min(grafica.xmax - grafica.xmin, Math.max((grafica.xmax - grafica.xmin) / 10000, (grafica.vistaMax - grafica.vistaMin) * factor));
+        moverVista(grafica, ancla - ancho * proporcion, ancla + ancho * (1 - proporcion));
+        canvas._renderGrafica();
+      }, { passive: false });
+      canvas.addEventListener("dblclick", function () {
+        restablecerVista(canvas._grafica);
+        canvas._renderGrafica();
+      });
+      canvas.addEventListener("keydown", function (evento) {
+        var grafica = canvas._grafica;
+        if (evento.key === "Home") {
+          restablecerVista(grafica);
+        } else if (evento.key === "ArrowLeft" || evento.key === "ArrowRight") {
+          var delta = (grafica.vistaMax - grafica.vistaMin) * 0.1 * (evento.key === "ArrowLeft" ? -1 : 1);
+          moverVista(grafica, grafica.vistaMin + delta, grafica.vistaMax + delta);
+        } else if (evento.key === "+" || evento.key === "=") {
+          escalarVista(grafica, 0.8);
+        } else if (evento.key === "-") {
+          escalarVista(grafica, 1.25);
+        } else {
+          return;
+        }
+        evento.preventDefault();
+        canvas._renderGrafica();
+      });
+    }
+
+    function marcoGrafica(grafica) {
+      var izquierda = 76;
+      var derecha = grafica.ancho - 16;
+      var arriba = 16;
+      var abajo = grafica.alto - 42;
+      return { izquierda: izquierda, derecha: derecha, arriba: arriba, abajo: abajo, ancho: derecha - izquierda };
+    }
+
+    function dentroDeMarco(x, y, marco) {
+      return x >= marco.izquierda && x <= marco.derecha && y >= marco.arriba && y <= marco.abajo;
+    }
+
+    function moverVista(grafica, minimo, maximo) {
+      var ancho = maximo - minimo;
+      if (minimo < grafica.xmin) {
+        minimo = grafica.xmin;
+        maximo = minimo + ancho;
+      }
+      if (maximo > grafica.xmax) {
+        maximo = grafica.xmax;
+        minimo = maximo - ancho;
+      }
+      grafica.vistaMin = minimo;
+      grafica.vistaMax = maximo;
+      grafica.hoverX = null;
+    }
+
+    function escalarVista(grafica, factor) {
+      var centro = (grafica.vistaMin + grafica.vistaMax) / 2;
+      var ancho = Math.min(grafica.xmax - grafica.xmin, Math.max((grafica.xmax - grafica.xmin) / 10000, (grafica.vistaMax - grafica.vistaMin) * factor));
+      moverVista(grafica, centro - ancho / 2, centro + ancho / 2);
+    }
+
+    function restablecerVista(grafica) {
+      grafica.vistaMin = grafica.xmin;
+      grafica.vistaMax = grafica.xmax;
+      grafica.hoverX = null;
+    }
+
+    function renderizarGrafica(canvas) {
+      var grafica = canvas._grafica;
+      var w = grafica.ancho;
+      var h = grafica.alto;
+      var m = { l: 76, r: 16, t: 16, b: 42 };
+      var xmin = grafica.vistaMin;
+      var xmax = grafica.vistaMax;
+      var ymin = Infinity;
+      var ymax = -Infinity;
+      var esFFT = grafica.xlab.indexOf("Frecuencia") === 0;
+      var pico = null;
+      var picoBanda = null;
+      var ctx = canvas.getContext("2d");
+      if (!Number.isFinite(grafica.hoverX)) canvas.removeAttribute("aria-valuetext");
+      ctx.setTransform(grafica.dpr, 0, 0, grafica.dpr, 0, 0);
+      var fondo = ctx.createLinearGradient(0, 0, 0, h);
+      fondo.addColorStop(0, "#ffffff");
+      fondo.addColorStop(1, "#f4f8fc");
+      ctx.fillStyle = fondo;
+      ctx.fillRect(0, 0, w, h);
+      grafica.series.forEach(function (serie) {
+        for (var i = 0; i < serie.x.length; i++) {
+          if (serie.x[i] < xmin || serie.x[i] > xmax || !Number.isFinite(serie.y[i])) continue;
+          ymin = Math.min(ymin, serie.y[i]);
+          ymax = Math.max(ymax, serie.y[i]);
+          if (esFFT && (!pico || serie.y[i] > pico.y)) {
+            pico = { x: serie.x[i], y: serie.y[i], nombre: serie.nombre, color: serie.color };
+          }
+          if (esFFT && grafica.banda && serie.x[i] >= grafica.banda[0] && serie.x[i] <= grafica.banda[1] &&
+              (!picoBanda || serie.y[i] > picoBanda.y)) {
+            picoBanda = { x: serie.x[i], y: serie.y[i], nombre: serie.nombre, color: serie.color };
+          }
+        }
+      });
+      if (!Number.isFinite(ymin) || !Number.isFinite(ymax)) {
+        mensaje(ctx, w, h, "No hay datos para esta vista.");
+        return;
+      }
+      if (ymin === ymax) { ymin -= 1; ymax += 1; }
+      var pad = (ymax - ymin) * 0.08;
+      ymin -= pad;
+      ymax += pad;
+      function X(x) { return m.l + (x - xmin) / (xmax - xmin) * (w - m.l - m.r); }
+      function Y(y) { return m.t + (ymax - y) / (ymax - ymin) * (h - m.t - m.b); }
+      ctx.strokeStyle = "#e4edf5";
+      ctx.lineWidth = 1;
+      ctx.fillStyle = "#5d6b7c";
+      ctx.font = "12px Segoe UI, sans-serif";
+      ctx.textAlign = "right";
+      for (var g = 0; g <= 4; g++) {
+        var yy = m.t + (h - m.t - m.b) * g / 4;
+        ctx.beginPath();
+        ctx.moveTo(m.l, yy);
+        ctx.lineTo(w - m.r, yy);
+        ctx.stroke();
+        ctx.fillText(formatoCorto(ymax - (ymax - ymin) * g / 4), m.l - 8, yy + 4);
+      }
+      ctx.textAlign = "center";
+      for (var gx = 0; gx <= 4; gx++) {
+        var xv = xmin + (xmax - xmin) * gx / 4;
+        ctx.fillText(formatoCorto(xv), X(xv), h - 22);
+      }
+      ctx.textAlign = "left";
+      ctx.fillText(grafica.xlab, m.l, h - 6);
+      if (grafica.banda && grafica.banda.length === 2) {
+        ctx.save();
+        ctx.strokeStyle = "#8aa0b5";
+        ctx.setLineDash([4, 4]);
+        grafica.banda.forEach(function (xb) {
+          if (xb < xmin || xb > xmax) return;
+          ctx.beginPath();
+          ctx.moveTo(X(xb), m.t);
+          ctx.lineTo(X(xb), h - m.b);
+          ctx.stroke();
+        });
+        ctx.restore();
+      }
+      grafica.series.forEach(function (serie) {
+        ctx.beginPath();
+        ctx.strokeStyle = serie.color;
+        ctx.lineWidth = 1.4;
+        var empezado = false;
+        for (var i = 0; i < serie.x.length; i++) {
+          if (serie.x[i] < xmin || serie.x[i] > xmax || !Number.isFinite(serie.y[i])) { empezado = false; continue; }
+          var px = X(serie.x[i]);
+          var py = Y(serie.y[i]);
+          if (!empezado) { ctx.moveTo(px, py); empezado = true; }
+          else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+      });
+      if (pico) {
+        var unidad = grafica.ylab.match(/\[([^\]]+)\]/);
+        var textosPico = ["Máximo global " + pico.nombre + ": " + formatoInteractivo(pico.x) + " Hz | " +
+          formatoInteractivo(pico.y) + (unidad ? " " + unidad[1] : "")];
+        if (picoBanda && (picoBanda.x !== pico.x || picoBanda.nombre !== pico.nombre)) {
+          textosPico.push("Pico en banda " + picoBanda.nombre + ": " + formatoInteractivo(picoBanda.x) + " Hz | " +
+            formatoInteractivo(picoBanda.y) + (unidad ? " " + unidad[1] : ""));
+        }
+        function marcarPico(espectro, color, radio) {
+          ctx.beginPath();
+          ctx.fillStyle = "#ffffff";
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 2.5;
+          ctx.arc(X(espectro.x), Y(espectro.y), radio, 0, 2 * Math.PI);
+          ctx.fill();
+          ctx.stroke();
+        }
+        marcarPico(pico, pico.color, 5);
+        if (textosPico.length > 1) marcarPico(picoBanda, "#bf7a12", 4);
+        ctx.font = "11px Segoe UI, sans-serif";
+        var anchoTexto = Math.max.apply(null, textosPico.map(function (texto) { return ctx.measureText(texto).width; }));
+        var anchoEtiqueta = Math.min(w - m.l - m.r - 12, anchoTexto + 12);
+        var altoEtiqueta = textosPico.length * 15 + 8;
+        ctx.fillStyle = "rgba(255, 255, 255, 0.96)";
+        ctx.strokeStyle = pico.color;
+        ctx.lineWidth = 1;
+        ctx.fillRect(m.l + 7, m.t + 7, anchoEtiqueta, altoEtiqueta);
+        ctx.strokeRect(m.l + 7, m.t + 7, anchoEtiqueta, altoEtiqueta);
+        ctx.fillStyle = "#172033";
+        ctx.textAlign = "left";
+        textosPico.forEach(function (texto, i) {
+          ctx.fillStyle = i === 0 ? pico.color : "#9a5f0b";
+          ctx.fillText(texto, m.l + 13, m.t + 19 + i * 15, anchoEtiqueta - 12);
+        });
+      }
+      var lx = w - m.r - 8;
+      grafica.series.forEach(function (serie, i) {
+        var ly = m.t + 8 + i * 16;
+        ctx.fillStyle = serie.color;
+        ctx.fillRect(lx - 78, ly, 12, 8);
+        ctx.fillStyle = "#172033";
+        ctx.fillText(serie.nombre, lx - 62, ly + 8);
+      });
+      ctx.strokeStyle = "#c5d0dc";
+      ctx.strokeRect(m.l, m.t, w - m.l - m.r, h - m.t - m.b);
+      ctx.fillStyle = "#5d6b7c";
+      ctx.save();
+      ctx.translate(16, (h - m.b + m.t) / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.textAlign = "center";
+      ctx.fillText(grafica.ylab, 0, 0);
+      ctx.restore();
+      if (Number.isFinite(grafica.hoverX)) dibujarLecturaCursor(canvas, ctx, grafica, X, Y, xmin, xmax, m, h);
+    }
+
+    function dibujarLecturaCursor(canvas, ctx, grafica, X, Y, xmin, xmax, m, h) {
+      var mejorX = grafica.hoverX;
+      var mejorDistancia = Infinity;
+      grafica.series.forEach(function (serie) {
+        for (var i = 0; i < serie.x.length; i++) {
+          if (serie.x[i] < xmin || serie.x[i] > xmax) continue;
+          var distancia = Math.abs(serie.x[i] - grafica.hoverX);
+          if (distancia < mejorDistancia) {
+            mejorDistancia = distancia;
+            mejorX = serie.x[i];
+          }
+        }
+      });
+      var filas = [grafica.xlab.replace(/\s*\[[^\]]*\]/, "") + ": " + formatoInteractivo(mejorX) + " " + unidadDeEje(grafica.xlab)];
+      var coloresFila = ["#536579"];
+      var puntos = [];
+      grafica.series.forEach(function (serie) {
+        var indice = 0;
+        var distancia = Infinity;
+        for (var i = 0; i < serie.x.length; i++) {
+          if (serie.x[i] < xmin || serie.x[i] > xmax) continue;
+          var d = Math.abs(serie.x[i] - mejorX);
+          if (d < distancia) { distancia = d; indice = i; }
+        }
+        var valor = serie.y[indice];
+        if (!Number.isFinite(valor)) return;
+        filas.push(serie.nombre + ": " + formatoInteractivo(valor) + " " + unidadDeEje(grafica.ylab));
+        coloresFila.push(serie.color);
+        puntos.push({ x: X(serie.x[indice]), y: Y(valor), color: serie.color });
+      });
+      canvas.setAttribute("aria-valuetext", filas.join(". "));
+      var xCursor = X(mejorX);
+      ctx.save();
+      ctx.strokeStyle = "rgba(18, 32, 51, 0.55)";
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(xCursor, m.t);
+      ctx.lineTo(xCursor, h - m.b);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      puntos.forEach(function (punto) {
+        ctx.beginPath();
+        ctx.fillStyle = "#fff";
+        ctx.strokeStyle = punto.color;
+        ctx.lineWidth = 2;
+        ctx.arc(punto.x, punto.y, 4, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.stroke();
+      });
+      ctx.font = "12px Segoe UI, sans-serif";
+      var ancho = Math.min(210, Math.max.apply(null, filas.map(function (fila) { return ctx.measureText(fila).width; })) + 20);
+      var alto = filas.length * 19 + 12;
+      var izquierda = xCursor + ancho + 12 < grafica.ancho ? xCursor + 10 : xCursor - ancho - 10;
+      izquierda = Math.max(m.l + 3, Math.min(grafica.ancho - ancho - 4, izquierda));
+      var arriba = 24;
+      ctx.fillStyle = "rgba(255, 255, 255, 0.97)";
+      ctx.strokeStyle = "#b8c7d6";
+      ctx.lineWidth = 1;
+      ctx.fillRect(izquierda, arriba, ancho, alto);
+      ctx.strokeRect(izquierda, arriba, ancho, alto);
+      ctx.textAlign = "left";
+      filas.forEach(function (fila, i) {
+        ctx.fillStyle = coloresFila[i];
+        ctx.fillText(fila, izquierda + 9, arriba + 18 + i * 19, ancho - 16);
+      });
+      ctx.restore();
+    }
+
+    function formatoInteractivo(valor) {
+      if (!Number.isFinite(valor)) return "—";
+      return Number(valor.toPrecision(5)).toString();
+    }
+
+    function unidadDeEje(etiqueta) {
+      var coincidencia = String(etiqueta).match(/\[([^\]]+)\]/);
+      return coincidencia ? coincidencia[1] : "";
+    }
+
+    function mensaje(ctx, w, h, texto) {
+      ctx.fillStyle = "#5d6b7c";
+      ctx.font = "14px Segoe UI, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(texto, w / 2, h / 2);
+      ctx.textAlign = "left";
+    }
+
+    function fmt(v, d) {
+      return Number.isFinite(v) ? v.toFixed(d) : "—";
+    }
+
+    function formatoCorto(v) {
+      if (!Number.isFinite(v)) return "";
+      var a = Math.abs(v);
+      if (a >= 100) return v.toFixed(0);
+      if (a >= 10) return v.toFixed(1);
+      if (a >= 1) return v.toFixed(2);
+      return v.toFixed(3);
+    }
+  </script>
+</body>
+</html>
