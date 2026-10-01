@@ -629,6 +629,9 @@
     document.getElementById("btnLimpiar").addEventListener("click", limpiar);
     document.getElementById("btnAnalizar").addEventListener("click", analizar);
     document.getElementById("btnPrecargados").addEventListener("click", cargarPrecargados);
+    fetch("datos/catalogo.json").then(function (resp) {
+      if (resp.ok) cargarPrecargados();
+    }).catch(function () {});
     document.getElementById("tabla").addEventListener("click", function (e) {
       var tr = e.target.closest("tr");
       if (!tr || tr.dataset.i === undefined) return;
@@ -792,29 +795,27 @@
       }
     }
 
+    var cargaEnCurso = false;
+
     async function cargarPrecargados() {
+      if (cargaEnCurso) return;
+      cargaEnCurso = true;
       var boton = document.getElementById("btnPrecargados");
       var botonAnalizar = document.getElementById("btnAnalizar");
       boton.disabled = true;
       botonAnalizar.disabled = true;
       pruebas = [];
       try {
-        var catalogoResp = await fetch("/api/datos-precargados");
-        if (!catalogoResp.ok) throw new Error("No se pudo consultar el catálogo de datos.");
-        var catalogo = await catalogoResp.json();
+        var catalogo = await catalogoPrecargado();
         if (!catalogo.pruebas || !catalogo.pruebas.length) throw new Error("No hay ensayos precargados disponibles.");
         var descartar = 0;
         var ejeUnico = "X";
         for (var i = 0; i < catalogo.pruebas.length; i++) {
           var ficha = catalogo.pruebas[i];
           document.getElementById("estado").textContent = "Cargando datos reales: " + ficha.profundidad_mm + " mm...";
-          var resp = await fetch("/api/datos-precargados", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ profundidad_mm: ficha.profundidad_mm })
-          });
-          var datos = await resp.json();
-          if (!resp.ok || datos.error) throw new Error(datos.error || "No se pudo cargar " + ficha.profundidad_mm + " mm.");
+          var datos = ficha.aceleracion && typeof ficha.aceleracion[0] === "string"
+            ? await datosDesdeArchivos(ficha)
+            : await datosDesdeApi(ficha);
           var grupo = {
             nombre: datos.nombre,
             aceleracion: archivosEnMemoria(datos.aceleracion, "Aceleracion"),
@@ -835,9 +836,53 @@
       } catch (err) {
         document.getElementById("estado").textContent = err.message || String(err);
       } finally {
+        cargaEnCurso = false;
         boton.disabled = false;
         botonAnalizar.disabled = false;
       }
+    }
+
+    async function catalogoPrecargado() {
+      try {
+        var estatico = await fetch("datos/catalogo.json");
+        if (estatico.ok) return await estatico.json();
+      } catch (error) {}
+      var catalogoResp = await fetch("/api/datos-precargados");
+      if (!catalogoResp.ok) throw new Error("No se pudo consultar el catálogo de datos.");
+      return catalogoResp.json();
+    }
+
+    async function datosDesdeApi(ficha) {
+      var resp = await fetch("/api/datos-precargados", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ profundidad_mm: ficha.profundidad_mm })
+      });
+      var datos = await resp.json();
+      if (!resp.ok || datos.error) throw new Error(datos.error || "No se pudo cargar " + ficha.profundidad_mm + " mm.");
+      return datos;
+    }
+
+    async function datosDesdeArchivos(ficha) {
+      return {
+        nombre: ficha.nombre,
+        aceleracion: await leerTextos(ficha.aceleracion),
+        fuerza: await leerTextos(ficha.fuerza),
+        modal: await leerTextos(ficha.modal || [])
+      };
+    }
+
+    async function leerTextos(rutas) {
+      var archivos = [];
+      for (var i = 0; i < rutas.length; i++) {
+        var ruta = String(rutas[i]).replace(/\\/g, "/");
+        var resp = await fetch(encodeURI(ruta));
+        if (!resp.ok) throw new Error("No se pudo leer " + ruta);
+        var texto = await resp.text();
+        if (texto.charCodeAt(0) === 0xfeff) texto = texto.slice(1);
+        archivos.push({ nombre: ruta.split("/").pop(), texto: texto });
+      }
+      return archivos;
     }
 
     function archivosEnMemoria(archivos, carpeta) {

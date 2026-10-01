@@ -1,0 +1,81 @@
+{
+  "pruebas": [
+    {
+      "profundidad_mm": 1,
+      "nombre": "Prueba 1 mm 20cm Voladizo",
+      "aceleracion": [
+        "Aceleración/Prueba 1 mm 20cm Voladizo/A__1.lvm",
+        "Aceleración/Prueba 1 mm 20cm Voladizo/A__2.lvm",
+        "Aceleración/Prueba 1 mm 20cm Voladizo/A__3.lvm",
+        "Aceleración/Prueba 1 mm 20cm Voladizo/A__4.lvm",
+        "Aceleración/Prueba 1 mm 20cm Voladizo/A__5.lvm"
+      ],
+      "fuerza": [
+        "Fuerza/Prueba 1 mm 20 cm voladizo/F__1.lvm",
+        "Fuerza/Prueba 1 mm 20 cm voladizo/F__2.lvm"
+      ],
+      "modal": [
+        "Analisis modal/Analisis modal/A_1.lvm",
+        "Analisis modal/Analisis modal/A_2.lvm"
+      ]
+    },
+    {
+      "profundidad_mm": 1.5,
+      "nombre": "Prueba 1.5 mm 20 cm Voladizo",
+      "aceleracion": [
+        "Aceleración/Prueba 1.5 mm 20 cm Voladizo/A__1.lvm",
+        "Aceleración/Prueba 1.5 mm 20 cm Voladizo/A__2.lvm",
+        "Aceleración/Prueba 1.5 mm 20 cm Voladizo/A__3.lvm",
+        "Aceleración/Prueba 1.5 mm 20 cm Voladizo/A__4.lvm",
+        "Aceleración/Prueba 1.5 mm 20 cm Voladizo/A__5.lvm"
+      ],
+      "fuerza": [
+        "Fuerza/Prueba 1.5 mm 20 cm voladizo/F__1.lvm",
+        "Fuerza/Prueba 1.5 mm 20 cm voladizo/F__2.lvm"
+      ],
+      "modal": [
+        "Analisis modal/Analisis modal/A_1.lvm",
+        "Analisis modal/Analisis modal/A_2.lvm"
+      ]
+    },
+    {
+      "profundidad_mm": 2,
+      "nombre": "Prueba 2 mm 20cm Voladizo",
+      "aceleracion": [
+        "Aceleración/Prueba 2 mm 20cm Voladizo/A__1.lvm",
+        "Aceleración/Prueba 2 mm 20cm Voladizo/A__2.lvm",
+        "Aceleración/Prueba 2 mm 20cm Voladizo/A__3.lvm",
+        "Aceleración/Prueba 2 mm 20cm Voladizo/A__4.lvm",
+        "Aceleración/Prueba 2 mm 20cm Voladizo/A__5.lvm"
+      ],
+      "fuerza": [
+        "Fuerza/Prueba 2 mm 20 cm voladizo/F__1.lvm",
+        "Fuerza/Prueba 2 mm 20 cm voladizo/F__2.lvm"
+      ],
+      "modal": [
+        "Analisis modal/Analisis modal/A_1.lvm",
+        "Analisis modal/Analisis modal/A_2.lvm"
+      ]
+    },
+    {
+      "profundidad_mm": 2.5,
+      "nombre": "Prueba 2.5 mm 20 cm voladizo",
+      "aceleracion": [
+        "Aceleración/Prueba 2.5 mm 20 cm voladizo/A__1.lvm",
+        "Aceleración/Prueba 2.5 mm 20 cm voladizo/A__2.lvm",
+        "Aceleración/Prueba 2.5 mm 20 cm voladizo/A__3.lvm",
+        "Aceleración/Prueba 2.5 mm 20 cm voladizo/A__4.lvm",
+        "Aceleración/Prueba 2.5 mm 20 cm voladizo/A__5.lvm",
+        "Aceleración/Prueba 2.5 mm 20 cm voladizo/A__6.lvm"
+      ],
+      "fuerza": [
+        "Fuerza/Prueba 2.5 mm 20 cm voladizo/F__1.lvm",
+        "Fuerza/Prueba 2.5 mm 20 cm voladizo/F__2.lvm"
+      ],
+      "modal": [
+        "Analisis modal/Analisis modal/A_1.lvm",
+        "Analisis modal/Analisis modal/A_2.lvm"
+      ]
+    }
+  ]
+}
