@@ -157,42 +157,100 @@ function archivosLvm(carpeta, prefijo) {
     .sort((a, b) => Number(a.match(patron)[1]) - Number(b.match(patron)[1]));
 }
 
+function sinAcento(texto) {
+  return String(texto)
+    .replace(/á/gi, "a").replace(/é/gi, "e").replace(/í/gi, "i")
+    .replace(/ó/gi, "o").replace(/ú/gi, "u").replace(/ñ/gi, "n");
+}
+
+function hojasConLvm(raiz, prefijo) {
+  const hojas = [];
+  function recorrer(dir) {
+    if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) return;
+    const lista = archivosLvm(dir, prefijo);
+    if (lista.length) hojas.push({ nombre: path.basename(dir), ruta: dir, archivos: lista });
+    for (const entrada of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entrada.isDirectory()) recorrer(path.join(dir, entrada.name));
+    }
+  }
+  recorrer(raiz);
+  return hojas;
+}
+
+function textoCondicion(nombre) {
+  return sinAcento(nombre).toLowerCase().replace(/prueba\s*2[.,]0/g, " ");
+}
+
+function esSegundaPrueba(nombre) {
+  const texto = textoCondicion(nombre);
+  return /(?:^|\s)2[.,]0\b/.test(texto) || /2[.,]5(?:\s*mm)?\s*[-–]\s*2\b/.test(texto);
+}
+
+function profundidadNominal(nombre) {
+  const texto = textoCondicion(nombre);
+  const conUnidad = texto.match(/(\d+(?:[.,]\d+)?)\s*mm/);
+  if (conUnidad) {
+    const valor = parseFloat(conUnidad[1].replace(",", "."));
+    if (valor >= 1 && valor !== 2) return valor;
+  }
+  const suelta = texto.match(/\b(2[.,]5|1[.,]5|1|3|4)\b/);
+  return suelta ? parseFloat(suelta[1].replace(",", ".")) : 2.5;
+}
+
+function firmaCondicion(nombre) {
+  const texto = textoCondicion(nombre);
+  const herramienta = /desgast/.test(texto) ? "desgastada" : (/nuev[oa]/.test(texto) ? "nueva" : "");
+  if (!herramienta) return "";
+  const refrigerante = /con refrigerante/.test(texto) ? "con" : "sin";
+  const repeticion = esSegundaPrueba(nombre) ? "2" : "1";
+  return [herramienta, refrigerante, profundidadNominal(nombre).toFixed(1), repeticion].join("|");
+}
+
+function nombreDeFirma(firma) {
+  const [herramienta, refrigerante, profundidad, repeticion] = firma.split("|");
+  const estado = herramienta === "desgastada" ? "Desgastada" : "Nueva";
+  const fluido = refrigerante === "con" ? "con refrigerante" : "sin refrigerante";
+  const orden = repeticion === "2" ? "segunda prueba" : "primera prueba";
+  const corte = parseFloat(profundidad).toFixed(1).replace(/\.0$/, "");
+  return estado + ", " + corte + " mm, " + fluido + ", " + orden;
+}
+
 function catalogoPrecargados() {
-  const raizAceleracion = path.join(RAIZ, "Aceleración");
-  const raizFuerza = path.join(RAIZ, "Fuerza");
-  const raizModal = path.join(RAIZ, "Analisis modal", "Analisis modal");
-  const carpetasFuerza = new Map();
-  if (fs.existsSync(raizFuerza)) {
-    for (const nombre of fs.readdirSync(raizFuerza)) {
-      const profundidad = profundidadDeNombre(nombre);
-      if (profundidad != null && fs.statSync(path.join(raizFuerza, nombre)).isDirectory()) {
-        if (!carpetasFuerza.has(profundidad)) carpetasFuerza.set(profundidad, []);
-        carpetasFuerza.get(profundidad).push(nombre);
-      }
-    }
+  const aceleracion = hojasConLvm(path.join(RAIZ, "Aceleración"), "A");
+  const fuerza = hojasConLvm(path.join(RAIZ, "Fuerza"), "F");
+  const modal = hojasConLvm(path.join(RAIZ, "Analisis modal"), "A");
+  const modalHoja = modal[0] || { ruta: "", archivos: [] };
+  const porFirma = new Map();
+  function tomar(hoja, tipo) {
+    const firma = firmaCondicion(hoja.nombre);
+    if (!firma) return;
+    if (!porFirma.has(firma)) porFirma.set(firma, { firma });
+    const prueba = porFirma.get(firma);
+    if (prueba[tipo]) return;
+    prueba[tipo] = hoja;
   }
+  aceleracion.forEach((hoja) => tomar(hoja, "aceleracion"));
+  fuerza.forEach((hoja) => tomar(hoja, "fuerza"));
   const pruebas = [];
-  if (fs.existsSync(raizAceleracion)) {
-    for (const nombre of fs.readdirSync(raizAceleracion)) {
-      const profundidad = profundidadDeNombre(nombre);
-      const carpetaA = path.join(raizAceleracion, nombre);
-      const carpetasF = profundidad == null ? [] : (carpetasFuerza.get(profundidad) || []);
-      if (profundidad == null || !fs.existsSync(carpetaA) || !fs.statSync(carpetaA).isDirectory() || carpetasF.length !== 1) continue;
-      const listaA = archivosLvm(carpetaA, "A");
-      const listaF = archivosLvm(path.join(raizFuerza, carpetasF[0]), "F");
-      const listaM = archivosLvm(raizModal, "A");
-      if (listaA.length && listaF.length) {
-        pruebas.push({
-          profundidad_mm: profundidad,
-          nombre,
-          archivos_aceleracion: listaA,
-          archivos_fuerza: listaF,
-          archivos_modal: listaM
-        });
-      }
-    }
+  for (const [firma, prueba] of porFirma) {
+    if (!prueba.aceleracion && !prueba.fuerza) continue;
+    const partes = firma.split("|");
+    pruebas.push({
+      id: firma,
+      nombre: nombreDeFirma(firma),
+      profundidad_mm: parseFloat(partes[2]),
+      herramienta: partes[0] === "desgastada" ? "Desgastada" : "Nueva",
+      refrigerante: partes[1] === "con" ? "Con refrigerante" : "Sin refrigerante",
+      repeticion: partes[3] === "2" ? "segunda" : "primera",
+      rutaAceleracion: prueba.aceleracion ? prueba.aceleracion.ruta : "",
+      rutaFuerza: prueba.fuerza ? prueba.fuerza.ruta : "",
+      rutaModal: modalHoja.ruta,
+      archivos_aceleracion: prueba.aceleracion ? prueba.aceleracion.archivos : [],
+      archivos_fuerza: prueba.fuerza ? prueba.fuerza.archivos : [],
+      archivos_modal: modalHoja.archivos
+    });
   }
-  return pruebas.sort((a, b) => a.profundidad_mm - b.profundidad_mm);
+  return pruebas.sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 }
 
 function leerArchivos(carpeta, nombres) {
@@ -203,17 +261,14 @@ function leerArchivos(carpeta, nombres) {
   });
 }
 
-function datosPrecargados(profundidad) {
-  const prueba = catalogoPrecargados().find((item) => item.profundidad_mm === profundidad);
-  if (!prueba) throw new Error("No hay datos precargados para ese espesor.");
-  const carpetaFuerza = fs.readdirSync(path.join(RAIZ, "Fuerza")).find((nombre) => {
-    return profundidadDeNombre(nombre) === profundidad && fs.statSync(path.join(RAIZ, "Fuerza", nombre)).isDirectory();
-  });
+function datosPrecargados(id) {
+  const prueba = catalogoPrecargados().find((item) => item.id === id || String(item.profundidad_mm) === String(id));
+  if (!prueba) throw new Error("No hay datos precargados para esa prueba.");
   return {
     nombre: prueba.nombre,
-    aceleracion: leerArchivos(path.join(RAIZ, "Aceleración", prueba.nombre), prueba.archivos_aceleracion),
-    fuerza: leerArchivos(path.join(RAIZ, "Fuerza", carpetaFuerza), prueba.archivos_fuerza),
-    modal: leerArchivos(path.join(RAIZ, "Analisis modal", "Analisis modal"), prueba.archivos_modal)
+    aceleracion: prueba.rutaAceleracion ? leerArchivos(prueba.rutaAceleracion, prueba.archivos_aceleracion) : [],
+    fuerza: prueba.rutaFuerza ? leerArchivos(prueba.rutaFuerza, prueba.archivos_fuerza) : [],
+    modal: prueba.rutaModal ? leerArchivos(prueba.rutaModal, prueba.archivos_modal) : []
   };
 }
 
@@ -265,15 +320,23 @@ const servidor = http.createServer((peticion, respuesta) => {
 
   if (peticion.method === "GET") {
     if (ruta === "/api/datos-precargados") {
-      enviarJson(respuesta, 200, { pruebas: catalogoPrecargados() });
+      enviarJson(respuesta, 200, {
+        pruebas: catalogoPrecargados().map((prueba) => ({
+          id: prueba.id,
+          nombre: prueba.nombre,
+          profundidad_mm: prueba.profundidad_mm,
+          herramienta: prueba.herramienta,
+          refrigerante: prueba.refrigerante,
+          repeticion: prueba.repeticion
+        }))
+      });
       return;
     }
     const paginas = new Set(["", "/", "/index.html", "/pagina", "/pagina/", "/pagina/index.html"]);
     const recursos = {
       "/Analisis de chatter.html": "Analisis de chatter.html",
       "/analisis.js": "analisis.js",
-      "/logo-tec.svg": "logo-tec.svg",
-      "/ejemplo.html": "ejemplo.html"
+      "/logo-tec.svg": "logo-tec.svg"
     };
     if (paginas.has(ruta)) {
       servirArchivo(respuesta, path.join(RAIZ, "Analisis de chatter.html"));
@@ -304,7 +367,7 @@ const servidor = http.createServer((peticion, respuesta) => {
       try {
         const resumen = JSON.parse(Buffer.concat(trozos).toString("utf8") || "{}");
         if (ruta === "/api/datos-precargados") {
-          enviarJson(respuesta, 200, datosPrecargados(Number(resumen.profundidad_mm)));
+          enviarJson(respuesta, 200, datosPrecargados(resumen.id || resumen.profundidad_mm));
           return;
         }
         const texto = await consultarModelo(resumen);

@@ -232,12 +232,21 @@
     .grupo { display: flex; align-items: center; gap: 14px; margin: 44px 0 4px; font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); }
     .grupo::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(228, 196, 138, 0.35), transparent); }
     .tabla-wrap { overflow-x: auto; border-radius: 16px; border: 1px solid var(--line); background: rgba(3, 9, 18, 0.5); }
+    .filtros { display: flex; flex-direction: column; gap: 12px; margin: 0 0 16px; }
+    .filtro { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .filtro > span { min-width: 118px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); }
+    .filtro button { height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line-hi); background: rgba(130, 180, 240, 0.06); color: var(--muted); font: inherit; font-size: 13.5px; cursor: pointer; }
+    .filtro button.activo { color: #1d1405; background: linear-gradient(180deg, var(--gold-hi), #d3a95c); border-color: transparent; font-weight: 600; }
+    .etiquetas { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .etiq { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--tec-soft); }
+    .etiq.segunda { color: var(--gold-hi); border-color: rgba(228, 196, 138, 0.45); }
+    .etiq.desgastada { color: #ffb089; border-color: rgba(255, 159, 67, 0.4); }
     table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
     th, td { text-align: left; padding: 14px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
     tbody tr:last-child td { border-bottom: 0; }
     th { color: var(--faint); font-family: var(--mono); font-weight: 500; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; background: rgba(130, 180, 240, 0.04); }
     td { font-family: var(--mono); font-size: 12.5px; color: #cfdced; }
-    td:first-child { font-family: var(--sans); font-size: 14px; color: #fff; font-weight: 500; }
+    td:first-child { font-family: var(--sans); font-size: 14px; color: #fff; font-weight: 500; white-space: normal; min-width: 260px; }
     tr { cursor: pointer; transition: background .2s ease; }
     tbody tr:hover { background: rgba(90, 209, 255, 0.07); }
     tr.sel { background: linear-gradient(90deg, rgba(228, 196, 138, 0.16), rgba(31, 139, 255, 0.07)); box-shadow: inset 3px 0 0 var(--gold); }
@@ -408,7 +417,6 @@
         <a href="#datos">Datos</a>
         <a href="#resultados">Resultados</a>
         <a href="#comparativo">Comparativo</a>
-        <a href="ejemplo.html">Ejemplo ilustrativo</a>
         <a class="cta" href="#datos">Analizar ensayos</a>
       </nav>
     </div>
@@ -535,7 +543,28 @@
     <section class="seccion" id="resultados" style="padding-top: 64px;">
       <section class="panel oculto" id="panelResultados">
         <div class="cab"><span class="num">03</span><h2>Resultados</h2></div>
-        <p class="ayuda" style="margin-bottom: 22px;">Elige un ensayo en la tabla para ver su detalle, señales y espectros.</p>
+        <p class="ayuda" style="margin-bottom: 18px;">Inserto nuevo y herramienta nueva son la misma condición. El 2.0 del nombre de la carpeta es la segunda prueba, no otra profundidad.</p>
+        <div class="filtros" id="filtrosPruebas">
+          <div class="filtro">
+            <span>Herramienta</span>
+            <button type="button" data-filtro="herramienta" data-valor="todas" class="activo">Todas</button>
+            <button type="button" data-filtro="herramienta" data-valor="Nueva">Nueva</button>
+            <button type="button" data-filtro="herramienta" data-valor="Desgastada">Desgastada</button>
+          </div>
+          <div class="filtro">
+            <span>Refrigerante</span>
+            <button type="button" data-filtro="refrigerante" data-valor="todas" class="activo">Todos</button>
+            <button type="button" data-filtro="refrigerante" data-valor="Con refrigerante">Con refrigerante</button>
+            <button type="button" data-filtro="refrigerante" data-valor="Sin refrigerante">Sin refrigerante</button>
+          </div>
+          <div class="filtro">
+            <span>Repetición</span>
+            <button type="button" data-filtro="repeticion" data-valor="todas" class="activo">Todas</button>
+            <button type="button" data-filtro="repeticion" data-valor="primera">Primera prueba</button>
+            <button type="button" data-filtro="repeticion" data-valor="segunda">Segunda prueba (2.0)</button>
+          </div>
+        </div>
+        <p class="nota" id="filtroConteo" style="margin-top: 0;"></p>
         <div class="tabla-wrap">
           <table>
             <thead>
@@ -603,7 +632,7 @@
           <div class="grafica"><h3 id="titFFTFZ">FFT fuerza Z</h3><canvas id="cvFEZ" width="1040" height="280" aria-label="FFT de fuerza en el eje Z"></canvas></div>
         </div>
         <p class="nota">Las FFT se calculan por canal con la señal tarada y ventana Hann, como en Analisis_Chatter_XYZ.m. Aceleración en g; fuerza en V.</p>
-        <p class="nota">En las gráficas: coloca el cursor para leer valores; usa la rueda para acercar o alejar, arrastra para desplazar y haz doble clic o pulsa Inicio para restablecer la vista.</p>
+        <p class="nota">En las gráficas: coloca el cursor para leer valores; usa la rueda para acercar o alejar, arrastra para desplazar y haz doble clic o pulsa Inicio para restablecer la vista. La vista inicial del tiempo es el tramo de corte más largo, sin el reposo del principio y sin el tramo en que la fuerza se sale de escala. El doble clic devuelve la grabación completa.</p>
 
         <div class="grupo">Análisis modal</div>
         <div class="grafica">
@@ -646,6 +675,10 @@
             <span class="pestana-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3zM12 10v4M12 17h.01"/></svg></span>
             <span class="pestana-txt"><b>Chatter</b><small>Detección e índice</small></span>
           </button>
+          <button type="button" role="tab" class="pestana" data-vista="pieza" id="tabCmpPieza" aria-controls="vistaCmpPieza" aria-selected="false" tabindex="-1">
+            <span class="pestana-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h18M3 16h18M7 4v16M17 4v16"/></svg></span>
+            <span class="pestana-txt"><b>Pieza</b><small>Rugosidad y tamaño</small></span>
+          </button>
         </div>
 
         <div class="cmp-controles" id="cmpControles" hidden>
@@ -674,6 +707,10 @@
                   <th>Fin / inicio</th>
                   <th>Chatter</th>
                   <th>Índice</th>
+                  <th>Rugosidad media (µm)</th>
+                  <th>Pieza inicio (mm)</th>
+                  <th>Pieza fin (mm)</th>
+                  <th>Inicio − fin (mm)</th>
                 </tr>
               </thead>
               <tbody id="tablaCmp"></tbody>
@@ -736,6 +773,21 @@
               <p class="nota">Cambio porcentual de cada métrica global contra la prueba de menor profundidad.</p></div>
           </div>
         </div>
+
+        <!-- Ventana 5: pieza -->
+        <div class="vista" role="tabpanel" id="vistaCmpPieza" aria-labelledby="tabCmpPieza" hidden>
+          <p class="vista-desc">Resultado sobre la pieza (voladizo de 20 cm): rugosidad medida en cinco lecturas y tamaño de la pieza al inicio y al fin del corte, para cada profundidad.</p>
+          <div class="rejilla-2">
+            <div class="grafica"><h3>Rugosidad media</h3><canvas id="cvBRug" width="520" height="280"></canvas>
+              <p class="nota">Promedio de las cinco lecturas de rugosidad, en µm. Pasa el cursor sobre una columna para ver el valor.</p></div>
+            <div class="grafica"><h3>Rugosidad por lectura</h3><canvas id="cvBRugLect" width="520" height="280"></canvas>
+              <p class="nota">Las cinco lecturas de cada prueba, para ver la dispersión de la medición.</p></div>
+            <div class="grafica"><h3>Tamaño de la pieza al inicio y al fin del corte</h3><canvas id="cvBDiam" width="520" height="280"></canvas>
+              <p class="nota">Tamaño medido en mm al comenzar y al terminar el corte.</p></div>
+            <div class="grafica"><h3>Diferencia de tamaño (inicio − fin)</h3><canvas id="cvBDif" width="520" height="280"></canvas>
+              <p class="nota">Cuánto se reduce la pieza entre el inicio y el fin del corte, en mm.</p></div>
+          </div>
+        </div>
       </section>
     </section>
   </main>
@@ -749,7 +801,7 @@
       <span class="mono">Vibraciones en maquinado</span>
     </div>
   </footer>
-  <script src="analisis.js"></script>
+  <script src="analisis.js?v=corte"></script>
   <script>
     var CA = window.ChatterAnalisis;
     document.body.dataset.analisis = CA ? "listo" : "falta";
@@ -807,9 +859,7 @@
     document.getElementById("btnLimpiar").addEventListener("click", limpiar);
     document.getElementById("btnAnalizar").addEventListener("click", analizar);
     document.getElementById("btnPrecargados").addEventListener("click", function () { cargarPrecargados(false); });
-    fetch("datos/catalogo.json").then(function (resp) {
-      if (resp.ok) cargarPrecargados(true);
-    }).catch(function () {});
+    cargarPrecargados(true);
     document.getElementById("tabla").addEventListener("click", function (e) {
       var tr = e.target.closest("tr");
       if (!tr || tr.dataset.i === undefined) return;
@@ -995,7 +1045,7 @@
         var ejeUnico = "X";
         for (var i = 0; i < catalogo.pruebas.length; i++) {
           var ficha = catalogo.pruebas[i];
-          document.getElementById("estado").textContent = "Cargando datos reales: " + ficha.profundidad_mm + " mm...";
+          document.getElementById("estado").textContent = "Cargando datos reales: " + (ficha.nombre || (ficha.profundidad_mm + " mm")) + "...";
           var datos = ficha.aceleracion && typeof ficha.aceleracion[0] === "string"
             ? await datosDesdeArchivos(ficha)
             : await datosDesdeApi(ficha);
@@ -1005,7 +1055,11 @@
             fuerza: archivosEnMemoria(datos.fuerza, "Fuerza"),
             modal: archivosEnMemoria(datos.modal || [], "Modal")
           };
-          pruebas.push(await analizarGrupo(grupo, descartar, ejeUnico));
+          var analizada = await analizarGrupo(grupo, descartar, ejeUnico);
+          if (ficha.herramienta) analizada.herramienta = ficha.herramienta;
+          if (ficha.refrigerante) analizada.refrigerante = ficha.refrigerante;
+          if (ficha.repeticion) analizada.repeticion = ficha.repeticion;
+          pruebas.push(analizada);
         }
         CA.indices(pruebas);
         seleccion = 0;
@@ -1029,7 +1083,10 @@
     async function catalogoPrecargado() {
       try {
         var estatico = await fetch("datos/catalogo.json");
-        if (estatico.ok) return await estatico.json();
+        if (estatico.ok) {
+          var json = await estatico.json();
+          if (json.pruebas && json.pruebas.length) return json;
+        }
       } catch (error) {}
       var catalogoResp = await fetch("/api/datos-precargados");
       if (!catalogoResp.ok) throw new Error("No se pudo consultar el catálogo de datos.");
@@ -1037,14 +1094,22 @@
     }
 
     async function datosDesdeApi(ficha) {
-      var resp = await fetch("/api/datos-precargados", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ profundidad_mm: ficha.profundidad_mm })
-      });
-      var datos = await resp.json();
-      if (!resp.ok || datos.error) throw new Error(datos.error || "No se pudo cargar " + ficha.profundidad_mm + " mm.");
-      return datos;
+      var ultimo = null;
+      for (var intento = 0; intento < 2; intento++) {
+        try {
+          var resp = await fetch("/api/datos-precargados", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: ficha.id, profundidad_mm: ficha.profundidad_mm })
+          });
+          var datos = await resp.json();
+          if (!resp.ok || datos.error) throw new Error(datos.error || "No se pudo cargar " + (ficha.nombre || ficha.profundidad_mm) + ".");
+          return datos;
+        } catch (error) {
+          ultimo = error;
+        }
+      }
+      throw ultimo || new Error("No se pudo cargar " + (ficha.nombre || ficha.profundidad_mm) + ".");
     }
 
     async function datosDesdeArchivos(ficha) {
@@ -1104,13 +1169,45 @@
       return CA.armarXYZ(leidos, ejeUnico);
     }
 
+    /* Mediciones sobre la pieza (voladizo de 20 cm), por profundidad de corte en mm.
+       diametroInicio / diametroFin: tamaño de la pieza al comenzar y al terminar el corte [mm].
+       rugosidad: cinco lecturas de rugosidad [µm]. */
+    var MEDICIONES = {
+      "1":   { diametroInicio: 52.16, diametroFin: 50.53, rugosidad: [0.96, 1.13, 1.26, 1.49, 1.35] },
+      "1.5": { diametroInicio: 52.02, diametroFin: 48.43, rugosidad: [3.23, 4.41, 3.96, 3.8, 4.88] },
+      "2":   { diametroInicio: 52.14, diametroFin: 48.02, rugosidad: [5.6, 5.73, 5.8, 6.5, 5.86] },
+      "2.5": { diametroInicio: 52.04, diametroFin: 46.96, rugosidad: [5.37, 5.68, 5.49, 5.28, 5.12] }
+    };
+
+    function medicionesDe(profundidad) {
+      var m = Number.isFinite(profundidad) ? MEDICIONES[String(profundidad)] : null;
+      var r = { diametroInicio: NaN, diametroFin: NaN, diferencia: NaN, rugosidad: [], raMedia: NaN, raDesv: NaN, raMin: NaN, raMax: NaN };
+      if (!m) return r;
+      r.diametroInicio = m.diametroInicio;
+      r.diametroFin = m.diametroFin;
+      r.diferencia = m.diametroInicio - m.diametroFin;
+      r.rugosidad = m.rugosidad.slice();
+      var n = r.rugosidad.length;
+      if (n) {
+        r.raMedia = r.rugosidad.reduce(function (s, v) { return s + v; }, 0) / n;
+        r.raDesv = n > 1
+          ? Math.sqrt(r.rugosidad.reduce(function (s, v) { return s + (v - r.raMedia) * (v - r.raMedia); }, 0) / (n - 1))
+          : 0;
+        r.raMin = Math.min.apply(null, r.rugosidad);
+        r.raMax = Math.max.apply(null, r.rugosidad);
+      }
+      return r;
+    }
+
     async function analizarGrupo(grupo, descartar, ejeUnico) {
       var meta = CA.metaDeNombre(grupo.nombre);
       var p = {
         nombre: grupo.nombre,
         profundidad: meta.profundidad,
+        pieza: (meta.refrigerante || meta.herramienta) ? medicionesDe(NaN) : medicionesDe(meta.profundidad),
         refrigerante: meta.refrigerante,
         herramienta: meta.herramienta,
+        repeticion: meta.repeticion,
         rms: [NaN, NaN, NaN],
         rmsA: NaN,
         rmsFxyz: [NaN, NaN, NaN],
@@ -1174,7 +1271,7 @@
           var fuerza = await leerGrupo(grupo.fuerza, "X");
           var presentes = fuerza.canales.filter(Boolean).length;
           if (presentes < 3) throw new Error("La fuerza necesita Fx, Fy y Fz.");
-          var resF = CA.analizarSenal(fuerza, p.banda);
+          var resF = CA.analizarSenal(fuerza, p.banda, true);
           p.rmsFxyz = resF.rms;
           p.rmsF = resF.rmsR;
           p.fuerza = resF;
@@ -1187,10 +1284,60 @@
       return p;
     }
 
+    var filtros = { herramienta: "todas", refrigerante: "todas", repeticion: "todas" };
+
+    function pasaFiltro(p) {
+      if (filtros.herramienta !== "todas" && p.herramienta !== filtros.herramienta) return false;
+      if (filtros.refrigerante !== "todas" && p.refrigerante !== filtros.refrigerante) return false;
+      if (filtros.repeticion !== "todas" && p.repeticion !== filtros.repeticion) return false;
+      return true;
+    }
+
+    function listaVisible() {
+      var lista = [];
+      pruebas.forEach(function (p, i) {
+        if (pasaFiltro(p) && !cmp.ocultas[i]) lista.push(p);
+      });
+      return lista;
+    }
+
+    function aplicarFiltros() {
+      var alguna = false;
+      pruebas.forEach(function (p, i) {
+        if (!pasaFiltro(p)) cmp.ocultas[i] = true;
+        else {
+          alguna = true;
+          if (cmp.ocultas[i]) delete cmp.ocultas[i];
+        }
+      });
+      if (alguna && !pasaFiltro(pruebas[seleccion])) {
+        for (var i = 0; i < pruebas.length; i++) {
+          if (pasaFiltro(pruebas[i])) { seleccion = i; break; }
+        }
+      }
+      pintarTabla();
+      if (alguna) pintarDetalle();
+      if (!document.getElementById("comparativo").classList.contains("oculto")) pintarComparativo();
+    }
+
+    document.getElementById("filtrosPruebas").addEventListener("click", function (e) {
+      var boton = e.target.closest("button");
+      if (!boton) return;
+      filtros[boton.dataset.filtro] = boton.dataset.valor;
+      var grupo = boton.parentNode;
+      Array.prototype.forEach.call(grupo.querySelectorAll("button"), function (otro) {
+        otro.classList.toggle("activo", otro === boton);
+      });
+      aplicarFiltros();
+    });
+
     function pintarTabla() {
       var tb = document.getElementById("tabla");
       tb.innerHTML = "";
+      var visibles = 0;
       pruebas.forEach(function (p, i) {
+        if (!pasaFiltro(p)) return;
+        visibles++;
         var tr = document.createElement("tr");
         tr.dataset.i = String(i);
         if (i === seleccion) tr.className = "sel";
@@ -1205,7 +1352,25 @@
         ];
         vals.forEach(function (v, k) {
           var td = document.createElement("td");
-          if (k === 8 && (v === "Sí" || v === "No")) {
+          if (k === 0) {
+            var titulo = document.createElement("div");
+            titulo.textContent = v;
+            td.appendChild(titulo);
+            var marcas = document.createElement("div");
+            marcas.className = "etiquetas";
+            [
+              [p.herramienta, p.herramienta === "Desgastada" ? "desgastada" : ""],
+              [p.refrigerante, ""],
+              [p.repeticion === "segunda" ? "Segunda prueba" : (p.repeticion === "primera" ? "Primera prueba" : ""), p.repeticion === "segunda" ? "segunda" : ""]
+            ].forEach(function (marca) {
+              if (!marca[0]) return;
+              var etiqueta = document.createElement("span");
+              etiqueta.className = "etiq" + (marca[1] ? " " + marca[1] : "");
+              etiqueta.textContent = marca[0];
+              marcas.appendChild(etiqueta);
+            });
+            if (marcas.childNodes.length) td.appendChild(marcas);
+          } else if (k === 8 && (v === "Sí" || v === "No")) {
             var pill = document.createElement("span");
             pill.className = "pill " + (v === "Sí" ? "si" : "no");
             pill.textContent = v === "Sí" ? "Chatter" : "Estable";
@@ -1217,6 +1382,16 @@
         });
         tb.appendChild(tr);
       });
+      if (!visibles) {
+        var vacia = document.createElement("tr");
+        var celda = document.createElement("td");
+        celda.colSpan = 11;
+        celda.textContent = "Ningún ensayo coincide con esos filtros.";
+        vacia.appendChild(celda);
+        tb.appendChild(vacia);
+      }
+      var conteo = document.getElementById("filtroConteo");
+      if (conteo) conteo.textContent = visibles + " de " + pruebas.length + " ensayos visibles.";
     }
 
     function pintarDetalle() {
@@ -1233,6 +1408,14 @@
         ["Fuerza Z", fmt(p.rmsFxyz[2], 4) + " V", "ez"],
         ["Frecuencia natural", fmt(p.fNatural, 1) + " Hz", "fn"]
       ];
+      if (p.pieza && Number.isFinite(p.pieza.raMedia)) {
+        items.push(
+          ["Rugosidad media (5 lecturas)", fmt(p.pieza.raMedia, 2) + " ± " + fmt(p.pieza.raDesv, 2) + " µm", "ey"],
+          ["Pieza al inicio del corte", fmt(p.pieza.diametroInicio, 2) + " mm", "ex"],
+          ["Pieza al fin del corte", fmt(p.pieza.diametroFin, 2) + " mm", "ex"],
+          ["Reducción inicio − fin", fmt(p.pieza.diferencia, 2) + " mm", "fn"]
+        );
+      }
       box.innerHTML = "";
       items.forEach(function (it) {
         var d = document.createElement("div");
@@ -1242,18 +1425,20 @@
         d.querySelector("strong").textContent = it[1];
         box.appendChild(d);
       });
-      var etiquetaGeneral = Number.isFinite(p.profundidad) ? p.profundidad + " mm" : "espesor no identificado";
-      document.getElementById("titA").textContent = "Aceleración XYZ en el tiempo · " + etiquetaGeneral;
-      document.getElementById("titF").textContent = "Fuerza XYZ en el tiempo · " + etiquetaGeneral;
+      var etiquetaGeneral = etiquetaVisible(p);
+      var tramoA = textoVentana(p.acel);
+      var tramoF = textoVentana(p.fuerza);
+      document.getElementById("titA").textContent = "Aceleración XYZ en el tiempo · " + etiquetaGeneral + tramoA;
+      document.getElementById("titF").textContent = "Fuerza XYZ en el tiempo · " + etiquetaGeneral + tramoF;
       dibujarSenal(document.getElementById("cvA"), p.acel, "Tiempo [s]", "Aceleración [g]", false, null);
       dibujarSenal(document.getElementById("cvF"), p.fuerza, "Tiempo [s]", "Fuerza [V]", true, null);
       dibujarSenal(document.getElementById("cvE"), p.acel ? { t: p.acel.f, y: p.acel.p } : null, "Frecuencia [Hz]", "Amplitud [g]", false, p.banda);
       dibujarSenal(document.getElementById("cvFE"), p.fuerza ? { t: p.fuerza.f, y: p.fuerza.p } : null, "Frecuencia [Hz]", "Amplitud [V]", true, p.banda);
       var ejes = ["X", "Y", "Z"];
       ejes.forEach(function (eje, c) {
-        var etiqueta = Number.isFinite(p.profundidad) ? p.profundidad + " mm" : "espesor no identificado";
-        document.getElementById("titA" + eje).textContent = "Aceleración " + eje + " · " + etiqueta;
-        document.getElementById("titF" + eje).textContent = "Fuerza " + eje + " · " + etiqueta;
+        var etiqueta = etiquetaVisible(p);
+        document.getElementById("titA" + eje).textContent = "Aceleración " + eje + " · " + etiqueta + tramoA;
+        document.getElementById("titF" + eje).textContent = "Fuerza " + eje + " · " + etiqueta + tramoF;
         document.getElementById("titFFT" + eje).textContent = "FFT aceleración " + eje + " · " + etiqueta;
         document.getElementById("titFFTF" + eje).textContent = "FFT fuerza " + eje + " · " + etiqueta;
         dibujarSenal(document.getElementById("cvA" + eje), serieEje(p.acel, c, false), "Tiempo [s]", "Aceleración [g]", false, null);
@@ -1261,14 +1446,17 @@
         dibujarSenal(document.getElementById("cvE" + eje), serieEje(p.acel, c, true), "Frecuencia [Hz]", "Amplitud [g]", false, p.banda);
         dibujarSenal(document.getElementById("cvFE" + eje), serieEje(p.fuerza, c, true), "Frecuencia [Hz]", "Amplitud [V]", true, p.banda);
       });
-      document.getElementById("titFFT").textContent = "Comparación FFT de aceleración XYZ · " +
-        (Number.isFinite(p.profundidad) ? p.profundidad + " mm" : "espesor no identificado");
-      document.getElementById("titFFTF").textContent = "Comparación FFT de fuerza XYZ · " +
-        (Number.isFinite(p.profundidad) ? p.profundidad + " mm" : "espesor no identificado");
+      document.getElementById("titFFT").textContent = "Comparación FFT de aceleración XYZ · " + etiquetaVisible(p);
+      document.getElementById("titFFTF").textContent = "Comparación FFT de fuerza XYZ · " + etiquetaVisible(p);
       dibujarSenal(document.getElementById("cvM"), p.modal, "Tiempo [s]", "Aceleración [g]", false, null);
       var extra = "";
       if (Number.isFinite(p.razon)) extra = " Vibración al final / al inicio = " + p.razon.toFixed(2) + ".";
       document.getElementById("notas").textContent = (p.notas.join(" ") + extra).trim();
+    }
+
+    function textoVentana(datos) {
+      if (!datos || !datos.ventana) return "";
+      return " · " + datos.ventana[0].toFixed(1) + "–" + datos.ventana[1].toFixed(1) + " s";
     }
 
     function serieEje(datos, indice, espectro) {
@@ -1278,7 +1466,7 @@
       if (!x || !columnas || !columnas[indice]) return null;
       var y = [null, null, null];
       y[indice] = columnas[indice];
-      return { t: x, y: y };
+      return { t: x, y: y, ventana: espectro ? null : datos.ventana };
     }
 
     function resumenModelo() {
@@ -1320,6 +1508,15 @@
             detalle_modal: p.modal ? p.modal.detalle : null,
             crecimiento_fin_entre_inicio: num(p.razon),
             indice: num(p.indice),
+            pieza: p.pieza && Number.isFinite(p.pieza.raMedia) ? {
+              voladizo_cm: 20,
+              tamano_pieza_inicio_corte_mm: num(p.pieza.diametroInicio),
+              tamano_pieza_fin_corte_mm: num(p.pieza.diametroFin),
+              diferencia_inicio_menos_fin_mm: num(p.pieza.diferencia),
+              rugosidad_um_lecturas: p.pieza.rugosidad,
+              rugosidad_um_media: num(p.pieza.raMedia),
+              rugosidad_um_desviacion: num(p.pieza.raDesv)
+            } : null,
             picos_espectro_aceleracion: picosEspectro(p.acel, "g"),
             picos_espectro_fuerza: picosEspectro(p.fuerza, "V"),
             notas: p.notas,
@@ -1378,12 +1575,12 @@
       } else {
         lineas.push("El detector no activa alertas en los " + disponibles.length + " ensayos. No alcanzar el umbral no demuestra por sí solo la ausencia de chatter.");
       }
-      lineas.push("Confianza moderada por la cobertura de cuatro profundidades, tres ejes y dos impactos modales. La evaluación usa métricas procesadas, no una inspección física de las señales.");
+      lineas.push("Confianza moderada por la cobertura de " + disponibles.length + " ensayos, tres ejes y los impactos modales disponibles. La evaluación usa métricas procesadas, no una inspección física de las señales.");
       lineas.push("", "MÉTODO", "");
       lineas.push("Se aplicó tarado inicial y FFT de un solo lado con ventana Hann. La frecuencia natural es " + fmt(disponibles.length ? disponibles[0].fNatural : NaN, 1) + " Hz y la banda analizada es " + fmt(disponibles.length ? disponibles[0].banda[0] : NaN, 1) + " a " + fmt(disponibles.length ? disponibles[0].banda[1] : NaN, 1) + " Hz. El detector requiere que el pico de banda supere cuatro veces la mediana fuera de banda. Fuerza se reporta en V, sin calibración para convertir a N. El avance informado es 32 mm/in y se conserva esa unidad.");
       lineas.push("", "HALLAZGOS POR ESPESOR");
       pruebas.forEach(function (p) {
-        var profundidad = Number.isFinite(p.profundidad) ? p.profundidad + " mm" : p.nombre;
+        var profundidad = etiquetaVisible(p);
         var ejesConIndicio = [];
         var contrastes = [];
         ["X", "Y", "Z"].forEach(function (eje, c) {
@@ -1410,7 +1607,7 @@
       lineas.push("", "COMPARACIÓN E INTERPRETACIÓN", "");
       var ordenadas = pruebas.filter(function (p) { return Number.isFinite(p.indice); }).slice().sort(function (a, b) { return a.indice - b.indice; });
       if (ordenadas.length > 1) {
-        lineas.push("Orden por índice, de menor a mayor: " + ordenadas.map(function (p) { return (Number.isFinite(p.profundidad) ? p.profundidad + " mm" : p.nombre) + " " + fmt(p.indice, 3); }).join("; ") + ". El índice menor es relativamente más favorable y no representa probabilidad. " + (indicios.length === disponibles.length ? "La alerta se mantiene en todos los espesores." : "La activación del detector varía entre espesores."));
+        lineas.push("Orden por índice, de menor a mayor: " + ordenadas.map(function (p) { return etiquetaVisible(p) + " " + fmt(p.indice, 3); }).join("; ") + ". El índice menor es relativamente más favorable y no representa probabilidad. " + (indicios.length === disponibles.length ? "La alerta se mantiene en todos los ensayos." : "La activación del detector varía entre ensayos."));
         lineas.push("El aumento de aceleración y del índice hacia los espesores mayores sugiere una respuesta más severa en este conjunto. La comparación es asociativa, no causal; deben controlarse las demás condiciones de corte y montaje.");
       } else {
         lineas.push("No hay suficientes pruebas con índice válido para establecer una tendencia entre espesores.");
@@ -1439,6 +1636,10 @@
       var caja = document.getElementById("llmTexto");
       estado.textContent = "El modelo está contrastando el criterio de chatter, las métricas por eje y las diferencias entre pruebas.";
       escribirInforme(caja, informeTecnicoLocal());
+      if (location.hostname.endsWith(".github.io")) {
+        estado.textContent = "Informe técnico calculado localmente; GitHub Pages no ejecuta el servicio de modelo remoto.";
+        return;
+      }
       var url = (location.protocol === "http:" || location.protocol === "https:")
         ? "/api/interpretar"
         : "http://127.0.0.1:3001/api/interpretar";
@@ -1515,15 +1716,24 @@
         if (s.x[s.x.length - 1] > xmax) xmax = s.x[s.x.length - 1];
       });
       if (xmin === xmax) xmax = xmin + 1;
+      var vistaInicial = null;
+      if (datos && datos.ventana && String(xlab).indexOf("Tiempo") === 0) {
+        vistaInicial = [
+          Math.max(xmin, datos.ventana[0]),
+          Math.min(xmax, datos.ventana[1])
+        ];
+        if (!(vistaInicial[1] > vistaInicial[0])) vistaInicial = null;
+      }
       canvas._grafica = {
         series: series,
         xmin: xmin,
         xmax: xmax,
-        vistaMin: mismaSenal ? Math.max(xmin, anterior.vistaMin) : xmin,
-        vistaMax: mismaSenal ? Math.min(xmax, anterior.vistaMax) : xmax,
+        vistaMin: mismaSenal ? Math.max(xmin, anterior.vistaMin) : (vistaInicial ? vistaInicial[0] : xmin),
+        vistaMax: mismaSenal ? Math.min(xmax, anterior.vistaMax) : (vistaInicial ? vistaInicial[1] : xmax),
         hoverX: null,
         arrastre: null,
         banda: banda,
+        escalaCompleta: canvas.id === "cvM",
         xlab: xlab,
         ylab: ylab,
         ancho: w,
@@ -1690,6 +1900,24 @@
         mensaje(ctx, w, h, "No hay datos para esta vista.");
         return;
       }
+      if (!esFFT && !grafica.escalaCompleta) {
+        var muestra = [];
+        grafica.series.forEach(function (serie) {
+          for (var i = 0; i < serie.x.length; i++) {
+            if (serie.x[i] < xmin || serie.x[i] > xmax || !Number.isFinite(serie.y[i])) continue;
+            muestra.push(serie.y[i]);
+          }
+        });
+        if (muestra.length > 40) {
+          muestra.sort(function (a, b) { return a - b; });
+          var bajo = muestra[Math.floor(muestra.length * 0.01)];
+          var alto = muestra[Math.ceil(muestra.length * 0.99) - 1];
+          if (alto > bajo && (ymax - ymin) > (alto - bajo) * 3) {
+            ymin = bajo;
+            ymax = alto;
+          }
+        }
+      }
       if (ymin === ymax) { ymin -= 1; ymax += 1; }
       var pad = (ymax - ymin) * 0.08;
       ymin -= pad;
@@ -1729,6 +1957,10 @@
         });
         ctx.restore();
       }
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(m.l, m.t, w - m.l - m.r, h - m.t - m.b);
+      ctx.clip();
       grafica.series.forEach(function (serie) {
         ctx.beginPath();
         ctx.strokeStyle = serie.color;
@@ -1744,6 +1976,7 @@
         }
         ctx.stroke();
       });
+      ctx.restore();
       if (pico) {
         var unidad = grafica.ylab.match(/\[([^\]]+)\]/);
         var textosPico = ["Máximo global " + pico.nombre + ": " + formatoInteractivo(pico.x) + " Hz | " +
@@ -1840,6 +2073,7 @@
       ctx.stroke();
       ctx.setLineDash([]);
       puntos.forEach(function (punto) {
+        if (punto.y < m.t || punto.y > h - m.b) return;
         ctx.beginPath();
         ctx.fillStyle = "#06101e";
         ctx.strokeStyle = punto.color;
@@ -1904,8 +2138,17 @@
     var NOMBRES_EJE = ["X", "Y", "Z"];
     var cmp = { eje: 0, ocultas: {}, origen: null, vista: "resumen" };
 
+    function etiquetaVisible(p) {
+      if (!p) return "espesor no identificado";
+      var misma = pruebas.filter(function (q) {
+        return Number.isFinite(q.profundidad) && q.profundidad === p.profundidad;
+      }).length;
+      if (p.nombre && (misma > 1 || !Number.isFinite(p.profundidad))) return p.nombre;
+      return Number.isFinite(p.profundidad) ? p.profundidad + " mm" : (p.nombre || "espesor no identificado");
+    }
+
     function etiquetaPrueba(p) {
-      return Number.isFinite(p.profundidad) ? p.profundidad + " mm" : p.nombre;
+      return etiquetaVisible(p);
     }
 
     function colorPrueba(i) {
@@ -1914,7 +2157,8 @@
 
     function mejorPrueba(f, mayor) {
       var mejor = null;
-      pruebas.forEach(function (p) {
+      pruebas.forEach(function (p, i) {
+        if (!pasaFiltro(p)) return;
         var v = f(p);
         if (!Number.isFinite(v)) return;
         if (mejor === null || (mayor ? v > mejor.v : v < mejor.v)) mejor = { p: p, v: v };
@@ -1933,6 +2177,7 @@
 
     function valorReferencia(f) {
       for (var i = 0; i < pruebas.length; i++) {
+        if (!pasaFiltro(pruebas[i])) continue;
         var v = f(pruebas[i]);
         if (Number.isFinite(v) && v > 0) return { v: v, p: pruebas[i] };
       }
@@ -1969,7 +2214,8 @@
       resumen: { barras: [], senales: [], controles: false },
       aceleracion: { barras: ["cvBAcel", "cvBPico"], senales: ["FA", "EA", "TA"], controles: true },
       fuerza: { barras: ["cvBFza", "cvBRel"], senales: ["FF", "EF", "TF"], controles: true },
-      chatter: { barras: ["cvBCont", "cvBFrec", "cvBCrec", "cvBInd", "cvBVar"], senales: [], controles: false }
+      chatter: { barras: ["cvBCont", "cvBFrec", "cvBCrec", "cvBInd", "cvBVar"], senales: [], controles: false },
+      pieza: { barras: ["cvBRug", "cvBRugLect", "cvBDiam", "cvBDif"], senales: [], controles: false }
     };
 
     function instalarPestanasCmp() {
@@ -2043,6 +2289,7 @@
       var contPruebas = document.getElementById("cmpPruebas");
       contPruebas.innerHTML = "";
       pruebas.forEach(function (p, i) {
+        if (!pasaFiltro(p)) return;
         var b = crearChip(etiquetaPrueba(p), colorPrueba(i), !cmp.ocultas[i]);
         b.title = p.nombre;
         b.addEventListener("click", function () {
@@ -2058,7 +2305,7 @@
 
     function pintarKpisCmp() {
       var box = document.getElementById("cmpKpis");
-      var conAcel = pruebas.filter(function (p) { return !!p.acel; });
+      var conAcel = pruebas.filter(function (p) { return pasaFiltro(p) && !!p.acel; });
       var alertas = conAcel.filter(function (p) { return p.chatter; }).length;
       var mAcel = mejorPrueba(function (p) { return p.rmsA; }, true);
       var mFza = mejorPrueba(function (p) { return p.rmsF; }, true);
@@ -2068,7 +2315,7 @@
       var iBajo = mejorPrueba(function (p) { return p.indice; }, false);
       function con(m, texto) { return m ? texto(m) : "—"; }
       var items = [
-        ["Pruebas analizadas", String(pruebas.length), ""],
+        ["Pruebas analizadas", String(pruebas.filter(pasaFiltro).length), ""],
         ["Con alerta de chatter", conAcel.length ? alertas + " de " + conAcel.length : "—", conAcel.length ? (alertas ? "alerta" : "ok") : ""],
         ["Mayor RMS aceleración", con(mAcel, function (m) { return fmt(m.v, 4) + " g · " + etiquetaPrueba(m.p); }), "ex"],
         ["Mayor RMS fuerza", con(mFza, function (m) { return fmt(m.v, 4) + " V · " + etiquetaPrueba(m.p); }), "ez"],
@@ -2080,6 +2327,16 @@
         ["Índice más alto", con(iAlto, function (m) { return fmt(m.v, 3) + " · " + etiquetaPrueba(m.p); }), ""],
         ["Índice más favorable", con(iBajo, function (m) { return fmt(m.v, 3) + " · " + etiquetaPrueba(m.p); }), "ok"]
       ];
+      var rAlta = mejorPrueba(function (p) { return p.pieza.raMedia; }, true);
+      var rBaja = mejorPrueba(function (p) { return p.pieza.raMedia; }, false);
+      var dMayor = mejorPrueba(function (p) { return p.pieza.diferencia; }, true);
+      if (rAlta) {
+        items.push(
+          ["Mayor rugosidad media", fmt(rAlta.v, 2) + " µm · " + etiquetaPrueba(rAlta.p), "alerta"],
+          ["Menor rugosidad media", fmt(rBaja.v, 2) + " µm · " + etiquetaPrueba(rBaja.p), "ok"],
+          ["Mayor reducción inicio − fin", fmt(dMayor.v, 2) + " mm · " + etiquetaPrueba(dMayor.p), "ey"]
+        );
+      }
       box.innerHTML = "";
       items.forEach(function (it) {
         var d = document.createElement("div");
@@ -2099,6 +2356,7 @@
       var refA = valorReferencia(function (p) { return p.rmsA; });
       var refF = valorReferencia(function (p) { return p.rmsF; });
       pruebas.forEach(function (p) {
+        if (!pasaFiltro(p)) return;
         var tr = document.createElement("tr");
         var dA = variacionPct(p.rmsA, refA);
         var dF = variacionPct(p.rmsF, refF);
@@ -2114,7 +2372,11 @@
           { t: Number.isFinite(cm.v) ? fmt(cm.v, 1) + " × (" + NOMBRES_EJE[cm.eje] + ")" : "—" },
           { t: fmt(p.razon, 2) },
           { pill: p.error ? "" : (p.acel ? (p.chatter ? "si" : "no") : "") },
-          { t: fmt(p.indice, 3) }
+          { t: fmt(p.indice, 3) },
+          { t: Number.isFinite(p.pieza.raMedia) ? fmt(p.pieza.raMedia, 2) + " ± " + fmt(p.pieza.raDesv, 2) : "—" },
+          { t: fmt(p.pieza.diametroInicio, 2) },
+          { t: fmt(p.pieza.diametroFin, 2) },
+          { t: fmt(p.pieza.diferencia, 2) }
         ];
         celdas.forEach(function (cel) {
           var td = document.createElement("td");
@@ -2152,7 +2414,7 @@
         return {
           nombre: nombre,
           color: COLORES_EJE[c],
-          valores: pruebas.map(function (p) { return extraer(p)[c]; })
+          valores: listaVisible().map(function (p) { return extraer(p)[c]; })
         };
       });
     }
@@ -2162,12 +2424,13 @@
       function dib(id, cfg) {
         if (ids.indexOf(id) >= 0) dibujarBarras(document.getElementById(id), cfg);
       }
-      var cats = pruebas.map(etiquetaPrueba);
-      var fn = pruebas.length ? pruebas[0].fNatural : NaN;
+      var lista = listaVisible();
+      var cats = lista.map(etiquetaPrueba);
+      var fn = lista.length ? lista[0].fNatural : NaN;
       var refA = valorReferencia(function (p) { return p.rmsA; });
       var refF = valorReferencia(function (p) { return p.rmsF; });
       var refP = valorReferencia(function (p) { return p.ampModal; });
-      var porPrueba = function (f) { return pruebas.map(f); };
+      var porPrueba = function (f) { return lista.map(f); };
       dib("cvBAcel", {
         titulo: "RMS de aceleración por eje", categorias: cats, ylab: "RMS [g]",
         series: serieEjesCmp(function (p) { return p.rms; })
@@ -2213,6 +2476,29 @@
           valores: porPrueba(function (p) { return p.indice; })
         }]
       });
+      var NOMBRES_LECT = ["Lectura 1", "Lectura 2", "Lectura 3", "Lectura 4", "Lectura 5"];
+      var COLORES_LECT = ["#5ad1ff", "#e4c48a", "#c792ff", "#ff9f43", "#9be15d"];
+      dib("cvBRug", {
+        titulo: "Rugosidad media", categorias: cats, ylab: "Rugosidad [µm]", decimales: 2,
+        series: [{ nombre: "Media", color: "#ff9f43", valores: porPrueba(function (p) { return p.pieza.raMedia; }) }]
+      });
+      dib("cvBRugLect", {
+        titulo: "Rugosidad por lectura", categorias: cats, ylab: "Rugosidad [µm]", decimales: 2,
+        series: NOMBRES_LECT.map(function (nombre, k) {
+          return { nombre: nombre, color: COLORES_LECT[k], valores: porPrueba(function (p) { return p.pieza.rugosidad[k]; }) };
+        })
+      });
+      dib("cvBDiam", {
+        titulo: "Tamaño de la pieza", categorias: cats, ylab: "Tamaño [mm]", decimales: 2,
+        series: [
+          { nombre: "Inicio del corte", color: "#4da3ff", valores: porPrueba(function (p) { return p.pieza.diametroInicio; }) },
+          { nombre: "Fin del corte", color: "#ff6b5e", valores: porPrueba(function (p) { return p.pieza.diametroFin; }) }
+        ]
+      });
+      dib("cvBDif", {
+        titulo: "Diferencia de tamaño (inicio − fin)", categorias: cats, ylab: "Diferencia [mm]", decimales: 2,
+        series: [{ nombre: "Inicio − fin", color: "#3fe0a0", valores: porPrueba(function (p) { return p.pieza.diferencia; }) }]
+      });
       dib("cvBVar", {
         titulo: "Variación respecto a la primera prueba", categorias: cats, ylab: "Cambio [%]", sufijo: " %",
         series: [
@@ -2226,11 +2512,24 @@
     function seriesCmp(extraer) {
       var out = [];
       pruebas.forEach(function (p, i) {
-        if (cmp.ocultas[i]) return;
+        if (!pasaFiltro(p) || cmp.ocultas[i]) return;
         var s = extraer(p);
         if (s && s.x && s.y) out.push({ nombre: etiquetaPrueba(p), color: colorPrueba(i), x: s.x, y: s.y });
       });
       return out;
+    }
+
+    function recortarAVentana(x, y, ventana) {
+      if (!x || !y || !ventana) return { x: x, y: y };
+      var nx = [];
+      var ny = [];
+      for (var i = 0; i < x.length; i++) {
+        if (x[i] < ventana[0] || x[i] > ventana[1] || !Number.isFinite(y[i])) continue;
+        nx.push(x[i]);
+        ny.push(y[i]);
+      }
+      if (nx.length < 2) return { x: x, y: y };
+      return { x: Float64Array.from(nx), y: Float64Array.from(ny) };
     }
 
     function pintarSuperposicionCmp(ids) {
@@ -2239,13 +2538,16 @@
       var eje = NOMBRES_EJE[c];
       var banda = null;
       for (var i = 0; i < pruebas.length; i++) {
-        if (!cmp.ocultas[i] && pruebas[i].banda) { banda = pruebas[i].banda; break; }
+        if (pasaFiltro(pruebas[i]) && !cmp.ocultas[i] && pruebas[i].banda) { banda = pruebas[i].banda; break; }
       }
       var espectro = function (campo) {
         return function (p) { return p[campo] ? { x: p[campo].f, y: p[campo].p[c] } : null; };
       };
       var tiempo = function (campo) {
-        return function (p) { return p[campo] ? { x: p[campo].t, y: p[campo].y[c] } : null; };
+        return function (p) {
+          if (!p[campo]) return null;
+          return recortarAVentana(p[campo].t, p[campo].y[c], p[campo].ventana);
+        };
       };
       var evolucion = function (campo) {
         return function (p) { return p[campo] && p[campo].evol ? { x: p[campo].evol.t, y: p[campo].evol.y[c] } : null; };
@@ -2266,8 +2568,9 @@
     }
 
     /* Gráfica de barras (o puntos) con categorías: una columna de texto por prueba */
-    function formatoEje(v) {
+    function formatoEje(v, decimales) {
       if (!Number.isFinite(v)) return "—";
+      if (Number.isInteger(decimales)) return v.toFixed(decimales);
       var a = Math.abs(v);
       if (a === 0) return "0";
       if (a >= 100) return v.toFixed(0);
@@ -2372,7 +2675,7 @@
         ctx.lineTo(w - m.r, yy);
         ctx.stroke();
         ctx.fillStyle = "#8ea4be";
-        ctx.fillText(formatoEje(vmax - (vmax - vmin) * k / 4), m.l - 8, yy + 4);
+        ctx.fillText(formatoEje(vmax - (vmax - vmin) * k / 4, cfg.decimales), m.l - 8, yy + 4);
       }
       if (vmin < 0 && vmax > 0) {
         ctx.strokeStyle = "rgba(233, 241, 251, 0.35)";
@@ -2428,7 +2731,7 @@
           if (ns === 1 || ancho >= 38) {
             ctx.fillStyle = "#e9f1fb";
             ctx.textAlign = "center";
-            ctx.fillText(formatoEje(v) + (cfg.sufijo || ""), cx, v >= 0 || puntos ? Y(v) - (puntos ? 11 : 6) : Y(v) + 14);
+            ctx.fillText(formatoEje(v, cfg.decimales) + (cfg.sufijo || ""), cx, v >= 0 || puntos ? Y(v) - (puntos ? 11 : 6) : Y(v) + 14);
           }
         });
       });
@@ -2478,7 +2781,7 @@
         var colores = ["#8ea4be"];
         cfg.series.forEach(function (s) {
           var v = s.valores[b.hover];
-          filas.push((ns > 1 ? s.nombre + ": " : "") + (Number.isFinite(v) ? formatoInteractivo(v) + (cfg.sufijo || "") : "—"));
+          filas.push((ns > 1 ? s.nombre + ": " : "") + (Number.isFinite(v) ? (Number.isInteger(cfg.decimales) ? v.toFixed(cfg.decimales) : formatoInteractivo(v)) + (cfg.sufijo || "") : "—"));
           colores.push((s.colores && s.colores[b.hover]) || s.color);
         });
         ctx.font = "12px Outfit, Segoe UI, sans-serif";
@@ -2556,7 +2859,9 @@
         ["RMS de aceleración resultante", "g", function (p) { return p.rmsA; }, 4],
         ["RMS de fuerza resultante", "V", function (p) { return p.rmsF; }, 4],
         ["Amplitud del pico modal", "g", function (p) { return p.ampModal; }, 5],
-        ["Índice de severidad", "", function (p) { return p.indice; }, 3]
+        ["Índice de severidad", "", function (p) { return p.indice; }, 3],
+        ["Rugosidad media", "µm", function (p) { return p.pieza.raMedia; }, 2],
+        ["Diferencia de tamaño inicio − fin", "mm", function (p) { return p.pieza.diferencia; }, 2]
       ].forEach(function (d) {
         var l = lecturaTendencia(d[0], d[1], d[2], d[3]);
         if (l) lecturas.push(l);

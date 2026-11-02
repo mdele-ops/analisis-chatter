@@ -1,81 +1,193 @@
 {
-  "pruebas": [
-    {
-      "profundidad_mm": 1,
-      "nombre": "Prueba 1 mm 20cm Voladizo",
-      "aceleracion": [
-        "Aceleración/Prueba 1 mm 20cm Voladizo/A__1.lvm",
-        "Aceleración/Prueba 1 mm 20cm Voladizo/A__2.lvm",
-        "Aceleración/Prueba 1 mm 20cm Voladizo/A__3.lvm",
-        "Aceleración/Prueba 1 mm 20cm Voladizo/A__4.lvm",
-        "Aceleración/Prueba 1 mm 20cm Voladizo/A__5.lvm"
-      ],
-      "fuerza": [
-        "Fuerza/Prueba 1 mm 20 cm voladizo/F__1.lvm",
-        "Fuerza/Prueba 1 mm 20 cm voladizo/F__2.lvm"
-      ],
-      "modal": [
-        "Analisis modal/Analisis modal/A_1.lvm",
-        "Analisis modal/Analisis modal/A_2.lvm"
-      ]
-    },
-    {
-      "profundidad_mm": 1.5,
-      "nombre": "Prueba 1.5 mm 20 cm Voladizo",
-      "aceleracion": [
-        "Aceleración/Prueba 1.5 mm 20 cm Voladizo/A__1.lvm",
-        "Aceleración/Prueba 1.5 mm 20 cm Voladizo/A__2.lvm",
-        "Aceleración/Prueba 1.5 mm 20 cm Voladizo/A__3.lvm",
-        "Aceleración/Prueba 1.5 mm 20 cm Voladizo/A__4.lvm",
-        "Aceleración/Prueba 1.5 mm 20 cm Voladizo/A__5.lvm"
-      ],
-      "fuerza": [
-        "Fuerza/Prueba 1.5 mm 20 cm voladizo/F__1.lvm",
-        "Fuerza/Prueba 1.5 mm 20 cm voladizo/F__2.lvm"
-      ],
-      "modal": [
-        "Analisis modal/Analisis modal/A_1.lvm",
-        "Analisis modal/Analisis modal/A_2.lvm"
-      ]
-    },
-    {
-      "profundidad_mm": 2,
-      "nombre": "Prueba 2 mm 20cm Voladizo",
-      "aceleracion": [
-        "Aceleración/Prueba 2 mm 20cm Voladizo/A__1.lvm",
-        "Aceleración/Prueba 2 mm 20cm Voladizo/A__2.lvm",
-        "Aceleración/Prueba 2 mm 20cm Voladizo/A__3.lvm",
-        "Aceleración/Prueba 2 mm 20cm Voladizo/A__4.lvm",
-        "Aceleración/Prueba 2 mm 20cm Voladizo/A__5.lvm"
-      ],
-      "fuerza": [
-        "Fuerza/Prueba 2 mm 20 cm voladizo/F__1.lvm",
-        "Fuerza/Prueba 2 mm 20 cm voladizo/F__2.lvm"
-      ],
-      "modal": [
-        "Analisis modal/Analisis modal/A_1.lvm",
-        "Analisis modal/Analisis modal/A_2.lvm"
-      ]
-    },
-    {
-      "profundidad_mm": 2.5,
-      "nombre": "Prueba 2.5 mm 20 cm voladizo",
-      "aceleracion": [
-        "Aceleración/Prueba 2.5 mm 20 cm voladizo/A__1.lvm",
-        "Aceleración/Prueba 2.5 mm 20 cm voladizo/A__2.lvm",
-        "Aceleración/Prueba 2.5 mm 20 cm voladizo/A__3.lvm",
-        "Aceleración/Prueba 2.5 mm 20 cm voladizo/A__4.lvm",
-        "Aceleración/Prueba 2.5 mm 20 cm voladizo/A__5.lvm",
-        "Aceleración/Prueba 2.5 mm 20 cm voladizo/A__6.lvm"
-      ],
-      "fuerza": [
-        "Fuerza/Prueba 2.5 mm 20 cm voladizo/F__1.lvm",
-        "Fuerza/Prueba 2.5 mm 20 cm voladizo/F__2.lvm"
-      ],
-      "modal": [
-        "Analisis modal/Analisis modal/A_1.lvm",
-        "Analisis modal/Analisis modal/A_2.lvm"
-      ]
-    }
-  ]
+    "pruebas":  [
+                    {
+                        "id":  "desgastada|con|2.5|1",
+                        "nombre":  "Desgastada, 2.5 mm, con refrigerante, primera prueba",
+                        "profundidad_mm":  2.5,
+                        "herramienta":  "Desgastada",
+                        "refrigerante":  "Con refrigerante",
+                        "repeticion":  "primera",
+                        "aceleracion":  [
+                                            "Aceleración/Fase final Aceleración/Prueba 2.0 con herramienta desgastada correcta 2.5 mm con refrigerante/A__1.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba 2.0 con herramienta desgastada correcta 2.5 mm con refrigerante/A__2.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba 2.0 con herramienta desgastada correcta 2.5 mm con refrigerante/A__3.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba 2.0 con herramienta desgastada correcta 2.5 mm con refrigerante/A__4.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba 2.0 con herramienta desgastada correcta 2.5 mm con refrigerante/A__5.lvm"
+                                        ],
+                        "fuerza":  [
+                                       "Fuerza/Fase final Fuerza/Prueba 2.0 Correcta con herramienta desgastada 2.5 mm con refrigerante/F__1.lvm",
+                                       "Fuerza/Fase final Fuerza/Prueba 2.0 Correcta con herramienta desgastada 2.5 mm con refrigerante/F__2.lvm"
+                                   ],
+                        "modal":  [
+                                      "Analisis modal/Analisis modal/A_1.lvm",
+                                      "Analisis modal/Analisis modal/A_2.lvm"
+                                  ]
+                    },
+                    {
+                        "id":  "desgastada|con|2.5|2",
+                        "nombre":  "Desgastada, 2.5 mm, con refrigerante, segunda prueba",
+                        "profundidad_mm":  2.5,
+                        "herramienta":  "Desgastada",
+                        "refrigerante":  "Con refrigerante",
+                        "repeticion":  "segunda",
+                        "aceleracion":  [
+                                            "Aceleración/Fase final Aceleración/Prueba 2.0 herramienta desgastada con refrigerante 2.5 2.0/A__6.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba 2.0 herramienta desgastada con refrigerante 2.5 2.0/A__7.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba 2.0 herramienta desgastada con refrigerante 2.5 2.0/A__8.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba 2.0 herramienta desgastada con refrigerante 2.5 2.0/A__9.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba 2.0 herramienta desgastada con refrigerante 2.5 2.0/A__10.lvm"
+                                        ],
+                        "fuerza":  [
+                                       "Fuerza/Fase final Fuerza/Prueba 2.0 herramienta desgastada con refrigerante 2.5 mm 2.0/F__3.lvm",
+                                       "Fuerza/Fase final Fuerza/Prueba 2.0 herramienta desgastada con refrigerante 2.5 mm 2.0/F__4.lvm"
+                                   ],
+                        "modal":  [
+                                      "Analisis modal/Analisis modal/A_1.lvm",
+                                      "Analisis modal/Analisis modal/A_2.lvm"
+                                  ]
+                    },
+                    {
+                        "id":  "desgastada|sin|2.5|1",
+                        "nombre":  "Desgastada, 2.5 mm, sin refrigerante, primera prueba",
+                        "profundidad_mm":  2.5,
+                        "herramienta":  "Desgastada",
+                        "refrigerante":  "Sin refrigerante",
+                        "repeticion":  "primera",
+                        "aceleracion":  [
+                                            "Aceleración/Fase final Aceleración/Prueba correcta Inserto Desgastado 2.5 mm/A__1.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba correcta Inserto Desgastado 2.5 mm/A__2.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba correcta Inserto Desgastado 2.5 mm/A__3.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba correcta Inserto Desgastado 2.5 mm/A__4.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba correcta Inserto Desgastado 2.5 mm/A__5.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba correcta Inserto Desgastado 2.5 mm/A__6.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba correcta Inserto Desgastado 2.5 mm/A__7.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba correcta Inserto Desgastado 2.5 mm/A__8.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba correcta Inserto Desgastado 2.5 mm/A__9.lvm"
+                                        ],
+                        "fuerza":  [
+                                       "Fuerza/Fase final Fuerza/Prueba correcta herramienta con desgaste 2.5/F__1.lvm",
+                                       "Fuerza/Fase final Fuerza/Prueba correcta herramienta con desgaste 2.5/F__2.lvm",
+                                       "Fuerza/Fase final Fuerza/Prueba correcta herramienta con desgaste 2.5/F__3.lvm",
+                                       "Fuerza/Fase final Fuerza/Prueba correcta herramienta con desgaste 2.5/F__4.lvm"
+                                   ],
+                        "modal":  [
+                                      "Analisis modal/Analisis modal/A_1.lvm",
+                                      "Analisis modal/Analisis modal/A_2.lvm"
+                                  ]
+                    },
+                    {
+                        "id":  "desgastada|sin|2.5|2",
+                        "nombre":  "Desgastada, 2.5 mm, sin refrigerante, segunda prueba",
+                        "profundidad_mm":  2.5,
+                        "herramienta":  "Desgastada",
+                        "refrigerante":  "Sin refrigerante",
+                        "repeticion":  "segunda",
+                        "aceleracion":  [
+                                            "Aceleración/Fase final Aceleración/Prueba correcta con inserto desgastado 2.5 - 2/A__1.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba correcta con inserto desgastado 2.5 - 2/A__2.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba correcta con inserto desgastado 2.5 - 2/A__3.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba correcta con inserto desgastado 2.5 - 2/A__4.lvm"
+                                        ],
+                        "fuerza":  [
+                                       "Fuerza/Fase final Fuerza/Prueba correcta herramienta con desgaste 2.5 -2/F__1.lvm",
+                                       "Fuerza/Fase final Fuerza/Prueba correcta herramienta con desgaste 2.5 -2/F__2.lvm"
+                                   ],
+                        "modal":  [
+                                      "Analisis modal/Analisis modal/A_1.lvm",
+                                      "Analisis modal/Analisis modal/A_2.lvm"
+                                  ]
+                    },
+                    {
+                        "id":  "nueva|con|2.5|1",
+                        "nombre":  "Nueva, 2.5 mm, con refrigerante, primera prueba",
+                        "profundidad_mm":  2.5,
+                        "herramienta":  "Nueva",
+                        "refrigerante":  "Con refrigerante",
+                        "repeticion":  "primera",
+                        "aceleracion":  [
+                                            "Aceleración/Fase final Aceleración/Prueba 2.0 Correcta Inserto Nuevo 2.5 mm con refrigerante/A__1.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba 2.0 Correcta Inserto Nuevo 2.5 mm con refrigerante/A__2.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba 2.0 Correcta Inserto Nuevo 2.5 mm con refrigerante/A__3.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba 2.0 Correcta Inserto Nuevo 2.5 mm con refrigerante/A__4.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba 2.0 Correcta Inserto Nuevo 2.5 mm con refrigerante/A__5.lvm"
+                                        ],
+                        "fuerza":  [
+                                       "Fuerza/Fase final Fuerza/Prueba 2.0 Correcta Inserto Nuevo 2.5 mm con refrigerante/F__1.lvm",
+                                       "Fuerza/Fase final Fuerza/Prueba 2.0 Correcta Inserto Nuevo 2.5 mm con refrigerante/F__2.lvm"
+                                   ],
+                        "modal":  [
+                                      "Analisis modal/Analisis modal/A_1.lvm",
+                                      "Analisis modal/Analisis modal/A_2.lvm"
+                                  ]
+                    },
+                    {
+                        "id":  "nueva|con|2.5|2",
+                        "nombre":  "Nueva, 2.5 mm, con refrigerante, segunda prueba",
+                        "profundidad_mm":  2.5,
+                        "herramienta":  "Nueva",
+                        "refrigerante":  "Con refrigerante",
+                        "repeticion":  "segunda",
+                        "aceleracion":  [
+                                            "Aceleración/Fase final Aceleración/Prueba 2.0 herramienta nueva con refrigerante 2.5 mm 2.0/A__1.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba 2.0 herramienta nueva con refrigerante 2.5 mm 2.0/A__2.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba 2.0 herramienta nueva con refrigerante 2.5 mm 2.0/A__3.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba 2.0 herramienta nueva con refrigerante 2.5 mm 2.0/A__4.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba 2.0 herramienta nueva con refrigerante 2.5 mm 2.0/A__5.lvm"
+                                        ],
+                        "fuerza":  [
+                                       "Fuerza/Fase final Fuerza/Prueba 2.0 herramienta nueva con refrigerante 2.5 mm 2.0/F__1.lvm",
+                                       "Fuerza/Fase final Fuerza/Prueba 2.0 herramienta nueva con refrigerante 2.5 mm 2.0/F__2.lvm"
+                                   ],
+                        "modal":  [
+                                      "Analisis modal/Analisis modal/A_1.lvm",
+                                      "Analisis modal/Analisis modal/A_2.lvm"
+                                  ]
+                    },
+                    {
+                        "id":  "nueva|sin|2.5|1",
+                        "nombre":  "Nueva, 2.5 mm, sin refrigerante, primera prueba",
+                        "profundidad_mm":  2.5,
+                        "herramienta":  "Nueva",
+                        "refrigerante":  "Sin refrigerante",
+                        "repeticion":  "primera",
+                        "aceleracion":  [
+                                            "Aceleración/Fase final Aceleración/Prueba correcta con herramienta nueva 2.5/A__1.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba correcta con herramienta nueva 2.5/A__2.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba correcta con herramienta nueva 2.5/A__3.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba correcta con herramienta nueva 2.5/A__4.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba correcta con herramienta nueva 2.5/A__5.lvm"
+                                        ],
+                        "fuerza":  [
+                                       "Fuerza/Fase final Fuerza/Prueba nueva con herramienta nueva 2.5 mm/F__1.lvm",
+                                       "Fuerza/Fase final Fuerza/Prueba nueva con herramienta nueva 2.5 mm/F__2.lvm"
+                                   ],
+                        "modal":  [
+                                      "Analisis modal/Analisis modal/A_1.lvm",
+                                      "Analisis modal/Analisis modal/A_2.lvm"
+                                  ]
+                    },
+                    {
+                        "id":  "nueva|sin|2.5|2",
+                        "nombre":  "Nueva, 2.5 mm, sin refrigerante, segunda prueba",
+                        "profundidad_mm":  2.5,
+                        "herramienta":  "Nueva",
+                        "refrigerante":  "Sin refrigerante",
+                        "repeticion":  "segunda",
+                        "aceleracion":  [
+                                            "Aceleración/Fase final Aceleración/Prueba correcta con herramienta nueva 2.5 - 2/A__1.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba correcta con herramienta nueva 2.5 - 2/A__2.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba correcta con herramienta nueva 2.5 - 2/A__3.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba correcta con herramienta nueva 2.5 - 2/A__4.lvm",
+                                            "Aceleración/Fase final Aceleración/Prueba correcta con herramienta nueva 2.5 - 2/A__5.lvm"
+                                        ],
+                        "fuerza":  [
+                                       "Fuerza/Fase final Fuerza/Prueba correcta herramienta nueva 2.5 mm - 2.0/F__1.lvm",
+                                       "Fuerza/Fase final Fuerza/Prueba correcta herramienta nueva 2.5 mm - 2.0/F__2.lvm"
+                                   ],
+                        "modal":  [
+                                      "Analisis modal/Analisis modal/A_1.lvm",
+                                      "Analisis modal/Analisis modal/A_2.lvm"
+                                  ]
+                    }
+                ]
 }

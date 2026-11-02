@@ -729,16 +729,114 @@
     if (texto.indexOf("sin refrigerante") >= 0) refrigerante = "Sin refrigerante";
     else if (texto.indexOf("con refrigerante") >= 0) refrigerante = "Con refrigerante";
     let herramienta = "";
-    if (texto.indexOf("desgastada") >= 0) herramienta = "Desgastada";
-    else if (texto.indexOf("nueva") >= 0) herramienta = "Nueva";
+    if (texto.indexOf("desgast") >= 0) herramienta = "Desgastada";
+    else if (texto.indexOf("nuev") >= 0) herramienta = "Nueva";
+    let repeticion = "";
+    if (texto.indexOf("segunda") >= 0) repeticion = "segunda";
+    else if (texto.indexOf("primera") >= 0) repeticion = "primera";
     return {
       profundidad: mm ? parseFloat(mm[1]) : NaN,
       refrigerante: refrigerante,
-      herramienta: herramienta
+      herramienta: herramienta,
+      repeticion: repeticion
     };
   }
 
-  function analizarSenal(armado, banda) {
+  function ventanaDeAnalisis(canales, tiempos, fs, esFuerza) {
+    const base = canales.filter(Boolean)[0];
+    if (!base || !(fs > 0)) return null;
+    const n = base.length;
+    const paso = Math.max(1, Math.round(fs * 0.5));
+    const bloques = [];
+    for (let i = 0; i < n; i += paso) {
+      const fin = Math.min(n, i + paso);
+      let s2 = 0;
+      let k = 0;
+      let pico = 0;
+      let fuera = 0;
+      for (let j = i; j < fin; j++) {
+        let m2 = 0;
+        let alguno = false;
+        for (let c = 0; c < 3; c++) {
+          if (!canales[c]) continue;
+          const v = canales[c][j];
+          if (!Number.isFinite(v)) continue;
+          alguno = true;
+          m2 += v * v;
+          const a = Math.abs(v);
+          if (a > pico) pico = a;
+          if (esFuerza ? a > 20 : a >= 80) fuera++;
+        }
+        if (alguno) {
+          s2 += m2;
+          k++;
+        }
+      }
+      const rms = k ? Math.sqrt(s2 / k) : 0;
+      const frac = k ? fuera / k : 1;
+      const t0 = tiempos && tiempos.length === n ? tiempos[i] : i / fs;
+      const t1 = tiempos && tiempos.length === n ? tiempos[fin - 1] : (fin - 1) / fs;
+      let clase = "reposo";
+      if (esFuerza) {
+        if (frac > 0.05 || pico > 40) clase = "saturado";
+        else if (rms >= 1.05) clase = "corte";
+      } else if (frac > 0.02) clase = "saturado";
+      else if (rms >= 1.2) clase = "corte";
+      bloques.push({ t0: t0, t1: t1, clase: clase });
+    }
+    const tramos = [];
+    let ini = -1;
+    let ultimo = -1;
+    let puente = 0;
+    function cerrar() {
+      if (ini >= 0 && ultimo >= ini) {
+        const dur = bloques[ultimo].t1 - bloques[ini].t0;
+        if (dur >= 1.5) tramos.push({ t0: bloques[ini].t0, t1: bloques[ultimo].t1, dur: dur });
+      }
+      ini = -1;
+      ultimo = -1;
+      puente = 0;
+    }
+    for (let i = 0; i < bloques.length; i++) {
+      const clase = bloques[i].clase;
+      if (clase === "corte") {
+        if (ini < 0) ini = i;
+        ultimo = i;
+        puente = 0;
+      } else if (clase === "saturado") cerrar();
+      else if (ini >= 0) {
+        puente += bloques[i].t1 - bloques[i].t0;
+        if (puente > 1.5) cerrar();
+      }
+    }
+    cerrar();
+    let mejor = null;
+    for (let i = 0; i < tramos.length; i++) {
+      if (!mejor || tramos[i].dur > mejor.dur) mejor = tramos[i];
+    }
+    return {
+      ventana: mejor ? [mejor.t0, mejor.t1] : null,
+      bloques: bloques
+    };
+  }
+
+  function enmascararTope(canales, esFuerza, bloques, fs) {
+    const umbral = esFuerza ? 20 : 80;
+    const paso = Math.max(1, Math.round((fs || 1) * 0.5));
+    return canales.map(function (col) {
+      if (!col) return null;
+      const out = new Float64Array(col.length);
+      for (let i = 0; i < col.length; i++) {
+        const bloque = bloques && bloques[Math.floor(i / paso)];
+        const v = col[i];
+        if (bloque && bloque.clase === "saturado") out[i] = NaN;
+        else out[i] = Number.isFinite(v) && Math.abs(v) < umbral ? v : NaN;
+      }
+      return out;
+    });
+  }
+
+  function analizarSenal(armado, banda, esFuerza) {
     const canales = armado.canales.map(function (c) { return c ? tarar(c) : null; });
     const rmsEje = canales.map(rms);
     const mag = magnitud(canales);
@@ -756,7 +854,29 @@
     const espec = fRef ? reducirEspectro(fRef, crudos) : { f: new Float64Array(0), p: [null, null, null] };
     const completo = fRef ? { f: fRef, p: crudos } : { f: new Float64Array(0), p: [null, null, null] };
     const ch = evaluarChatter(completo, banda);
-    const plot = reducirTiempo(canales, armado.t, armado.fs, 4000);
+    const corte = ventanaDeAnalisis(canales, armado.t, armado.fs, !!esFuerza);
+    const ventana = corte && corte.ventana;
+    const visibles = enmascararTope(canales, !!esFuerza, corte && corte.bloques, armado.fs);
+    const plot = reducirTiempo(visibles, armado.t, armado.fs, 4000);
+    let evolCanales = canales;
+    let evolMag = mag;
+    let evolT = armado.t;
+    if (ventana) {
+      const i0 = Math.max(0, Math.floor(ventana[0] * armado.fs));
+      const i1 = Math.min(mag.length, Math.ceil(ventana[1] * armado.fs) + 1);
+      if (i1 - i0 > 8) {
+        evolCanales = visibles.map(function (c) { return c ? c.subarray(i0, i1) : null; });
+        evolMag = magnitud(evolCanales);
+        for (let i = 0; i < evolMag.length; i++) {
+          let alguno = false;
+          for (let c = 0; c < 3; c++) {
+            if (evolCanales[c] && Number.isFinite(evolCanales[c][i])) { alguno = true; break; }
+          }
+          if (!alguno) evolMag[i] = NaN;
+        }
+        evolT = armado.t.subarray(i0, i1);
+      }
+    }
     return {
       rms: rmsEje,
       rmsR: rmsR,
@@ -772,7 +892,8 @@
       medianaFueraBandaEje: ch.medianaFueraBandaEje,
       t: plot.t,
       y: plot.y,
-      evol: evolucionRMS(canales, mag, armado.t, 60),
+      ventana: ventana,
+      evol: evolucionRMS(evolCanales, evolMag, evolT, 60),
       f: espec.f,
       p: espec.p,
       fs: armado.fs,
