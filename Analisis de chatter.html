@@ -801,8 +801,9 @@
       <span class="mono">Vibraciones en maquinado</span>
     </div>
   </footer>
-  <script src="analisis.js?v=corte"></script>
+  <script src="analisis.js?v=20261102"></script>
   <script>
+    var VERSION_ESTATICOS = "20261102";
     var CA = window.ChatterAnalisis;
     document.body.dataset.analisis = CA ? "listo" : "falta";
     var store = { aceleracion: [], fuerza: [], modal: [], carpeta: [] };
@@ -1082,7 +1083,7 @@
 
     async function catalogoPrecargado() {
       try {
-        var estatico = await fetch("datos/catalogo.json");
+        var estatico = await fetch("datos/catalogo.json?v=" + VERSION_ESTATICOS);
         if (estatico.ok) {
           var json = await estatico.json();
           if (json.pruebas && json.pruebas.length) return json;
@@ -1125,7 +1126,7 @@
       var archivos = [];
       for (var i = 0; i < rutas.length; i++) {
         var ruta = String(rutas[i]).replace(/\\/g, "/");
-        var resp = await fetch(encodeURI(ruta));
+        var resp = await fetch(encodeURI(ruta) + "?v=" + VERSION_ESTATICOS);
         if (!resp.ok) throw new Error("No se pudo leer " + ruta);
         var texto = await resp.text();
         if (texto.charCodeAt(0) === 0xfeff) texto = texto.slice(1);
