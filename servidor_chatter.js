@@ -6,6 +6,7 @@ const fs = require("fs");
 const http = require("http");
 const https = require("https");
 const path = require("path");
+const zlib = require("zlib");
 
 const RAIZ = __dirname;
 const PAGINA = path.join(RAIZ, "pagina");
@@ -181,11 +182,6 @@ function textoCondicion(nombre) {
   return sinAcento(nombre).toLowerCase().replace(/prueba\s*2[.,]0/g, " ");
 }
 
-function esSegundaPrueba(nombre) {
-  const texto = textoCondicion(nombre);
-  return /(?:^|\s)2[.,]0\b/.test(texto) || /2[.,]5(?:\s*mm)?\s*[-–]\s*2\b/.test(texto);
-}
-
 function profundidadNominal(nombre) {
   const texto = textoCondicion(nombre);
   const conUnidad = texto.match(/(\d+(?:[.,]\d+)?)\s*mm/);
@@ -197,60 +193,140 @@ function profundidadNominal(nombre) {
   return suelta ? parseFloat(suelta[1].replace(",", ".")) : 2.5;
 }
 
-function firmaCondicion(nombre) {
+function herramientaDe(nombre) {
   const texto = textoCondicion(nombre);
-  const herramienta = /desgast/.test(texto) ? "desgastada" : (/nuev[oa]/.test(texto) ? "nueva" : "");
-  if (!herramienta) return "";
-  const refrigerante = /con refrigerante/.test(texto) ? "con" : "sin";
-  const repeticion = esSegundaPrueba(nombre) ? "2" : "1";
-  return [herramienta, refrigerante, profundidadNominal(nombre).toFixed(1), repeticion].join("|");
+  if (/desgast/.test(texto)) return "Desgastada";
+  if (/nuev[oa]/.test(texto)) return "Nueva";
+  return "";
 }
 
-function nombreDeFirma(firma) {
-  const [herramienta, refrigerante, profundidad, repeticion] = firma.split("|");
-  const estado = herramienta === "desgastada" ? "Desgastada" : "Nueva";
-  const fluido = refrigerante === "con" ? "con refrigerante" : "sin refrigerante";
-  const orden = repeticion === "2" ? "segunda prueba" : "primera prueba";
-  const corte = parseFloat(profundidad).toFixed(1).replace(/\.0$/, "");
-  return estado + ", " + corte + " mm, " + fluido + ", " + orden;
+function fluidoDe(nombre) {
+  const texto = textoCondicion(nombre);
+  if (/sin\s+(refrigerante|agua)/.test(texto)) return "Sin refrigerante";
+  if (/refrigerante/.test(texto)) return "Con refrigerante";
+  if (/agua/.test(texto)) return "Con agua";
+  return "Sin refrigerante";
 }
 
+// Hora de grabación que LabVIEW guarda en el encabezado del primer .lvm de la carpeta.
+// Aceleración y fuerza de un mismo ensayo se graban con 1 o 2 s de diferencia, así que
+// sirve para emparejarlas aunque los nombres de carpeta no coincidan.
+function horaDeHoja(hoja) {
+  const primero = path.join(hoja.ruta, hoja.archivos[0]);
+  try {
+    const lineas = fs.readFileSync(primero, "utf8").split(/\r?\n/).slice(0, 80);
+    const fecha = (lineas.find((l) => /^Date\t/.test(l)) || "").split("\t")[1];
+    const hora = (lineas.find((l) => /^Time\t/.test(l)) || "").split("\t")[1];
+    if (fecha && hora) {
+      const [a, m, d] = fecha.split("/").map(Number);
+      const [hh, mm, ss] = hora.split(":");
+      return new Date(a, m - 1, d, Number(hh), Number(mm), parseFloat(ss.slice(0, 2))).getTime() / 1000;
+    }
+  } catch (error) {}
+  return fs.statSync(primero).mtimeMs / 1000;
+}
+
+const TOLERANCIA_PAREJA_S = 120;
+const ORDINALES = ["primera", "segunda", "tercera", "cuarta", "quinta", "sexta", "séptima", "octava", "novena", "décima"];
+
+function emparejarPorHora(aceleracion, fuerza) {
+  const candidatos = [];
+  aceleracion.forEach((a, i) => fuerza.forEach((f, j) => {
+    const d = Math.abs(a.hora - f.hora);
+    if (d <= TOLERANCIA_PAREJA_S) candidatos.push({ i, j, d });
+  }));
+  candidatos.sort((x, y) => x.d - y.d);
+  const usadasA = new Set();
+  const usadasF = new Set();
+  const parejas = [];
+  for (const c of candidatos) {
+    if (usadasA.has(c.i) || usadasF.has(c.j)) continue;
+    usadasA.add(c.i);
+    usadasF.add(c.j);
+    parejas.push({ aceleracion: aceleracion[c.i], fuerza: fuerza[c.j] });
+  }
+  aceleracion.forEach((a, i) => { if (!usadasA.has(i)) parejas.push({ aceleracion: a, fuerza: null }); });
+  fuerza.forEach((f, j) => { if (!usadasF.has(j)) parejas.push({ aceleracion: null, fuerza: f }); });
+  return parejas;
+}
+
+function nombreDePrueba(herramienta, refrigerante, profundidad, ordinal) {
+  return herramienta + ", " + String(profundidad).replace(/\.0$/, "") + " mm, " + refrigerante.toLowerCase() + ", " + ordinal + " prueba";
+}
+
+// Todas las carpetas con .lvm son una prueba. Se agrupan por herramienta y fluido y la
+// repetición sale del orden de grabación (primera, segunda, tercera...).
 function catalogoPrecargados() {
-  const aceleracion = hojasConLvm(path.join(RAIZ, "Aceleración"), "A");
-  const fuerza = hojasConLvm(path.join(RAIZ, "Fuerza"), "F");
+  const aceleracion = hojasConLvm(path.join(RAIZ, "Aceleración"), "A").map((h) => ({ ...h, hora: horaDeHoja(h) }));
+  const fuerza = hojasConLvm(path.join(RAIZ, "Fuerza"), "F").map((h) => ({ ...h, hora: horaDeHoja(h) }));
   const modal = hojasConLvm(path.join(RAIZ, "Analisis modal"), "A");
   const modalHoja = modal[0] || { ruta: "", archivos: [] };
-  const porFirma = new Map();
-  function tomar(hoja, tipo) {
-    const firma = firmaCondicion(hoja.nombre);
-    if (!firma) return;
-    if (!porFirma.has(firma)) porFirma.set(firma, { firma });
-    const prueba = porFirma.get(firma);
-    if (prueba[tipo]) return;
-    prueba[tipo] = hoja;
-  }
-  aceleracion.forEach((hoja) => tomar(hoja, "aceleracion"));
-  fuerza.forEach((hoja) => tomar(hoja, "fuerza"));
-  const pruebas = [];
-  for (const [firma, prueba] of porFirma) {
-    if (!prueba.aceleracion && !prueba.fuerza) continue;
-    const partes = firma.split("|");
-    pruebas.push({
-      id: firma,
-      nombre: nombreDeFirma(firma),
-      profundidad_mm: parseFloat(partes[2]),
-      herramienta: partes[0] === "desgastada" ? "Desgastada" : "Nueva",
-      refrigerante: partes[1] === "con" ? "Con refrigerante" : "Sin refrigerante",
-      repeticion: partes[3] === "2" ? "segunda" : "primera",
-      rutaAceleracion: prueba.aceleracion ? prueba.aceleracion.ruta : "",
-      rutaFuerza: prueba.fuerza ? prueba.fuerza.ruta : "",
+
+  const ensayos = emparejarPorHora(aceleracion, fuerza).map((par) => {
+    const base = par.aceleracion || par.fuerza;
+    return {
+      par,
+      hora: base.hora,
+      herramienta: herramientaDe(base.nombre) || herramientaDe((par.fuerza || base).nombre) || "Nueva",
+      refrigerante: fluidoDe(base.nombre),
+      profundidad: profundidadNominal(base.nombre)
+    };
+  });
+  ensayos.sort((a, b) => a.hora - b.hora);
+
+  const contador = new Map();
+  const pruebas = ensayos.map((e) => {
+    const grupo = e.herramienta + "|" + e.refrigerante + "|" + e.profundidad;
+    const n = (contador.get(grupo) || 0) + 1;
+    contador.set(grupo, n);
+    const ordinal = ORDINALES[n - 1] || (n + "ª");
+    const slug = (e.refrigerante === "Con agua" ? "agua" : (e.refrigerante === "Con refrigerante" ? "con" : "sin"));
+    const A = e.par.aceleracion;
+    const F = e.par.fuerza;
+    return {
+      id: [e.herramienta === "Desgastada" ? "desgastada" : "nueva", slug, e.profundidad.toFixed(1), n].join("|"),
+      nombre: nombreDePrueba(e.herramienta, e.refrigerante, e.profundidad, ordinal),
+      profundidad_mm: e.profundidad,
+      herramienta: e.herramienta,
+      refrigerante: e.refrigerante,
+      repeticion: ordinal,
+      carpetaAceleracion: A ? A.nombre : "",
+      carpetaFuerza: F ? F.nombre : "",
+      rutaAceleracion: A ? A.ruta : "",
+      rutaFuerza: F ? F.ruta : "",
       rutaModal: modalHoja.ruta,
-      archivos_aceleracion: prueba.aceleracion ? prueba.aceleracion.archivos : [],
-      archivos_fuerza: prueba.fuerza ? prueba.fuerza.archivos : [],
+      archivos_aceleracion: A ? A.archivos : [],
+      archivos_fuerza: F ? F.archivos : [],
       archivos_modal: modalHoja.archivos
-    });
-  }
-  return pruebas.sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+    };
+  });
+  const orden = { Nueva: 0, Desgastada: 1 };
+  const fluido = { "Sin refrigerante": 0, "Con refrigerante": 1, "Con agua": 2 };
+  return pruebas.sort((a, b) =>
+    (orden[a.herramienta] - orden[b.herramienta]) ||
+    (fluido[a.refrigerante] - fluido[b.refrigerante]) ||
+    (ORDINALES.indexOf(a.repeticion) - ORDINALES.indexOf(b.repeticion)));
+}
+
+// Versión estática (rutas relativas) para datos/catalogo.json. Se genera con:
+//   node servidor_chatter.js --catalogo
+function catalogoEstatico() {
+  const rel = (ruta, nombres) => nombres.map((n) => path.relative(RAIZ, path.join(ruta, n)).split(path.sep).join("/"));
+  return {
+    pruebas: catalogoPrecargados().map((p) => ({
+      id: p.id,
+      nombre: p.nombre,
+      profundidad_mm: p.profundidad_mm,
+      herramienta: p.herramienta,
+      refrigerante: p.refrigerante,
+      repeticion: p.repeticion,
+      carpeta_aceleracion: p.carpetaAceleracion,
+      carpeta_fuerza: p.carpetaFuerza,
+      aceleracion: rel(p.rutaAceleracion, p.archivos_aceleracion),
+      fuerza: rel(p.rutaFuerza, p.archivos_fuerza),
+      modal: rel(p.rutaModal, p.archivos_modal)
+    }))
+  };
 }
 
 function leerArchivos(carpeta, nombres) {
@@ -278,7 +354,8 @@ const TIPOS = {
   ".svg": "image/svg+xml",
   ".css": "text/css; charset=utf-8",
   ".json": "application/json; charset=utf-8",
-  ".png": "image/png"
+  ".png": "image/png",
+  ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation"
 };
 
 function enviar(respuesta, codigo, cuerpo, tipo) {
@@ -295,6 +372,211 @@ function enviar(respuesta, codigo, cuerpo, tipo) {
 
 function enviarJson(respuesta, codigo, datos) {
   enviar(respuesta, codigo, JSON.stringify(datos), "application/json; charset=utf-8");
+}
+
+const RAICES_DATOS = {
+  aceleracion: path.join(RAIZ, "Aceleración"),
+  fuerza: path.join(RAIZ, "Fuerza")
+};
+
+const TABLA_CRC = (() => {
+  const tabla = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+    tabla[n] = c >>> 0;
+  }
+  return tabla;
+})();
+
+function crc32(buffer) {
+  let c = 0xffffffff;
+  for (let i = 0; i < buffer.length; i++) c = TABLA_CRC[(c ^ buffer[i]) & 0xff] ^ (c >>> 8);
+  return (c ^ 0xffffffff) >>> 0;
+}
+
+function u16(n) {
+  const b = Buffer.alloc(2);
+  b.writeUInt16LE(n & 0xffff);
+  return b;
+}
+
+function u32(n) {
+  const b = Buffer.alloc(4);
+  b.writeUInt32LE(n >>> 0);
+  return b;
+}
+
+function fechaDos(fecha) {
+  const time = (fecha.getHours() << 11) | (fecha.getMinutes() << 5) | Math.floor(fecha.getSeconds() / 2);
+  const date = ((fecha.getFullYear() - 1980) << 9) | ((fecha.getMonth() + 1) << 5) | fecha.getDate();
+  return { time, date };
+}
+
+function encabezadoAdjunto(nombre) {
+  const ascii = String(nombre).replace(/[^\x20-\x7E]/g, "_").replace(/["\\]/g, "_");
+  return "attachment; filename=\"" + ascii + "\"; filename*=UTF-8''" + encodeURIComponent(nombre);
+}
+
+function cabecerasDescarga(extra) {
+  return Object.assign({
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
+  }, extra);
+}
+
+function escribir(respuesta, buffer) {
+  return new Promise((resolve, reject) => {
+    respuesta.write(buffer, (error) => (error ? reject(error) : resolve()));
+  });
+}
+
+function comprimir(datos) {
+  return new Promise((resolve, reject) => {
+    zlib.deflateRaw(datos, { level: 1 }, (error, salida) => (error ? reject(error) : resolve(salida)));
+  });
+}
+
+function ensayosDe(tipo) {
+  const raiz = RAICES_DATOS[tipo];
+  const prefijo = tipo === "fuerza" ? "F" : "A";
+  return hojasConLvm(raiz, prefijo).map((hoja) => {
+    const archivos = hoja.archivos.map((nombre) => ({
+      nombre,
+      bytes: fs.statSync(path.join(hoja.ruta, nombre)).size
+    }));
+    return {
+      id: path.relative(raiz, hoja.ruta).split(path.sep).join("/"),
+      nombre: hoja.nombre,
+      archivos,
+      bytes: archivos.reduce((suma, archivo) => suma + archivo.bytes, 0)
+    };
+  }).sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+}
+
+function entradasDe(tipo, id) {
+  const ensayos = ensayosDe(tipo);
+  const elegidos = id ? ensayos.filter((ensayo) => ensayo.id === id) : ensayos;
+  if (id && !elegidos.length) return null;
+  const raiz = path.resolve(RAICES_DATOS[tipo]);
+  const entradas = [];
+  for (const ensayo of elegidos) {
+    const carpeta = path.resolve(raiz, ...ensayo.id.split("/"));
+    if (carpeta !== raiz && !carpeta.startsWith(raiz + path.sep)) continue;
+    for (const archivo of ensayo.archivos) {
+      const ruta = path.resolve(carpeta, archivo.nombre);
+      if (!ruta.startsWith(carpeta + path.sep)) continue;
+      const relativo = (id ? archivo.nombre : ensayo.id + "/" + archivo.nombre).replace(/\\/g, "/");
+      entradas.push({ ruta, nombre: relativo });
+    }
+  }
+  return entradas;
+}
+
+function nombreDelZip(tipo, id) {
+  if (tipo === "ambos") return "aceleracion-y-fuerza.zip";
+  if (!id) return tipo + ".zip";
+  const base = id.split("/").pop() || tipo;
+  const limpio = base.replace(/[\\/:*?"<>|]+/g, " ").replace(/\s+/g, " ").trim() || tipo;
+  return limpio + ".zip";
+}
+
+async function enviarZip(respuesta, entradas, nombreDescarga, prefijo) {
+  const fecha = fechaDos(new Date());
+  respuesta.writeHead(200, cabecerasDescarga({
+    "Content-Type": "application/zip",
+    "Content-Disposition": encabezadoAdjunto(nombreDescarga)
+  }));
+  const centrales = [];
+  let offset = 0;
+  for (const entrada of entradas) {
+    const datos = await fs.promises.readFile(entrada.ruta);
+    const comp = await comprimir(datos);
+    const crc = crc32(datos);
+    const nombre = Buffer.from((prefijo ? prefijo + "/" : "") + entrada.nombre, "utf8");
+    const local = Buffer.concat([
+      u32(0x04034b50), u16(20), u16(0x800), u16(8),
+      u16(fecha.time), u16(fecha.date), u32(crc), u32(comp.length), u32(datos.length),
+      u16(nombre.length), u16(0), nombre, comp
+    ]);
+    const central = Buffer.concat([
+      u32(0x02014b50), u16(20), u16(20), u16(0x800), u16(8),
+      u16(fecha.time), u16(fecha.date), u32(crc), u32(comp.length), u32(datos.length),
+      u16(nombre.length), u16(0), u16(0), u16(0), u16(0), u32(0), u32(offset), nombre
+    ]);
+    await escribir(respuesta, local);
+    offset += local.length;
+    centrales.push(central);
+  }
+  const directorio = Buffer.concat(centrales);
+  const cierre = Buffer.concat([
+    u32(0x06054b50), u16(0), u16(0), u16(centrales.length), u16(centrales.length),
+    u32(directorio.length), u32(offset), u16(0)
+  ]);
+  await escribir(respuesta, directorio);
+  await escribir(respuesta, cierre);
+  respuesta.end();
+}
+
+function enviarAdjunto(respuesta, ruta, nombre) {
+  const datos = fs.readFileSync(ruta);
+  respuesta.writeHead(200, cabecerasDescarga({
+    "Content-Type": "application/octet-stream",
+    "Content-Length": datos.length,
+    "Content-Disposition": encabezadoAdjunto(nombre)
+  }));
+  respuesta.end(datos);
+}
+
+async function servirDescarga(url, respuesta) {
+  const tipo = url.searchParams.get("tipo") || "";
+  const id = url.searchParams.get("id") || "";
+  const archivo = url.searchParams.get("archivo") || "";
+  if (tipo !== "aceleracion" && tipo !== "fuerza" && tipo !== "ambos") {
+    enviarJson(respuesta, 400, { error: "El tipo debe ser aceleracion, fuerza o ambos." });
+    return;
+  }
+  if (archivo && (archivo !== path.basename(archivo) || !/\.lvm$/i.test(archivo))) {
+    enviarJson(respuesta, 400, { error: "Archivo no permitido." });
+    return;
+  }
+  if (tipo === "ambos" && (id || archivo)) {
+    enviarJson(respuesta, 400, { error: "La descarga completa no admite un ensayo o archivo suelto." });
+    return;
+  }
+  if (id && id.split(/[\\/]/).some((parte) => !parte || parte === "." || parte === "..")) {
+    enviarJson(respuesta, 400, { error: "Ensayo no permitido." });
+    return;
+  }
+  const tipos = tipo === "ambos" ? ["aceleracion", "fuerza"] : [tipo];
+  let entradas = [];
+  for (const actual of tipos) {
+    const delTipo = entradasDe(actual, id);
+    if (delTipo === null) {
+      enviarJson(respuesta, 404, { error: "No está ese ensayo." });
+      return;
+    }
+    const prefijo = tipo === "ambos" ? actual : "";
+    entradas = entradas.concat(delTipo.map((entrada) => ({
+      ruta: entrada.ruta,
+      nombre: prefijo ? prefijo + "/" + entrada.nombre : entrada.nombre
+    })));
+  }
+  if (archivo) {
+    const encontrada = entradas.find((entrada) => path.posix.basename(entrada.nombre) === archivo);
+    if (!encontrada) {
+      enviarJson(respuesta, 404, { error: "No está ese archivo." });
+      return;
+    }
+    enviarAdjunto(respuesta, encontrada.ruta, archivo);
+    return;
+  }
+  if (!entradas.length) {
+    enviarJson(respuesta, 404, { error: "No hay archivos para descargar." });
+    return;
+  }
+  await enviarZip(respuesta, entradas, nombreDelZip(tipo, id), "");
 }
 
 function servirArchivo(respuesta, ruta) {
@@ -319,6 +601,20 @@ const servidor = http.createServer((peticion, respuesta) => {
   }
 
   if (peticion.method === "GET") {
+    if (ruta === "/api/descargas") {
+      enviarJson(respuesta, 200, {
+        aceleracion: ensayosDe("aceleracion"),
+        fuerza: ensayosDe("fuerza")
+      });
+      return;
+    }
+    if (ruta === "/api/descargar") {
+      servirDescarga(url, respuesta).catch((error) => {
+        if (!respuesta.headersSent) enviarJson(respuesta, 500, { error: error.message || String(error) });
+        else respuesta.end();
+      });
+      return;
+    }
     if (ruta === "/api/datos-precargados") {
       enviarJson(respuesta, 200, {
         pruebas: catalogoPrecargados().map((prueba) => ({
@@ -336,7 +632,8 @@ const servidor = http.createServer((peticion, respuesta) => {
     const recursos = {
       "/Analisis de chatter.html": "Analisis de chatter.html",
       "/analisis.js": "analisis.js",
-      "/logo-tec.svg": "logo-tec.svg"
+      "/logo-tec.svg": "logo-tec.svg",
+      "/presentacion/Analisis-de-chatter-Tec-de-Monterrey.pptx": "presentacion/Analisis-de-chatter-Tec-de-Monterrey.pptx"
     };
     if (paginas.has(ruta)) {
       servirArchivo(respuesta, path.join(RAIZ, "Analisis de chatter.html"));
@@ -351,6 +648,23 @@ const servidor = http.createServer((peticion, respuesta) => {
     if (enPagina && fs.existsSync(enPagina) && fs.statSync(enPagina).isFile()) {
       servirArchivo(respuesta, enPagina);
       return;
+    }
+    if (ruta.toLowerCase().startsWith("/presentacion/") && ruta.toLowerCase().endsWith(".pptx")) {
+      const enPresentacion = rutaSegura(path.join(RAIZ, "presentacion"), relativa.slice("presentacion/".length));
+      if (enPresentacion && fs.existsSync(enPresentacion) && fs.statSync(enPresentacion).isFile()) {
+        const contenido = fs.readFileSync(enPresentacion);
+        const nombre = path.basename(enPresentacion).replace(/"/g, "");
+        respuesta.writeHead(200, {
+          "Content-Type": TIPOS[".pptx"],
+          "Content-Length": contenido.length,
+          "Content-Disposition": "attachment; filename=\"" + nombre + "\"",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Content-Type",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
+        });
+        respuesta.end(contenido);
+        return;
+      }
     }
     enviar(respuesta, 404, "No encontrado");
     return;
@@ -385,6 +699,16 @@ const servidor = http.createServer((peticion, respuesta) => {
 if (!fs.existsSync(PAGINA)) {
   console.error("No está la carpeta pagina.");
   process.exit(1);
+}
+
+if (process.argv.includes("--catalogo")) {
+  const destino = path.join(RAIZ, "datos", "catalogo.json");
+  fs.mkdirSync(path.dirname(destino), { recursive: true });
+  const catalogo = catalogoEstatico();
+  fs.writeFileSync(destino, JSON.stringify(catalogo, null, 2) + "\n", "utf8");
+  console.log("datos/catalogo.json actualizado con " + catalogo.pruebas.length + " pruebas:");
+  catalogo.pruebas.forEach((p) => console.log(" - " + p.nombre + " (A: " + p.aceleracion.length + ", F: " + p.fuerza.length + ")"));
+  process.exit(0);
 }
 
 servidor.listen(PUERTO, "127.0.0.1", () => {

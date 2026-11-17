@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#040a14">
-  <meta name="description" content="Estancia de investigación del Tecnológico de Monterrey: análisis de chatter en torneado a partir de aceleración, fuerza y análisis modal en tres ejes.">
-  <title>Análisis de chatter · Tecnológico de Monterrey</title>
+  <meta name="description" content="Proyecto de investigación del Tecnológico de Monterrey para analizar chatter en torneado mediante aceleración, fuerza y análisis modal en tres ejes con datos experimentales actualizados.">
+  <title>Análisis de chatter · Estancia de investigación | Tecnológico de Monterrey</title>
   <script>document.documentElement.classList.add("js");</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -280,6 +280,23 @@
     .rejilla-graficas .grafica { min-width: 0; }
     .grafica h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; font-family: var(--sans); font-weight: 500; font-size: 15px; letter-spacing: 0.01em; color: var(--txt); }
     .grafica h3::before { content: ""; width: 4px; height: 16px; border-radius: 2px; background: linear-gradient(180deg, var(--cyan), var(--tec)); }
+    .grafica h3.nueva::before { background: #5ad1ff; box-shadow: 0 0 10px #5ad1ff; }
+    .grafica h3.desgastada::before { background: #ff9f43; box-shadow: 0 0 10px #ff9f43; }
+    .panel-fft { margin-top: 18px; padding: 16px 16px 14px; border-radius: 28px; border: 1px solid rgba(130, 180, 240, 0.28);
+      background: linear-gradient(180deg, rgba(8, 22, 42, 0.72), rgba(4, 12, 24, 0.55)); }
+    .panel-fft.activa { border-color: rgba(228, 196, 138, 0.7); box-shadow: 0 0 0 4px rgba(228, 196, 138, 0.08); }
+    .panel-fft-cab { display: flex; align-items: center; justify-content: center; gap: 16px; margin: 2px 0 4px; }
+    .marca-fft { font-family: var(--mono); font-size: 13px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); }
+    .sello-condicion { margin: 0; padding: 4px 22px 6px; border: 1.5px solid rgba(228, 196, 138, 0.75); border-radius: 12px;
+      font-family: var(--serif); font-weight: 400; font-size: 34px; line-height: 1; color: #fff; }
+    .panel-fft-sub { margin: 0 0 12px; text-align: center; }
+    .fft-cols { display: grid; grid-template-columns: 42px minmax(0, 1fr) minmax(0, 1fr); gap: 10px 12px; align-items: center; }
+    .col-nom { font-family: var(--serif); font-weight: 400; font-size: 28px; line-height: 1; text-align: center; color: #fff; }
+    .col-nom.nueva { color: #d7f3ff; }
+    .col-nom.desgastada { color: #ffc39a; }
+    .fft-eje { font-family: var(--serif); font-size: 30px; line-height: 1; text-align: center; color: #fff; }
+    .panel-fft .grafica { margin-top: 0; padding: 8px; }
+    .panel-fft canvas { height: 248px; border-radius: 10px; }
     canvas { display: block; width: 100%; height: 280px; background: #07111f; border: 1px solid var(--line); border-radius: 14px; }
     canvas.grafica-interactiva { cursor: crosshair; touch-action: none; }
     canvas:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
@@ -340,6 +357,29 @@
       background: rgba(8, 20, 38, 0.6); color: #cfdced; font-size: 14.5px; line-height: 1.65; font-weight: 300; }
     .lecturas li b { color: var(--gold-hi); font-weight: 500; }
 
+    /* ───────── Descargas ───────── */
+    .ayuda a { color: var(--cyan); }
+    .desc-totales { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+    .desc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+    .desc-col-cab { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .desc-col-cab h3 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 32px; line-height: 1; color: #fff; }
+    .desc-col-cab h3 small { display: block; margin-top: 6px; font-family: var(--mono); font-size: 11.5px; font-weight: 400; letter-spacing: 0.02em; color: var(--muted); }
+    .desc-lista { display: flex; flex-direction: column; gap: 10px; }
+    .desc-item { border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; background: rgba(8, 20, 38, 0.55); }
+    .desc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .desc-item b { display: block; color: #fff; font-weight: 500; font-size: 14.5px; line-height: 1.35; }
+    .desc-item .meta { display: block; margin-top: 4px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+    .desc-btn { flex: none; display: inline-flex; align-items: center; height: 36px; padding: 0 14px; border-radius: 999px; text-decoration: none; font-size: 13px; font-weight: 600; color: #1d1405; white-space: nowrap;
+      background: linear-gradient(180deg, var(--gold-hi), #d3a95c); }
+    .desc-btn:hover { background: linear-gradient(180deg, #fff0cb, #e0b469); }
+    .desc-btn.sec { color: var(--txt); font-weight: 500; background: rgba(130, 180, 240, 0.08); border: 1px solid var(--line-hi); }
+    .desc-btn.sec:hover { background: rgba(130, 180, 240, 0.16); }
+    .desc-archivos { margin-top: 10px; }
+    .desc-archivos summary { cursor: pointer; font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold); }
+    .desc-archivos ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
+    .desc-archivos a { color: var(--tec-soft); text-decoration: none; font-family: var(--mono); font-size: 12.5px; }
+    .desc-archivos a:hover { color: #fff; }
+
     footer { margin-top: 56px; border-top: 1px solid var(--line); background: rgba(3, 8, 16, 0.7); backdrop-filter: blur(12px); }
     .pie { max-width: 1240px; margin: 0 auto; padding: 30px 32px 36px; display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; color: var(--muted); font-size: 13px; }
     .pie strong { font-family: var(--serif); font-weight: 400; font-size: 22px; color: #fff; display: block; letter-spacing: 0.01em; }
@@ -367,8 +407,12 @@
     }
     @media (max-width: 860px) {
       .nav a:not(.cta) { display: none; }
-      .zonas { grid-template-columns: 1fr; }
+      .zonas, .desc-grid { grid-template-columns: 1fr; }
       .rejilla-graficas, .rejilla-2 { grid-template-columns: minmax(0, 1fr); }
+      .sello-condicion { font-size: 28px; }
+      .col-nom { font-size: 22px; }
+      .panel-fft { overflow-x: auto; }
+      .fft-cols { min-width: 620px; }
       #panelComparativo { padding: 20px; }
       .pestanas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       main { padding: 0 18px 32px; }
@@ -386,6 +430,7 @@
       .pestana-txt b { font-size: 18px; }
       .pestana-txt small { display: none; }
       .osc-bot strong { font-size: 16px; }
+      .desc-top, .desc-col-cab { flex-direction: column; align-items: flex-start; }
     }
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
@@ -417,6 +462,7 @@
         <a href="#datos">Datos</a>
         <a href="#resultados">Resultados</a>
         <a href="#comparativo">Comparativo</a>
+        <a href="#descargas">Descargas</a>
         <a class="cta" href="#datos">Analizar ensayos</a>
       </nav>
     </div>
@@ -429,11 +475,12 @@
         <p class="etiqueta"><span class="punto"></span>Vibraciones en maquinado · Laboratorio</p>
         <h1>Análisis de <em>chatter</em> en tres ejes</h1>
         <p class="lead">
-          Carga aceleración, fuerza y análisis modal en archivos .lvm. El estudio separa X, Y y Z,
-          calcula RMS, espectro y chatter, y dibuja las señales de la prueba.
+          Proyecto actualizado con ensayos experimentales de torneado para evaluar chatter bajo diferentes condiciones
+          de herramienta, refrigerante y profundidad de corte. Se cargan aceleración, fuerza y análisis modal en archivos .lvm
+          para separar X, Y y Z, calcular RMS, espectro y chatter, y comparar resultados en cada prueba.
         </p>
         <p class="condiciones">
-          <span>Condiciones del torno</span><i></i><span>720 rpm</span><i></i><span>avance de 32 mm/in</span>
+          <span>Última actualización</span><i></i><span>2026</span><i></i><span>herramienta nueva/desgastada</span><i></i><span>aire · agua · refrigerante</span>
         </p>
         <div class="acciones">
           <a class="btn btn-pri" href="#datos">Explorar los ensayos
@@ -503,6 +550,7 @@
         Si tienes varias pruebas, selecciona su carpeta raíz con el botón de abajo. Se buscarán
         automáticamente los archivos .lvm dentro de las carpetas Aceleración, Fuerza y Modal,
         incluidas sus subcarpetas X, Y y Z. También puedes cargar archivos sueltos en cada recuadro.
+        Los registros de laboratorio están en <a href="#descargas">Descargas</a>.
       </p>
       <div class="panel rv">
         <div class="zonas">
@@ -543,7 +591,7 @@
     <section class="seccion" id="resultados" style="padding-top: 64px;">
       <section class="panel oculto" id="panelResultados">
         <div class="cab"><span class="num">03</span><h2>Resultados</h2></div>
-        <p class="ayuda" style="margin-bottom: 18px;">Inserto nuevo y herramienta nueva son la misma condición. El 2.0 del nombre de la carpeta es la segunda prueba, no otra profundidad.</p>
+        <p class="ayuda" style="margin-bottom: 18px;">Inserto nuevo y herramienta nueva son la misma condición. El 2.0 del nombre de la carpeta es la segunda prueba, no otra profundidad. Los ensayos con agua tienen tres repeticiones por herramienta; la repetición se ordena por hora de grabación.</p>
         <div class="filtros" id="filtrosPruebas">
           <div class="filtro">
             <span>Herramienta</span>
@@ -555,6 +603,7 @@
             <span>Refrigerante</span>
             <button type="button" data-filtro="refrigerante" data-valor="todas" class="activo">Todos</button>
             <button type="button" data-filtro="refrigerante" data-valor="Con refrigerante">Con refrigerante</button>
+            <button type="button" data-filtro="refrigerante" data-valor="Con agua">Con agua</button>
             <button type="button" data-filtro="refrigerante" data-valor="Sin refrigerante">Sin refrigerante</button>
           </div>
           <div class="filtro">
@@ -562,6 +611,7 @@
             <button type="button" data-filtro="repeticion" data-valor="todas" class="activo">Todas</button>
             <button type="button" data-filtro="repeticion" data-valor="primera">Primera prueba</button>
             <button type="button" data-filtro="repeticion" data-valor="segunda">Segunda prueba (2.0)</button>
+            <button type="button" data-filtro="repeticion" data-valor="tercera">Tercera prueba</button>
           </div>
         </div>
         <p class="nota" id="filtroConteo" style="margin-top: 0;"></p>
@@ -590,48 +640,38 @@
         <div class="grupo">Aceleración</div>
         <div class="grafica">
           <h3 id="titA">Aceleración en el tiempo</h3>
-          <canvas id="cvA" width="1040" height="280"></canvas>
+          <canvas id="cvA" width="1040" height="500"></canvas>
+          <p class="nota">X, Y y Z comparten la misma escala, fijada por el pico real de la señal. X se dibuja en amarillo, por encima de Z, para que no se confunda con el verde.</p>
         </div>
         <div class="rejilla-graficas">
-          <div class="grafica"><h3 id="titAX">Aceleración X</h3><canvas id="cvAX" width="1040" height="280" aria-label="Aceleración en el eje X"></canvas></div>
-          <div class="grafica"><h3 id="titAY">Aceleración Y</h3><canvas id="cvAY" width="1040" height="280" aria-label="Aceleración en el eje Y"></canvas></div>
-          <div class="grafica"><h3 id="titAZ">Aceleración Z</h3><canvas id="cvAZ" width="1040" height="280" aria-label="Aceleración en el eje Z"></canvas></div>
+          <div class="grafica"><h3 id="titAX">Aceleración X</h3><canvas id="cvAX" width="1040" height="380" aria-label="Aceleración en el eje X"></canvas></div>
+          <div class="grafica"><h3 id="titAY">Aceleración Y</h3><canvas id="cvAY" width="1040" height="380" aria-label="Aceleración en el eje Y"></canvas></div>
+          <div class="grafica"><h3 id="titAZ">Aceleración Z</h3><canvas id="cvAZ" width="1040" height="380" aria-label="Aceleración en el eje Z"></canvas></div>
         </div>
+        <p class="nota">Las tres usan la misma escala, la del pico más alto entre X, Y y Z. La altura es la amplitud real: el eje que vibra menos no se estira para llenar el marco. La línea punteada es el RMS de ese eje y el recuadro indica su pico.</p>
 
         <div class="grupo">Fuerza de corte</div>
         <div class="grafica">
           <h3 id="titF">Fuerza en el tiempo</h3>
-          <canvas id="cvF" width="1040" height="280"></canvas>
+          <canvas id="cvF" width="1040" height="500"></canvas>
+          <p class="nota">Fx, Fy y Fz comparten la misma escala, fijada por el pico real. Fx va en cian, Fy en magenta y Fz en amarillo; cada una lleva su contorno para que la amplitud de las tres se distinga.</p>
         </div>
         <div class="rejilla-graficas">
-          <div class="grafica"><h3 id="titFX">Fuerza X</h3><canvas id="cvFX" width="1040" height="280" aria-label="Fuerza en el eje X"></canvas></div>
-          <div class="grafica"><h3 id="titFY">Fuerza Y</h3><canvas id="cvFY" width="1040" height="280" aria-label="Fuerza en el eje Y"></canvas></div>
-          <div class="grafica"><h3 id="titFZ">Fuerza Z</h3><canvas id="cvFZ" width="1040" height="280" aria-label="Fuerza en el eje Z"></canvas></div>
+          <div class="grafica"><h3 id="titFX">Fuerza X</h3><canvas id="cvFX" width="1040" height="380" aria-label="Fuerza en el eje X"></canvas></div>
+          <div class="grafica"><h3 id="titFY">Fuerza Y</h3><canvas id="cvFY" width="1040" height="380" aria-label="Fuerza en el eje Y"></canvas></div>
+          <div class="grafica"><h3 id="titFZ">Fuerza Z</h3><canvas id="cvFZ" width="1040" height="380" aria-label="Fuerza en el eje Z"></canvas></div>
         </div>
+        <p class="nota">Las tres usan la misma escala, la del pico más alto entre Fx, Fy y Fz. La línea punteada es el RMS de ese eje y el recuadro indica su pico.</p>
+        <p class="nota">Las gráficas de tiempo usan el tiempo real registrado en cada archivo y conservan los máximos y mínimos de la señal tarada; los cortes en la aceleración son las pausas del adquisidor entre bloques. El RMS y el espectro salen de la misma señal tarada.</p>
 
         <div class="grupo">Espectro de aceleración</div>
-        <div class="grafica">
-          <h3 id="titFFT">Comparación FFT de aceleración XYZ</h3>
-          <canvas id="cvE" width="1040" height="280"></canvas>
-          <p class="nota">Las líneas punteadas marcan la banda modal. Las gráficas de tiempo usan el tiempo real registrado en cada archivo y conservan los máximos y mínimos de la señal tarada; los cortes en la aceleración son las pausas del adquisidor entre bloques. El RMS y el espectro salen de la misma señal tarada.</p>
-        </div>
-        <div class="rejilla-graficas">
-          <div class="grafica"><h3 id="titFFTX">FFT aceleración X</h3><canvas id="cvEX" width="1040" height="280" aria-label="FFT de aceleración en el eje X"></canvas></div>
-          <div class="grafica"><h3 id="titFFTY">FFT aceleración Y</h3><canvas id="cvEY" width="1040" height="280" aria-label="FFT de aceleración en el eje Y"></canvas></div>
-          <div class="grafica"><h3 id="titFFTZ">FFT aceleración Z</h3><canvas id="cvEZ" width="1040" height="280" aria-label="FFT de aceleración en el eje Z"></canvas></div>
-        </div>
+        <p class="nota" id="notaParA">Solo hay tres segmentos: sin refrigerante, con refrigerante y con agua. En cada uno entran todas las pruebas de esa condición, con todas las frecuencias del espectro. A la izquierda va la herramienta nueva y a la derecha la desgastada; cada color es una repetición. Si un pico tapa el resto, la escala de esa fila pasa a logarítmica.</p>
+        <div id="panelesFFT"></div>
 
         <div class="grupo">Espectro de fuerza</div>
-        <div class="grafica">
-          <h3 id="titFFTF">Comparación FFT de fuerza XYZ</h3>
-          <canvas id="cvFE" width="1040" height="280" aria-label="Comparación FFT de fuerza en X, Y y Z"></canvas>
-        </div>
-        <div class="rejilla-graficas">
-          <div class="grafica"><h3 id="titFFTFX">FFT fuerza X</h3><canvas id="cvFEX" width="1040" height="280" aria-label="FFT de fuerza en el eje X"></canvas></div>
-          <div class="grafica"><h3 id="titFFTFY">FFT fuerza Y</h3><canvas id="cvFEY" width="1040" height="280" aria-label="FFT de fuerza en el eje Y"></canvas></div>
-          <div class="grafica"><h3 id="titFFTFZ">FFT fuerza Z</h3><canvas id="cvFEZ" width="1040" height="280" aria-label="FFT de fuerza en el eje Z"></canvas></div>
-        </div>
-        <p class="nota">Las FFT se calculan por canal con la señal tarada y ventana Hann, como en Analisis_Chatter_XYZ.m. Aceleración en g; fuerza en V.</p>
+        <p class="nota" id="notaParF">Los mismos tres segmentos para la fuerza, con Fx, Fy y Fz en filas. Cada gráfica usa todas las componentes del espectro del corte, no solo el pico de cada tramo. Por debajo de 2 Hz queda fuera la deriva estática, y la escala vertical es logarítmica para que se vean también las componentes pequeñas.</p>
+        <div id="panelesFFTF"></div>
+        <p class="nota">Las FFT se calculan por canal con la señal tarada y ventana Hann, como en Analisis_Chatter_XYZ.m. Aceleración en g; fuerza en V. Las líneas punteadas marcan la banda modal. En cada fila, acercar, desplazar o leer con el cursor mueve las dos gráficas juntas.</p>
         <p class="nota">En las gráficas: coloca el cursor para leer valores; usa la rueda para acercar o alejar, arrastra para desplazar y haz doble clic o pulsa Inicio para restablecer la vista. La vista inicial del tiempo es el tramo de corte más largo, sin el reposo del principio y sin el tramo en que la fuerza se sale de escala. El doble clic devuelve la grabación completa.</p>
 
         <div class="grupo">Análisis modal</div>
@@ -727,9 +767,9 @@
         <div class="vista" role="tabpanel" id="vistaCmpAceleracion" aria-labelledby="tabCmpAceleracion" hidden>
           <p class="vista-desc">Cómo vibra el sistema en cada prueba: nivel por eje, pico en la banda modal y comparación de espectros y señales. Usa los selectores de eje y de pruebas.</p>
           <div class="rejilla-2">
-            <div class="grafica"><h3>RMS de aceleración por eje</h3><canvas id="cvBAcel" width="520" height="280"></canvas>
+            <div class="grafica ancha"><h3>RMS de aceleración por eje</h3><canvas id="cvBAcel" width="1040" height="280"></canvas>
               <p class="nota">Nivel de vibración de cada eje en cada prueba. Pasa el cursor sobre una columna para leer los valores.</p></div>
-            <div class="grafica"><h3>Amplitud del pico en la banda modal</h3><canvas id="cvBPico" width="520" height="280"></canvas>
+            <div class="grafica ancha"><h3>Amplitud del pico en la banda modal</h3><canvas id="cvBPico" width="1040" height="280"></canvas>
               <p class="nota">Amplitud espectral máxima, en g, dentro de la banda alrededor de la frecuencia natural.</p></div>
             <div class="grafica ancha"><h3 id="titCmpFA">FFT de aceleración</h3><canvas id="cvCmpFA" width="1040" height="280"></canvas>
               <p class="nota">Las líneas punteadas marcan la banda modal. Rueda para acercar, arrastre para desplazar y doble clic para restablecer.</p></div>
@@ -744,12 +784,12 @@
         <div class="vista" role="tabpanel" id="vistaCmpFuerza" aria-labelledby="tabCmpFuerza" hidden>
           <p class="vista-desc">Cómo excita el corte a la herramienta: fuerza por eje, relación con la vibración y comparación de espectros y señales. Usa los selectores de eje y de pruebas.</p>
           <div class="rejilla-2">
-            <div class="grafica"><h3>RMS de fuerza por eje</h3><canvas id="cvBFza" width="520" height="280"></canvas>
+            <div class="grafica ancha"><h3>RMS de fuerza por eje</h3><canvas id="cvBFza" width="1040" height="280"></canvas>
               <p class="nota">Fuerza de corte en volts (sin calibrar a newtons) para Fx, Fy y Fz.</p></div>
-            <div class="grafica"><h3>Vibración por unidad de fuerza</h3><canvas id="cvBRel" width="520" height="280"></canvas>
+            <div class="grafica ancha"><h3>Vibración por unidad de fuerza</h3><canvas id="cvBRel" width="1040" height="280"></canvas>
               <p class="nota">RMS de aceleración resultante entre RMS de fuerza resultante. Si crece, la vibración aumenta más rápido que la fuerza aplicada.</p></div>
             <div class="grafica ancha"><h3 id="titCmpFF">FFT de fuerza</h3><canvas id="cvCmpFF" width="1040" height="280"></canvas>
-              <p class="nota">Las líneas punteadas marcan la banda modal. Rueda para acercar, arrastre para desplazar y doble clic para restablecer.</p></div>
+              <p class="nota">Las líneas punteadas marcan la banda modal. El espectro es el del corte, con todas sus frecuencias. Rueda para acercar, arrastre para desplazar y doble clic para restablecer.</p></div>
             <div class="grafica"><h3 id="titCmpEF">Evolución del RMS de fuerza</h3><canvas id="cvCmpEF" width="520" height="280"></canvas>
               <p class="nota">Cada señal se divide en 60 tramos para ver cómo cambia la fuerza durante el corte.</p></div>
             <div class="grafica"><h3 id="titCmpTF">Fuerza en el tiempo</h3><canvas id="cvCmpTF" width="520" height="280"></canvas>
@@ -761,13 +801,13 @@
         <div class="vista" role="tabpanel" id="vistaCmpChatter" aria-labelledby="tabCmpChatter" hidden>
           <p class="vista-desc">Evidencia de chatter y severidad: contraste en la banda modal, frecuencia del pico, crecimiento durante el corte e índice combinado.</p>
           <div class="rejilla-2">
-            <div class="grafica"><h3>Contraste de chatter por eje</h3><canvas id="cvBCont" width="520" height="280"></canvas>
+            <div class="grafica ancha"><h3>Contraste de chatter por eje</h3><canvas id="cvBCont" width="1040" height="280"></canvas>
               <p class="nota">Pico dentro de la banda modal dividido entre la mediana del resto del espectro. La línea marca el umbral de 4 veces del detector.</p></div>
-            <div class="grafica"><h3>Frecuencia del pico en banda</h3><canvas id="cvBFrec" width="520" height="280"></canvas>
+            <div class="grafica ancha"><h3>Frecuencia del pico en banda</h3><canvas id="cvBFrec" width="1040" height="280"></canvas>
               <p class="nota">Frecuencia donde cae el pico de cada eje, comparada con la frecuencia natural medida en el análisis modal.</p></div>
-            <div class="grafica"><h3>Crecimiento de la vibración (fin / inicio)</h3><canvas id="cvBCrec" width="520" height="280"></canvas>
+            <div class="grafica ancha"><h3>Crecimiento de la vibración (fin / inicio)</h3><canvas id="cvBCrec" width="1040" height="280"></canvas>
               <p class="nota">RMS del último tercio entre RMS del primer tercio de la señal. Valores sobre 1 indican vibración que crece durante el corte.</p></div>
-            <div class="grafica"><h3>Índice de severidad</h3><canvas id="cvBInd" width="520" height="280"></canvas>
+            <div class="grafica ancha"><h3>Índice de severidad</h3><canvas id="cvBInd" width="1040" height="280"></canvas>
               <p class="nota">Índice combinado de aceleración, pico modal y fuerza; menor es más favorable. En rojo, las pruebas con alerta de chatter.</p></div>
             <div class="grafica ancha"><h3>Variación respecto a la primera prueba</h3><canvas id="cvBVar" width="1040" height="280"></canvas>
               <p class="nota">Cambio porcentual de cada métrica global contra la prueba de menor profundidad.</p></div>
@@ -776,19 +816,30 @@
 
         <!-- Ventana 5: pieza -->
         <div class="vista" role="tabpanel" id="vistaCmpPieza" aria-labelledby="tabCmpPieza" hidden>
-          <p class="vista-desc">Resultado sobre la pieza (voladizo de 20 cm): rugosidad medida en cinco lecturas y tamaño de la pieza al inicio y al fin del corte, para cada profundidad.</p>
+          <p class="vista-desc">Rugosidad Ra de las pruebas de 2.5 mm. En el eje horizontal va la condición de fluido y, dentro de cada grupo, una barra de herramienta nueva y otra de herramienta desgastada.</p>
           <div class="rejilla-2">
-            <div class="grafica"><h3>Rugosidad media</h3><canvas id="cvBRug" width="520" height="280"></canvas>
-              <p class="nota">Promedio de las cinco lecturas de rugosidad, en µm. Pasa el cursor sobre una columna para ver el valor.</p></div>
-            <div class="grafica"><h3>Rugosidad por lectura</h3><canvas id="cvBRugLect" width="520" height="280"></canvas>
-              <p class="nota">Las cinco lecturas de cada prueba, para ver la dispersión de la medición.</p></div>
-            <div class="grafica"><h3>Tamaño de la pieza al inicio y al fin del corte</h3><canvas id="cvBDiam" width="520" height="280"></canvas>
+            <div class="grafica ancha"><h3>Rugosidad media Ra</h3><canvas id="cvBRugCond" width="1040" height="360" aria-label="Rugosidad Ra por condición de fluido, herramienta nueva y desgastada"></canvas>
+              <p class="nota" id="notaRa">Promedio de Ra, en µm.</p>
+              <div class="tabla-wrap" id="tablaRaWrap"></div></div>
+            <div class="grafica ancha"><h3>Tamaño de la pieza al inicio y al fin del corte</h3><canvas id="cvBDiam" width="1040" height="280"></canvas>
               <p class="nota">Tamaño medido en mm al comenzar y al terminar el corte.</p></div>
-            <div class="grafica"><h3>Diferencia de tamaño (inicio − fin)</h3><canvas id="cvBDif" width="520" height="280"></canvas>
+            <div class="grafica ancha"><h3>Diferencia de tamaño (inicio − fin)</h3><canvas id="cvBDif" width="1040" height="280"></canvas>
               <p class="nota">Cuánto se reduce la pieza entre el inicio y el fin del corte, en mm.</p></div>
           </div>
         </div>
       </section>
+    </section>
+
+    <section class="seccion" id="descargas">
+      <div class="cab rv"><span class="num">05</span><h2>Archivos para <em>descargar</em></h2></div>
+      <p class="ayuda rv">
+        Descarga los registros originales de las pruebas en formato .lvm.
+      </p>
+      <div class="panel" id="panelDescargas">
+        <div class="desc-totales" id="descTotales"></div>
+        <p class="nota" id="descEstado">Buscando los archivos de las pruebas…</p>
+        <div class="desc-grid" id="descGrid"></div>
+      </div>
     </section>
   </main>
 
@@ -801,9 +852,9 @@
       <span class="mono">Vibraciones en maquinado</span>
     </div>
   </footer>
-  <script src="analisis.js?v=20261102"></script>
+  <script src="analisis.js?v=20261116"></script>
   <script>
-    var VERSION_ESTATICOS = "20261102";
+    var VERSION_ESTATICOS = "20261116";
     var CA = window.ChatterAnalisis;
     document.body.dataset.analisis = CA ? "listo" : "falta";
     var store = { aceleracion: [], fuerza: [], modal: [], carpeta: [] };
@@ -1362,7 +1413,7 @@
             [
               [p.herramienta, p.herramienta === "Desgastada" ? "desgastada" : ""],
               [p.refrigerante, ""],
-              [p.repeticion === "segunda" ? "Segunda prueba" : (p.repeticion === "primera" ? "Primera prueba" : ""), p.repeticion === "segunda" ? "segunda" : ""]
+              [p.repeticion ? p.repeticion.charAt(0).toUpperCase() + p.repeticion.slice(1) + " prueba" : "", p.repeticion && p.repeticion !== "primera" ? "segunda" : ""]
             ].forEach(function (marca) {
               if (!marca[0]) return;
               var etiqueta = document.createElement("span");
@@ -1433,31 +1484,209 @@
       document.getElementById("titF").textContent = "Fuerza XYZ en el tiempo · " + etiquetaGeneral + tramoF;
       dibujarSenal(document.getElementById("cvA"), p.acel, "Tiempo [s]", "Aceleración [g]", false, null);
       dibujarSenal(document.getElementById("cvF"), p.fuerza, "Tiempo [s]", "Fuerza [V]", true, null);
-      dibujarSenal(document.getElementById("cvE"), p.acel ? { t: p.acel.f, y: p.acel.p } : null, "Frecuencia [Hz]", "Amplitud [g]", false, p.banda);
-      dibujarSenal(document.getElementById("cvFE"), p.fuerza ? { t: p.fuerza.f, y: p.fuerza.p } : null, "Frecuencia [Hz]", "Amplitud [V]", true, p.banda);
       var ejes = ["X", "Y", "Z"];
+      var limA = limiteDeSenal(p.acel);
+      var limF = limiteDeSenal(p.fuerza);
       ejes.forEach(function (eje, c) {
-        var etiqueta = etiquetaVisible(p);
-        document.getElementById("titA" + eje).textContent = "Aceleración " + eje + " · " + etiqueta + tramoA;
-        document.getElementById("titF" + eje).textContent = "Fuerza " + eje + " · " + etiqueta + tramoF;
-        document.getElementById("titFFT" + eje).textContent = "FFT aceleración " + eje + " · " + etiqueta;
-        document.getElementById("titFFTF" + eje).textContent = "FFT fuerza " + eje + " · " + etiqueta;
-        dibujarSenal(document.getElementById("cvA" + eje), serieEje(p.acel, c, false), "Tiempo [s]", "Aceleración [g]", false, null);
-        dibujarSenal(document.getElementById("cvF" + eje), serieEje(p.fuerza, c, false), "Tiempo [s]", "Fuerza [V]", true, null);
-        dibujarSenal(document.getElementById("cvE" + eje), serieEje(p.acel, c, true), "Frecuencia [Hz]", "Amplitud [g]", false, p.banda);
-        dibujarSenal(document.getElementById("cvFE" + eje), serieEje(p.fuerza, c, true), "Frecuencia [Hz]", "Amplitud [V]", true, p.banda);
+        document.getElementById("titA" + eje).textContent = "Aceleración " + eje;
+        document.getElementById("titF" + eje).textContent = "Fuerza " + eje;
+        var datosA = serieEje(p.acel, c, false);
+        if (datosA && limA > 0) {
+          datosA.escalaFija = limA;
+          datosA.nivelRms = p.rms ? p.rms[c] : 0;
+        }
+        var datosF = serieEje(p.fuerza, c, false);
+        if (datosF && limF > 0) {
+          datosF.escalaFija = limF;
+          datosF.nivelRms = p.rmsFxyz ? p.rmsFxyz[c] : 0;
+        }
+        dibujarSenal(document.getElementById("cvA" + eje), datosA, "Tiempo [s]", "Aceleración [g]", false, null);
+        dibujarSenal(document.getElementById("cvF" + eje), datosF, "Tiempo [s]", "Fuerza [V]", true, null);
       });
-      document.getElementById("titFFT").textContent = "Comparación FFT de aceleración XYZ · " + etiquetaVisible(p);
-      document.getElementById("titFFTF").textContent = "Comparación FFT de fuerza XYZ · " + etiquetaVisible(p);
+      pintarPanelesFFT(p);
       dibujarSenal(document.getElementById("cvM"), p.modal, "Tiempo [s]", "Aceleración [g]", false, null);
       var extra = "";
       if (Number.isFinite(p.razon)) extra = " Vibración al final / al inicio = " + p.razon.toFixed(2) + ".";
       document.getElementById("notas").textContent = (p.notas.join(" ") + extra).trim();
     }
 
+    function limiteDeSenal(datos) {
+      if (!datos || !datos.t || !datos.y) return 0;
+      var t0 = datos.ventana ? datos.ventana[0] : -Infinity;
+      var t1 = datos.ventana ? datos.ventana[1] : Infinity;
+      var pico = 0;
+      for (var c = 0; c < datos.y.length; c++) {
+        var col = datos.y[c];
+        if (!col) continue;
+        for (var i = 0; i < col.length; i++) {
+          if (datos.t[i] < t0 || datos.t[i] > t1 || !Number.isFinite(col[i])) continue;
+          var a = Math.abs(col[i]);
+          if (a > pico) pico = a;
+        }
+      }
+      if (!(pico > 0)) return 0;
+      var lim = limiteLegible(pico * 1.06);
+      if (!(lim > pico)) lim = limiteLegible(pico * 1.25);
+      return lim;
+    }
+
     function textoVentana(datos) {
       if (!datos || !datos.ventana) return "";
       return " · " + datos.ventana[0].toFixed(1) + "–" + datos.ventana[1].toFixed(1) + " s";
+    }
+
+    var FLUIDOS_FFT = [
+      { id: "sin", nombre: "Sin refrigerante", sello: "Seco" },
+      { id: "ref", nombre: "Con refrigerante", sello: "Con refrigerante" },
+      { id: "agua", nombre: "Con agua", sello: "Con agua" }
+    ];
+
+    function asegurarPanelesFFT() {
+      if (document.getElementById("cvEsinXN")) return;
+      construirPanelesFFT("panelesFFT", "E", "aceleración", ["X", "Y", "Z"], 248);
+      construirPanelesFFT("panelesFFTF", "FE", "fuerza", ["Fx", "Fy", "Fz"], 320);
+    }
+
+    function construirPanelesFFT(contenedorId, prefijo, señal, rotulos, alto) {
+      var cont = document.getElementById(contenedorId);
+      FLUIDOS_FFT.forEach(function (fluido) {
+        var panel = document.createElement("section");
+        panel.className = "panel-fft";
+        panel.dataset.fluido = fluido.nombre;
+        panel.innerHTML =
+          '<div class="panel-fft-cab"><span class="marca-fft">FFT</span><h3 class="sello-condicion"></h3></div>' +
+          '<p class="nota panel-fft-sub"></p>' +
+          '<div class="fft-cols"><span></span><span class="col-nom nueva">Nueva</span><span class="col-nom desgastada">Desgastada</span></div>';
+        panel.querySelector(".sello-condicion").textContent = fluido.sello;
+        var grid = panel.querySelector(".fft-cols");
+        ["X", "Y", "Z"].forEach(function (eje, i) {
+          var rotulo = document.createElement("div");
+          rotulo.className = "fft-eje";
+          rotulo.textContent = rotulos[i];
+          grid.appendChild(rotulo);
+          ["N", "D"].forEach(function (lado) {
+            var caja = document.createElement("div");
+            caja.className = "grafica";
+            var canvas = document.createElement("canvas");
+            canvas.id = "cv" + prefijo + fluido.id + eje + lado;
+            canvas.width = 640;
+            canvas.height = alto;
+            canvas.dataset.alto = String(alto);
+            canvas.setAttribute("aria-label", "FFT de " + señal + " " + rotulos[i] + ", " + fluido.nombre + ", herramienta " + (lado === "N" ? "nueva" : "desgastada"));
+            caja.appendChild(canvas);
+            grid.appendChild(caja);
+          });
+        });
+        cont.appendChild(panel);
+      });
+    }
+
+    var ORDEN_REP = ["primera", "segunda", "tercera", "cuarta", "quinta", "sexta"];
+    var COLORES_REP = ["#5ad1ff", "#ffb020", "#c792ff", "#9be15d", "#ff6fb1", "#8fa8ff"];
+
+    function pruebasDeFluido(refrigerante, herramienta) {
+      return pruebas.filter(function (q) {
+        return q.herramienta === herramienta && (q.refrigerante || "") === refrigerante;
+      }).sort(function (a, b) {
+        var ia = ORDEN_REP.indexOf(a.repeticion || "");
+        var ib = ORDEN_REP.indexOf(b.repeticion || "");
+        if (ia < 0) ia = 99;
+        if (ib < 0) ib = 99;
+        if (ia !== ib) return ia - ib;
+        return (Number(a.profundidad) || 0) - (Number(b.profundidad) || 0);
+      });
+    }
+
+    function etiquetaSerie(prueba, lista) {
+      var rep = prueba.repeticion
+        ? prueba.repeticion.charAt(0).toUpperCase() + prueba.repeticion.slice(1)
+        : "Ensayo";
+      var profundidades = {};
+      lista.forEach(function (q) {
+        if (Number.isFinite(q.profundidad)) profundidades[q.profundidad] = true;
+      });
+      if (Object.keys(profundidades).length > 1 && Number.isFinite(prueba.profundidad)) {
+        return prueba.profundidad + " mm · " + rep;
+      }
+      return rep;
+    }
+
+    function seriesGrupo(lista, fuente, indice, seleccion) {
+      return lista.map(function (prueba, i) {
+        var serie = serieEspectro(prueba, fuente, indice, etiquetaSerie(prueba, lista), COLORES_REP[i % COLORES_REP.length], fuente === "fuerza" ? 2 : 0);
+        if (serie && prueba === seleccion) serie.grosor = 2.6;
+        return serie;
+      }).filter(Boolean);
+    }
+
+    function pintarPanelesFFT(p) {
+      asegurarPanelesFFT();
+      FLUIDOS_FFT.forEach(function (fluido) {
+        var nuevas = pruebasDeFluido(fluido.nombre, "Nueva");
+        var desgastadas = pruebasDeFluido(fluido.nombre, "Desgastada");
+        ["E", "FE"].forEach(function (prefijo) {
+          var panel = document.querySelector("#panelesFFT" + (prefijo === "FE" ? "F" : "") + " .panel-fft[data-fluido=\"" + fluido.nombre + "\"]");
+          if (panel) panel.classList.toggle("activa", (p.refrigerante || "") === fluido.nombre);
+          var sub = panel && panel.querySelector(".panel-fft-sub");
+          if (sub) sub.textContent = textoPanelFFT(nuevas, desgastadas);
+          var fuente = prefijo === "E" ? "acel" : "fuerza";
+          var unidad = prefijo === "E" ? "Amplitud [g]" : "Amplitud [V]";
+          var banda = (nuevas[0] && nuevas[0].banda) || (desgastadas[0] && desgastadas[0].banda) || p.banda;
+          ["X", "Y", "Z"].forEach(function (eje, c) {
+            dibujarParEspectro(
+              document.getElementById("cv" + prefijo + fluido.id + eje + "N"),
+              document.getElementById("cv" + prefijo + fluido.id + eje + "D"),
+              seriesGrupo(nuevas, fuente, c, p),
+              seriesGrupo(desgastadas, fuente, c, p),
+              "Frecuencia [Hz]",
+              unidad,
+              banda
+            );
+          });
+        });
+      });
+    }
+
+    function textoPanelFFT(nuevas, desgastadas) {
+      function lista(grupo) {
+        if (!grupo.length) return "ninguna";
+        return grupo.map(function (q) { return etiquetaSerie(q, grupo); }).join(", ");
+      }
+      return "Todas las pruebas de esta condición. Nueva: " + lista(nuevas) + ". Desgastada: " + lista(desgastadas) + ". Cada curva incluye todas las frecuencias del espectro. Cuando el pico es mucho mayor que el resto, la escala pasa a logarítmica para que las componentes pequeñas se lean en la misma gráfica.";
+    }
+
+    function serieEspectro(prueba, fuente, indice, nombre, color, fMin) {
+      if (!prueba) return null;
+      var datos = prueba[fuente];
+      if (!datos || !datos.f || !datos.p || !datos.p[indice]) return null;
+      var x = datos.f;
+      var y = datos.p[indice];
+      var i0 = 0;
+      if (fMin > 0) {
+        while (i0 < x.length && x[i0] < fMin) i0++;
+        if (i0 >= x.length - 2) return null;
+        x = x.subarray(i0);
+        y = y.subarray(i0);
+      }
+      for (var i = 0; i < y.length; i++) {
+        if (Number.isFinite(y[i])) return { nombre: nombre, color: color, x: x, y: y };
+      }
+      return null;
+    }
+
+    function dibujarParEspectro(canvasN, canvasD, serieN, serieD, xlab, ylab, banda) {
+      var listaN = Array.isArray(serieN) ? serieN : (serieN ? [serieN] : []);
+      var listaD = Array.isArray(serieD) ? serieD : (serieD ? [serieD] : []);
+      dibujarSenal(canvasN, null, xlab, ylab, false, banda, listaN);
+      dibujarSenal(canvasD, null, xlab, ylab, false, banda, listaD);
+      if (canvasN._grafica && canvasD._grafica) {
+        var log = !!(canvasN._grafica.logY || canvasD._grafica.logY);
+        canvasN._grafica.logY = log;
+        canvasD._grafica.logY = log;
+        canvasN._grafica.pareja = canvasD;
+        canvasD._grafica.pareja = canvasN;
+        canvasN._renderGrafica();
+      }
     }
 
     function serieEje(datos, indice, espectro) {
@@ -1467,7 +1696,13 @@
       if (!x || !columnas || !columnas[indice]) return null;
       var y = [null, null, null];
       y[indice] = columnas[indice];
-      return { t: x, y: y, ventana: espectro ? null : datos.ventana };
+      var salida = { t: x, y: y, ventana: espectro ? null : datos.ventana };
+      if (!espectro && datos.media && datos.media.y && datos.media.y[indice]) {
+        var my = [null, null, null];
+        my[indice] = datos.media.y[indice];
+        salida.media = { t: datos.media.t, y: my };
+      }
+      return salida;
     }
 
     function resumenModelo() {
@@ -1637,10 +1872,6 @@
       var caja = document.getElementById("llmTexto");
       estado.textContent = "El modelo está contrastando el criterio de chatter, las métricas por eje y las diferencias entre pruebas.";
       escribirInforme(caja, informeTecnicoLocal());
-      if (location.hostname.endsWith(".github.io")) {
-        estado.textContent = "Informe técnico calculado localmente; GitHub Pages no ejecuta el servicio de modelo remoto.";
-        return;
-      }
       var url = (location.protocol === "http:" || location.protocol === "https:")
         ? "/api/interpretar"
         : "http://127.0.0.1:3001/api/interpretar";
@@ -1669,8 +1900,10 @@
     function dibujarSenal(canvas, datos, xlab, ylab, esFuerza, banda, serieCustom) {
       var rect = canvas.getBoundingClientRect();
       var dpr = window.devicePixelRatio || 1;
-      var w = Math.max(320, rect.width || 1040);
-      var h = 280;
+      var compacto = !!(canvas.closest && canvas.closest(".panel-fft"));
+      var w = Math.max(compacto ? 220 : 320, rect.width || 1040);
+      var h = compacto ? (Number(canvas.dataset.alto) || 176) : 280;
+      canvas.style.height = h + "px";
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
       var ctx = canvas.getContext("2d");
@@ -1678,13 +1911,16 @@
       ctx.fillStyle = "#07111f";
       ctx.fillRect(0, 0, w, h);
       if (!serieCustom && (!datos || !datos.t || !datos.t.length)) {
+        canvas._grafica = null;
         canvas._renderGrafica = function () {};
         mensaje(ctx, w, h, "No hay datos para esta gráfica.");
         return;
       }
       var series = [];
       var nombres = esFuerza ? ["Fx", "Fy", "Fz"] : ["X", "Y", "Z"];
-      var colores = ["#4da3ff", "#ff6b5e", "#3fe0a0"];
+      var colores = canvas.id === "cvA" ? ["#ffd24a", "#ff6b5e", "#3fe0a0"]
+        : (canvas.id === "cvF" || canvas.id === "cvFX" || canvas.id === "cvFY" || canvas.id === "cvFZ") ? ["#3ad7ff", "#ff4fbf", "#ffe14a"]
+        : ["#4da3ff", "#ff6b5e", "#3fe0a0"];
       function tieneValores(col) {
         for (var i = 0; i < col.length; i++) {
           if (Number.isFinite(col[i])) return true;
@@ -1698,14 +1934,51 @@
       } else {
         for (var c = 0; c < 3; c++) {
           if (!datos.y[c]) continue;
-          if (tieneValores(datos.y[c])) series.push({ nombre: nombres[c], color: colores[c], x: datos.t, y: datos.y[c] });
+          if (!tieneValores(datos.y[c])) continue;
+          var serieEjes = { nombre: nombres[c], color: colores[c], x: datos.t, y: datos.y[c] };
+          if (datos.media && datos.media.y && datos.media.y[c]) {
+            serieEjes.mediaX = datos.media.t;
+            serieEjes.mediaY = datos.media.y[c];
+          }
+          series.push(serieEjes);
         }
       }
       if (!series.length) {
+        canvas._grafica = null;
         canvas._renderGrafica = function () {};
         mensaje(ctx, w, h, "No hay datos para esta gráfica.");
         return;
       }
+      var escalaComun = canvas.id === "cvA" || canvas.id === "cvF";
+      var leyendaAbajo = !escalaComun && series.length > 3;
+      var filasLeyenda = 1;
+      if (leyendaAbajo) {
+        ctx.font = "12.5px Outfit, Segoe UI, sans-serif";
+        var usadoLeyenda = 0;
+        var anchoLeyenda = w - 94;
+        series.forEach(function (s) {
+          var anchoItem = ctx.measureText(s.nombre).width + 34;
+          if (usadoLeyenda > 0 && usadoLeyenda + anchoItem > anchoLeyenda) {
+            filasLeyenda++;
+            usadoLeyenda = 0;
+          }
+          usadoLeyenda += anchoItem;
+        });
+      }
+      var margen = compacto
+        ? { l: 72, r: 16, t: 46, b: 50 }
+        : { l: 76, r: 18, t: 18, b: 60 + (leyendaAbajo ? 8 + filasLeyenda * 22 : 0) };
+      var ejeSuelto = canvas.id === "cvAX" || canvas.id === "cvAY" || canvas.id === "cvAZ" || canvas.id === "cvFX" || canvas.id === "cvFY" || canvas.id === "cvFZ";
+      if (escalaComun) {
+        margen = { l: 78, r: 16, t: 14, b: 48 };
+        h = 500;
+      } else if (ejeSuelto) {
+        margen = { l: 58, r: 12, t: 12, b: 46 };
+        h = 380;
+      } else if (!compacto) h = Math.max(280, 210 + margen.t + margen.b);
+      canvas.style.height = h + "px";
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
       var anterior = canvas._grafica;
       var mismaSenal = anterior && anterior.series.length === series.length && series.every(function (serie, i) {
         return anterior.series[i].x === serie.x && anterior.series[i].y === serie.y;
@@ -1734,12 +2007,20 @@
         hoverX: null,
         arrastre: null,
         banda: banda,
-        escalaCompleta: canvas.id === "cvM",
+        escalaCompleta: canvas.id === "cvM" || escalaComun || (datos && datos.escalaFija > 0),
+        escalaComun: escalaComun,
+        escalaFija: datos && datos.escalaFija > 0 ? datos.escalaFija : 0,
+        nivelRms: datos && datos.nivelRms > 0 ? datos.nivelRms : 0,
         xlab: xlab,
         ylab: ylab,
         ancho: w,
         alto: h,
-        dpr: dpr
+        dpr: dpr,
+        margen: margen,
+        leyendaAbajo: leyendaAbajo,
+        sinLeyenda: compacto && series.length < 2,
+        apilado: false,
+        compacto: compacto
       };
       var encabezado = canvas.parentElement.querySelector("h3");
       if (encabezado) canvas.setAttribute("aria-label", encabezado.textContent + ". Gráfica interactiva.");
@@ -1748,7 +2029,31 @@
       canvas.title = "Cursor para inspeccionar valores. Rueda para zoom. Arrastre para desplazar. Doble clic para restablecer.";
       canvas._renderGrafica = function () { renderizarGrafica(canvas); };
       instalarInteraccionGrafica(canvas);
+      marcarLogEspectro(canvas);
       renderizarGrafica(canvas);
+    }
+
+    function espectroAmplio(series) {
+      var max = 0;
+      var vals = [];
+      series.forEach(function (s) {
+        var paso = Math.max(1, Math.floor(s.y.length / 6000));
+        for (var i = 0; i < s.y.length; i++) {
+          var v = s.y[i];
+          if (v > max) max = v;
+          if (i % paso === 0 && v > 0) vals.push(v);
+        }
+      });
+      if (vals.length < 40 || !(max > 0)) return false;
+      vals.sort(function (a, b) { return a - b; });
+      var referencia = vals[Math.floor(vals.length * 0.75)];
+      return referencia > 0 && max / referencia >= 8;
+    }
+
+    function marcarLogEspectro(canvas) {
+      var grafica = canvas._grafica;
+      if (!grafica) return;
+      grafica.logY = grafica.xlab.indexOf("Frecuencia") === 0 && espectroAmplio(grafica.series);
     }
 
     function instalarInteraccionGrafica(canvas) {
@@ -1825,10 +2130,11 @@
     }
 
     function marcoGrafica(grafica) {
-      var izquierda = 76;
-      var derecha = grafica.ancho - 16;
-      var arriba = 16;
-      var abajo = grafica.alto - 42;
+      var m = grafica.margen || { l: 76, r: 18, t: 18, b: 60 };
+      var izquierda = m.l;
+      var derecha = grafica.ancho - m.r;
+      var arriba = m.t;
+      var abajo = grafica.alto - m.b;
       return { izquierda: izquierda, derecha: derecha, arriba: arriba, abajo: abajo, ancho: derecha - izquierda };
     }
 
@@ -1863,11 +2169,275 @@
       grafica.hoverX = null;
     }
 
-    function renderizarGrafica(canvas) {
+    function techoEspectro(series, xmin, xmax) {
+      var util = 0;
+      var bajo = 0;
+      series.forEach(function (serie) {
+        if (!serie) return;
+        for (var i = 0; i < serie.x.length; i++) {
+          var x = serie.x[i];
+          var y = serie.y[i];
+          if (x < xmin || x > xmax || !(y > 0)) continue;
+          if (x < 2) {
+            if (y > bajo) bajo = y;
+          } else if (y > util) util = y;
+        }
+      });
+      return { util: util, bajo: bajo };
+    }
+
+    function limiteLegible(pico) {
+      if (!(pico > 0)) return 1;
+      var base = Math.pow(10, Math.floor(Math.log10(pico)));
+      var n = pico / base;
+      var paso = n <= 1 ? 1 : n <= 1.5 ? 1.5 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 3 ? 3 : n <= 4 ? 4 : n <= 5 ? 5 : n <= 6 ? 6 : n <= 8 ? 8 : 10;
+      return paso * base;
+    }
+
+    function rangoRobusto(serie, xmin, xmax) {
+      var vals = [];
+      var paso = Math.max(1, Math.floor(serie.y.length / 8000));
+      var ymin = Infinity;
+      var ymax = -Infinity;
+      for (var i = 0; i < serie.y.length; i += paso) {
+        var x = serie.x[i];
+        var y = serie.y[i];
+        if (x < xmin || x > xmax || !Number.isFinite(y)) continue;
+        if (y < ymin) ymin = y;
+        if (y > ymax) ymax = y;
+        vals.push(y);
+      }
+      if (!vals.length) return { ymin: -1, ymax: 1 };
+      if (vals.length > 40) {
+        vals.sort(function (a, b) { return a - b; });
+        var bajo = vals[Math.floor(vals.length * 0.01)];
+        var alto = vals[Math.ceil(vals.length * 0.99) - 1];
+        if (alto > bajo && (ymax - ymin) > (alto - bajo) * 1.8) {
+          ymin = bajo;
+          ymax = alto;
+        }
+      }
+      if (ymin === ymax) { ymin -= 1; ymax += 1; }
+      var corteMin = ymin;
+      var corteMax = ymax;
+      var lim = limiteLegible(Math.max(Math.abs(corteMin), Math.abs(corteMax)) * 1.9);
+      return { ymin: -lim, ymax: lim, corteMin: corteMin, corteMax: corteMax };
+    }
+
+    function yEnCarril(serie, valor) {
+      var lane = serie._lane;
+      if (!lane || !(lane.ymax > lane.ymin)) return null;
+      return lane.top + (lane.ymax - valor) / (lane.ymax - lane.ymin) * (lane.bot - lane.top);
+    }
+
+    function dibujarMedia(ctx, serie, X, Y, xmin, xmax) {
+      if (!serie.mediaX || !serie.mediaY) return;
+      var tramos = [];
+      var actual = [];
+      for (var i = 0; i < serie.mediaX.length; i++) {
+        var x = serie.mediaX[i];
+        var y = serie.mediaY[i];
+        if (x < xmin || x > xmax || !Number.isFinite(y)) {
+          if (actual.length) tramos.push(actual);
+          actual = [];
+          continue;
+        }
+        actual.push({ x: x, y: y });
+      }
+      if (actual.length) tramos.push(actual);
+      if (!tramos.length) return;
+      ctx.save();
+      ctx.strokeStyle = "rgba(247, 251, 255, 0.95)";
+      ctx.lineWidth = 1.6;
+      ctx.lineJoin = "round";
+      tramos.forEach(function (arr) {
+        if (arr.length < 2) return;
+        var pasoT = Math.max((arr[arr.length - 1].x - arr[0].x) / 120, (xmax - xmin) * 0.012);
+        ctx.beginPath();
+        var on = false;
+        var b = 0;
+        for (var a = 0; a < arr.length; a = b) {
+          var hasta = arr[a].x + pasoT;
+          var suma = 0;
+          var sumaX = 0;
+          var n = 0;
+          while (b < arr.length && arr[b].x < hasta) {
+            suma += arr[b].y;
+            sumaX += arr[b].x;
+            n++;
+            b++;
+          }
+          if (!n) { b = a + 1; continue; }
+          var px = X(sumaX / n);
+          var py = Y(suma / n);
+          if (!on) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+          on = true;
+        }
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+
+    function dibujarEnvolvente(ctx, serie, X, Y, xmin, xmax, izquierda, ancho) {
+      var anchoPx = Math.max(1, Math.floor(ancho));
+      if (serie.x.length > anchoPx * 3) {
+        var minCol = new Float64Array(anchoPx);
+        var maxCol = new Float64Array(anchoPx);
+        for (var col = 0; col < anchoPx; col++) {
+          minCol[col] = Infinity;
+          maxCol[col] = -Infinity;
+        }
+        for (var i = 0; i < serie.x.length; i++) {
+          if (serie.x[i] < xmin || serie.x[i] > xmax || !Number.isFinite(serie.y[i])) continue;
+          var columna = Math.floor((X(serie.x[i]) - izquierda) / ancho * (anchoPx - 1));
+          if (columna < 0) columna = 0;
+          else if (columna >= anchoPx) columna = anchoPx - 1;
+          if (serie.y[i] < minCol[columna]) minCol[columna] = serie.y[i];
+          if (serie.y[i] > maxCol[columna]) maxCol[columna] = serie.y[i];
+        }
+        ctx.beginPath();
+        for (var t = 0; t < anchoPx; t++) {
+          if (maxCol[t] === -Infinity) continue;
+          var tx = izquierda + t + 0.5;
+          ctx.moveTo(tx, Y(minCol[t]));
+          ctx.lineTo(tx, Y(maxCol[t]));
+        }
+        ctx.stroke();
+      } else {
+        ctx.beginPath();
+        var empezado = false;
+        for (var j = 0; j < serie.x.length; j++) {
+          if (serie.x[j] < xmin || serie.x[j] > xmax || !Number.isFinite(serie.y[j])) { empezado = false; continue; }
+          var px = X(serie.x[j]);
+          var py = Y(serie.y[j]);
+          if (!empezado) { ctx.moveTo(px, py); empezado = true; }
+          else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+      }
+    }
+
+    function renderizarApilado(canvas) {
       var grafica = canvas._grafica;
       var w = grafica.ancho;
       var h = grafica.alto;
-      var m = { l: 76, r: 16, t: 16, b: 42 };
+      var m = grafica.margen;
+      var xmin = grafica.vistaMin;
+      var xmax = grafica.vistaMax;
+      var series = grafica.series;
+      var ctx = canvas.getContext("2d");
+      if (!Number.isFinite(grafica.hoverX)) canvas.removeAttribute("aria-valuetext");
+      ctx.setTransform(grafica.dpr, 0, 0, grafica.dpr, 0, 0);
+      var fondo = ctx.createLinearGradient(0, 0, 0, h);
+      fondo.addColorStop(0, "#0b1b32");
+      fondo.addColorStop(1, "#06101e");
+      ctx.fillStyle = fondo;
+      ctx.fillRect(0, 0, w, h);
+      var gap = 22;
+      var n = series.length;
+      var altoLane = (h - m.t - m.b - gap * (n - 1)) / n;
+      function X(x) { return m.l + (x - xmin) / (xmax - xmin) * (w - m.l - m.r); }
+      series.forEach(function (serie, i) {
+        var top = m.t + i * (altoLane + gap);
+        var bot = top + altoLane;
+        var rango = rangoRobusto(serie, xmin, xmax);
+        serie._lane = { top: top, bot: bot, ymin: rango.ymin, ymax: rango.ymax };
+        function Y(y) {
+          if (y < rango.corteMin) y = rango.corteMin;
+          if (y > rango.corteMax) y = rango.corteMax;
+          return top + (rango.ymax - y) / (rango.ymax - rango.ymin) * (bot - top);
+        }
+        ctx.strokeStyle = "rgba(140, 190, 255, 0.10)";
+        ctx.lineWidth = 1;
+        ctx.fillStyle = "#8ea4be";
+        ctx.font = "11.5px Outfit, Segoe UI, sans-serif";
+        ctx.textAlign = "right";
+        for (var g = 0; g <= 4; g++) {
+          var valor = rango.ymax - (rango.ymax - rango.ymin) * g / 4;
+          var yy = top + (bot - top) * g / 4;
+          ctx.beginPath();
+          ctx.moveTo(m.l, yy);
+          ctx.lineTo(w - m.r, yy);
+          ctx.stroke();
+          ctx.textBaseline = g === 0 ? "top" : g === 4 ? "bottom" : "middle";
+          ctx.fillText(formatoCorto(valor), m.l - 8, g === 0 ? yy + 8 : g === 4 ? yy - 8 : yy);
+        }
+        if (rango.ymin < 0 && rango.ymax > 0) {
+          ctx.save();
+          ctx.strokeStyle = "rgba(233, 241, 251, 0.28)";
+          ctx.setLineDash([3, 4]);
+          ctx.beginPath();
+          ctx.moveTo(m.l, Y(0));
+          ctx.lineTo(w - m.r, Y(0));
+          ctx.stroke();
+          ctx.restore();
+        }
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(m.l, top, w - m.l - m.r, bot - top);
+        ctx.clip();
+        ctx.strokeStyle = serie.color;
+        ctx.lineWidth = 1.2;
+        ctx.globalAlpha = 0.9;
+        dibujarEnvolvente(ctx, serie, X, Y, xmin, xmax, m.l, w - m.l - m.r);
+        ctx.globalAlpha = 1;
+        ctx.restore();
+        ctx.strokeStyle = "rgba(140, 190, 255, 0.28)";
+        ctx.strokeRect(m.l, top, w - m.l - m.r, bot - top);
+        ctx.font = "13px Outfit, Segoe UI, sans-serif";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        var etiqueta = serie.nombre;
+        var anchoEt = ctx.measureText(etiqueta).width + 14;
+        ctx.fillStyle = "rgba(6, 16, 30, 0.82)";
+        ctx.fillRect(m.l + 8, top + 7, anchoEt, 20);
+        ctx.fillStyle = serie.color;
+        ctx.fillText(etiqueta, m.l + 15, top + 17);
+      });
+      ctx.fillStyle = "#e9f1fb";
+      ctx.font = "12.5px Outfit, Segoe UI, sans-serif";
+      ctx.textBaseline = "alphabetic";
+      var ocupadoHasta = -Infinity;
+      for (var gx = 0; gx <= 4; gx++) {
+        var xv = xmin + (xmax - xmin) * gx / 4;
+        var px = X(xv);
+        var textoTick = formatoCorto(xv);
+        ctx.textAlign = gx === 0 ? "left" : gx === 4 ? "right" : "center";
+        if (gx === 0) px = m.l;
+        else if (gx === 4) px = w - m.r;
+        var anchoTick = ctx.measureText(textoTick).width;
+        var izqTick = ctx.textAlign === "left" ? px : ctx.textAlign === "right" ? px - anchoTick : px - anchoTick / 2;
+        if (izqTick < ocupadoHasta + 8) continue;
+        ctx.fillText(textoTick, px, h - m.b + 16);
+        ocupadoHasta = izqTick + anchoTick;
+      }
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#b7c9dc";
+      ctx.font = "13px Outfit, Segoe UI, sans-serif";
+      ctx.fillText(grafica.xlab, m.l + (w - m.l - m.r) / 2, Math.min(h - 8, h - m.b + 36));
+      ctx.fillStyle = "#8ea4be";
+      ctx.save();
+      ctx.translate(16, (h - m.b + m.t) / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.textAlign = "center";
+      ctx.fillText(grafica.ylab + " · escala por eje", 0, 0);
+      ctx.restore();
+      if (Number.isFinite(grafica.hoverX)) {
+        dibujarLecturaCursor(canvas, ctx, grafica, X, function (v) { return v; }, xmin, xmax, m, h);
+      }
+    }
+
+
+    function renderizarGrafica(canvas) {
+      if (canvas._grafica && canvas._grafica.apilado) {
+        renderizarApilado(canvas);
+        return;
+      }
+      var grafica = canvas._grafica;
+      var w = grafica.ancho;
+      var h = grafica.alto;
+      var m = grafica.margen || { l: 76, r: 18, t: 18, b: 60 };
       var xmin = grafica.vistaMin;
       var xmax = grafica.vistaMax;
       var ymin = Infinity;
@@ -1884,10 +2454,12 @@
       ctx.fillStyle = fondo;
       ctx.fillRect(0, 0, w, h);
       grafica.series.forEach(function (serie) {
+        var picoEje = 0;
         for (var i = 0; i < serie.x.length; i++) {
           if (serie.x[i] < xmin || serie.x[i] > xmax || !Number.isFinite(serie.y[i])) continue;
           ymin = Math.min(ymin, serie.y[i]);
           ymax = Math.max(ymax, serie.y[i]);
+          if ((grafica.escalaComun || grafica.escalaFija > 0) && Math.abs(serie.y[i]) > picoEje) picoEje = Math.abs(serie.y[i]);
           if (esFFT && (!pico || serie.y[i] > pico.y)) {
             pico = { x: serie.x[i], y: serie.y[i], nombre: serie.nombre, color: serie.color };
           }
@@ -1896,11 +2468,23 @@
             picoBanda = { x: serie.x[i], y: serie.y[i], nombre: serie.nombre, color: serie.color };
           }
         }
+        if (grafica.escalaComun || grafica.escalaFija > 0) serie._picoVista = picoEje;
       });
+      if (grafica.pareja && grafica.pareja._grafica) {
+        grafica.pareja._grafica.series.forEach(function (serie) {
+          for (var i = 0; i < serie.x.length; i++) {
+            if (serie.x[i] < xmin || serie.x[i] > xmax || !Number.isFinite(serie.y[i])) continue;
+            ymin = Math.min(ymin, serie.y[i]);
+            ymax = Math.max(ymax, serie.y[i]);
+          }
+        });
+      }
       if (!Number.isFinite(ymin) || !Number.isFinite(ymax)) {
         mensaje(ctx, w, h, "No hay datos para esta vista.");
         return;
       }
+      var topeMin = null;
+      var topeMax = null;
       if (!esFFT && !grafica.escalaCompleta) {
         var muestra = [];
         grafica.series.forEach(function (serie) {
@@ -1913,38 +2497,125 @@
           muestra.sort(function (a, b) { return a - b; });
           var bajo = muestra[Math.floor(muestra.length * 0.01)];
           var alto = muestra[Math.ceil(muestra.length * 0.99) - 1];
-          if (alto > bajo && (ymax - ymin) > (alto - bajo) * 3) {
+          var factorRecorte = canvas.id === "cvAX" || canvas.id === "cvAY" || canvas.id === "cvAZ" ? 1.8 : 3;
+          if (alto > bajo && (ymax - ymin) > (alto - bajo) * factorRecorte) {
             ymin = bajo;
             ymax = alto;
           }
         }
+        if (canvas.id === "cvAX" || canvas.id === "cvAY" || canvas.id === "cvAZ") {
+          topeMin = ymin;
+          topeMax = ymax;
+        }
       }
-      if (ymin === ymax) { ymin -= 1; ymax += 1; }
-      var pad = (ymax - ymin) * 0.08;
-      ymin -= pad;
-      ymax += pad;
+      var escalaPropia = false;
+      var picoLento = 0;
+      if (esFFT) {
+        var propio = techoEspectro(grafica.series, xmin, xmax);
+        var ajeno = grafica.pareja && grafica.pareja._grafica ? techoEspectro(grafica.pareja._grafica.series, xmin, xmax) : propio;
+        var nivelPropio = propio.util || propio.bajo;
+        var nivelAjeno = ajeno.util || ajeno.bajo;
+        var comparables = nivelPropio > 0 && nivelAjeno > 0 && Math.min(nivelPropio, nivelAjeno) / Math.max(nivelPropio, nivelAjeno) >= 0.22;
+        var techo = comparables ? Math.max(propio.util, ajeno.util) : propio.util;
+        if (!(techo > 0)) techo = nivelPropio || (ymax > 0 ? ymax : 0);
+        if (techo > 0) {
+          ymin = 0;
+          ymax = techo;
+        }
+        escalaPropia = !comparables && nivelPropio > 0 && nivelAjeno > 0;
+        if (propio.bajo > Math.max(techo, 0) * 1.8) picoLento = propio.bajo;
+        grafica.logY = espectroAmplio(grafica.series);
+        if (!grafica.logY && grafica.pareja && grafica.pareja._grafica) grafica.logY = espectroAmplio(grafica.pareja._grafica.series);
+      }
+      var logY = !!grafica.logY && ymax > 0;
+      var piso = 0;
+      var yLo;
+      var yHi;
+      if (logY) {
+        piso = Math.max(ymax / 250, 1e-9);
+        yLo = Math.log10(piso);
+        yHi = Math.log10(Math.max(ymax, piso * 10)) + 0.58;
+      } else {
+        if (ymin === ymax) { ymin -= 1; ymax += 1; }
+        if (!esFFT && grafica.escalaFija > 0) {
+          ymin = -grafica.escalaFija;
+          ymax = grafica.escalaFija;
+        } else if (!esFFT && topeMin != null && topeMax != null) {
+          var limEje = limiteLegible(Math.max(Math.abs(topeMin), Math.abs(topeMax)) * 1.9);
+          ymin = -limEje;
+          ymax = limEje;
+        } else if (!esFFT && grafica.escalaComun) {
+          var picoAbs = Math.max(Math.abs(ymin), Math.abs(ymax));
+          var limComun = limiteLegible(picoAbs * 1.06);
+          if (!(limComun > picoAbs)) limComun = limiteLegible(picoAbs * 1.25);
+          ymin = -limComun;
+          ymax = limComun;
+        } else {
+          var pad = (ymax - ymin) * (esFFT ? 0.38 : 0.08);
+          if (!esFFT) ymin -= pad;
+          ymax += pad;
+        }
+        yLo = ymin;
+        yHi = ymax;
+      }
       function X(x) { return m.l + (x - xmin) / (xmax - xmin) * (w - m.l - m.r); }
-      function Y(y) { return m.t + (ymax - y) / (ymax - ymin) * (h - m.t - m.b); }
+      function Y(y) {
+        var v = logY ? Math.log10(Math.max(y, piso)) : y;
+        return m.t + (yHi - v) / (yHi - yLo) * (h - m.t - m.b);
+      }
       ctx.strokeStyle = "rgba(140, 190, 255, 0.10)";
       ctx.lineWidth = 1;
       ctx.fillStyle = "#8ea4be";
       ctx.font = "11.5px Outfit, Segoe UI, sans-serif";
       ctx.textAlign = "right";
-      for (var g = 0; g <= 4; g++) {
-        var yy = m.t + (h - m.t - m.b) * g / 4;
-        ctx.beginPath();
-        ctx.moveTo(m.l, yy);
-        ctx.lineTo(w - m.r, yy);
-        ctx.stroke();
-        ctx.fillText(formatoCorto(ymax - (ymax - ymin) * g / 4), m.l - 8, yy + 4);
+      ctx.textBaseline = "alphabetic";
+      if (logY) {
+        var expIni = Math.ceil(yLo - 1e-9);
+        var expFin = Math.floor(yHi + 1e-9);
+        for (var exp = expIni; exp <= expFin; exp++) {
+          [1, 2, 5].forEach(function (mult) {
+            var valor = mult * Math.pow(10, exp);
+            if (valor < Math.pow(10, yLo) || valor > Math.pow(10, yHi)) return;
+            var yy = Y(valor);
+            ctx.beginPath();
+            ctx.moveTo(m.l, yy);
+            ctx.lineTo(w - m.r, yy);
+            ctx.stroke();
+            ctx.fillText(formatoCorto(valor), m.l - 8, yy + 4);
+          });
+        }
+      } else {
+        for (var g = 0; g <= 4; g++) {
+          var yy = m.t + (h - m.t - m.b) * g / 4;
+          ctx.beginPath();
+          ctx.moveTo(m.l, yy);
+          ctx.lineTo(w - m.r, yy);
+          ctx.stroke();
+          ctx.fillText(formatoCorto(ymax - (ymax - ymin) * g / 4), m.l - 8, yy + 4);
+        }
       }
-      ctx.textAlign = "center";
+      ctx.fillStyle = "#e9f1fb";
+      ctx.font = "12.5px Outfit, Segoe UI, sans-serif";
+      ctx.textBaseline = "middle";
+      var ocupadoHasta = -Infinity;
       for (var gx = 0; gx <= 4; gx++) {
         var xv = xmin + (xmax - xmin) * gx / 4;
-        ctx.fillText(formatoCorto(xv), X(xv), h - 22);
+        var px = X(xv);
+        var textoTick = formatoCorto(xv);
+        ctx.textAlign = gx === 0 ? "left" : gx === 4 ? "right" : "center";
+        if (gx === 0) px = m.l;
+        else if (gx === 4) px = w - m.r;
+        var anchoTick = ctx.measureText(textoTick).width;
+        var izqTick = ctx.textAlign === "left" ? px : ctx.textAlign === "right" ? px - anchoTick : px - anchoTick / 2;
+        if (izqTick < ocupadoHasta + 8) continue;
+        ctx.fillText(textoTick, px, h - m.b + 16);
+        ocupadoHasta = izqTick + anchoTick;
       }
-      ctx.textAlign = "left";
-      ctx.fillText(grafica.xlab, m.l, h - 6);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "alphabetic";
+      ctx.fillStyle = "#b7c9dc";
+      ctx.font = "13px Outfit, Segoe UI, sans-serif";
+      ctx.fillText(grafica.xlab, m.l + (w - m.l - m.r) / 2, Math.min(h - 12, h - m.b + 40));
       if (grafica.banda && grafica.banda.length === 2) {
         ctx.save();
         ctx.strokeStyle = "rgba(228, 196, 138, 0.7)";
@@ -1958,26 +2629,170 @@
         });
         ctx.restore();
       }
+      if ((grafica.escalaComun || grafica.escalaFija > 0) && ymin < 0 && ymax > 0) {
+        ctx.save();
+        ctx.strokeStyle = "rgba(233, 241, 251, 0.35)";
+        ctx.setLineDash([3, 4]);
+        ctx.beginPath();
+        ctx.moveTo(m.l, Y(0));
+        ctx.lineTo(w - m.r, Y(0));
+        ctx.stroke();
+        ctx.restore();
+      }
       ctx.save();
       ctx.beginPath();
       ctx.rect(m.l, m.t, w - m.l - m.r, h - m.t - m.b);
       ctx.clip();
-      grafica.series.forEach(function (serie) {
-        ctx.beginPath();
+      var seriesDibujo = grafica.series;
+      if (grafica.escalaComun && grafica.series.length > 1) {
+        seriesDibujo = grafica.series.slice().sort(function (a, b) {
+          function capa(s) {
+            if (s.nombre === "Fz") return 3;
+            if (s.nombre === "Fy") return 2;
+            if (s.nombre === "Fx") return 1;
+            return s.nombre === "X" ? 2 : s.nombre === "Y" ? 1 : 0;
+          }
+          return capa(a) - capa(b);
+        });
+      }
+      seriesDibujo.forEach(function (serie) {
+        var esFrente = grafica.escalaComun && (serie.nombre === "X" || serie.nombre === "Fx");
+        var esFuerzaColor = grafica.escalaComun && serie.nombre.charAt(0) === "F";
+        var esFondo = serie.nombre === "Z" || serie.nombre === "Fz";
+        ctx.globalAlpha = !grafica.escalaComun ? 1 : esFuerzaColor ? 0.34 : esFrente ? 0.42 : esFondo ? 0.5 : 0.9;
         ctx.strokeStyle = serie.color;
-        ctx.lineWidth = 1.5;
+        ctx.fillStyle = serie.color;
+        ctx.lineWidth = esFrente ? 1.6 : (grafica.escalaComun ? 1.5 : (serie.grosor || 1.35));
         ctx.lineJoin = "round";
-        var empezado = false;
-        for (var i = 0; i < serie.x.length; i++) {
-          if (serie.x[i] < xmin || serie.x[i] > xmax || !Number.isFinite(serie.y[i])) { empezado = false; continue; }
-          var px = X(serie.x[i]);
-          var py = Y(serie.y[i]);
-          if (!empezado) { ctx.moveTo(px, py); empezado = true; }
-          else ctx.lineTo(px, py);
+        var anchoPx = Math.max(1, Math.floor(w - m.l - m.r));
+        if (serie.x.length > anchoPx * 3) {
+          var minCol = new Float64Array(anchoPx);
+          var maxCol = new Float64Array(anchoPx);
+          for (var col = 0; col < anchoPx; col++) {
+            minCol[col] = Infinity;
+            maxCol[col] = -Infinity;
+          }
+          for (var i = 0; i < serie.x.length; i++) {
+            if (serie.x[i] < xmin || serie.x[i] > xmax || !Number.isFinite(serie.y[i])) continue;
+            if (esFFT && serie.x[i] < 2) continue;
+            var columna = Math.floor((X(serie.x[i]) - m.l) / (w - m.l - m.r) * (anchoPx - 1));
+            if (columna < 0) columna = 0;
+            else if (columna >= anchoPx) columna = anchoPx - 1;
+            if (serie.y[i] < minCol[columna]) minCol[columna] = serie.y[i];
+            if (serie.y[i] > maxCol[columna]) maxCol[columna] = serie.y[i];
+          }
+          if (topeMin != null) {
+            for (var u = 0; u < anchoPx; u++) {
+              if (minCol[u] === Infinity) continue;
+              if (minCol[u] < topeMin) minCol[u] = topeMin;
+              if (maxCol[u] > topeMax) maxCol[u] = topeMax;
+            }
+          }
+          if (esFFT) {
+            var baseY = Y(Math.max(ymin, 0));
+            var trazo = false;
+            var inicioCol = 0;
+            for (var c = 0; c <= anchoPx; c++) {
+              var vale = c < anchoPx && maxCol[c] !== -Infinity;
+              if (!vale) {
+                if (trazo) {
+                  ctx.lineTo(m.l + (c - 1) + 0.5, baseY);
+                  ctx.lineTo(m.l + inicioCol + 0.5, baseY);
+                  ctx.closePath();
+                  ctx.globalAlpha = grafica.series.length > 1 ? 0.08 : 0.16;
+                  ctx.fill();
+                  ctx.globalAlpha = 1;
+                }
+                trazo = false;
+                continue;
+              }
+              var px = m.l + c + 0.5;
+              if (!trazo) {
+                ctx.beginPath();
+                ctx.moveTo(px, Y(maxCol[c]));
+                inicioCol = c;
+                trazo = true;
+              } else ctx.lineTo(px, Y(maxCol[c]));
+            }
+            ctx.beginPath();
+            var trazando = false;
+            for (var k = 0; k < anchoPx; k++) {
+              if (maxCol[k] === -Infinity) { trazando = false; continue; }
+              var qx = m.l + k + 0.5;
+              var qy = Y(maxCol[k]);
+              if (!trazando) { ctx.moveTo(qx, qy); trazando = true; }
+              else ctx.lineTo(qx, qy);
+            }
+            ctx.stroke();
+          } else {
+            ctx.beginPath();
+            for (var t = 0; t < anchoPx; t++) {
+              if (maxCol[t] === -Infinity) continue;
+              var tx = m.l + t + 0.5;
+              ctx.moveTo(tx, Y(minCol[t]));
+              ctx.lineTo(tx, Y(maxCol[t]));
+            }
+            ctx.stroke();
+            if (esFrente || esFuerzaColor) {
+              function bordeEje(columnas, estilo, grosor) {
+                ctx.beginPath();
+                var activo = false;
+                for (var b = 0; b < anchoPx; b++) {
+                  if (columnas[b] === Infinity || columnas[b] === -Infinity) { activo = false; continue; }
+                  var bx = m.l + b + 0.5;
+                  var by = Y(columnas[b]);
+                  if (!activo) { ctx.moveTo(bx, by); activo = true; }
+                  else ctx.lineTo(bx, by);
+                }
+                ctx.strokeStyle = estilo;
+                ctx.lineWidth = grosor;
+                ctx.globalAlpha = 1;
+                ctx.stroke();
+              }
+              var colorBorde = esFuerzaColor ? serie.color : "#ffe56a";
+              bordeEje(maxCol, "rgba(6, 16, 30, 0.95)", 3.6);
+              bordeEje(minCol, "rgba(6, 16, 30, 0.95)", 3.6);
+              bordeEje(maxCol, colorBorde, 2.15);
+              bordeEje(minCol, colorBorde, 2.15);
+            }
+          }
+        } else {
+          ctx.beginPath();
+          var empezado = false;
+          for (var j = 0; j < serie.x.length; j++) {
+            if (serie.x[j] < xmin || serie.x[j] > xmax || !Number.isFinite(serie.y[j])) { empezado = false; continue; }
+            var px = X(serie.x[j]);
+            var py = Y(serie.y[j]);
+            if (!empezado) { ctx.moveTo(px, py); empezado = true; }
+            else ctx.lineTo(px, py);
+          }
+          ctx.stroke();
         }
-        ctx.stroke();
       });
       ctx.restore();
+      if (!esFFT && grafica.escalaFija > 0 && grafica.nivelRms > 0 && grafica.series[0]) {
+        ctx.save();
+        ctx.setLineDash([5, 4]);
+        ctx.strokeStyle = grafica.series[0].color;
+        ctx.globalAlpha = 0.95;
+        ctx.lineWidth = 1.35;
+        [grafica.nivelRms, -grafica.nivelRms].forEach(function (nivel) {
+          var yy = Y(nivel);
+          ctx.beginPath();
+          ctx.moveTo(m.l, yy);
+          ctx.lineTo(w - m.r, yy);
+          ctx.stroke();
+        });
+        ctx.setLineDash([]);
+        ctx.globalAlpha = 1;
+        ctx.font = "11.5px Outfit, Segoe UI, sans-serif";
+        ctx.fillStyle = grafica.series[0].color;
+        ctx.textAlign = "right";
+        ctx.textBaseline = "bottom";
+        var yRms = Y(grafica.nivelRms);
+        ctx.fillText("RMS ±" + formatoCorto(grafica.nivelRms), w - m.r - 8, Math.max(m.t + 14, yRms - 4));
+        ctx.restore();
+      }
       if (pico) {
         var unidad = grafica.ylab.match(/\[([^\]]+)\]/);
         var textosPico = ["Máximo global " + pico.nombre + ": " + formatoInteractivo(pico.x) + " Hz | " +
@@ -1986,7 +2801,13 @@
           textosPico.push("Pico en banda " + picoBanda.nombre + ": " + formatoInteractivo(picoBanda.x) + " Hz | " +
             formatoInteractivo(picoBanda.y) + (unidad ? " " + unidad[1] : ""));
         }
+        var lentoFuera = picoLento > 0 && pico.x < 2 && pico.y > ymax;
+        if (lentoFuera) {
+          textosPico[0] = "Pico lento " + formatoInteractivo(pico.x) + " Hz: " + formatoInteractivo(pico.y) +
+            (unidad ? " " + unidad[1] : "") + " · fuera de escala";
+        }
         function marcarPico(espectro, color, radio) {
+          if (espectro.y > ymax || espectro.y < ymin) return;
           ctx.beginPath();
           ctx.fillStyle = "#06101e";
           ctx.strokeStyle = color;
@@ -1997,6 +2818,20 @@
         }
         marcarPico(pico, pico.color, 5);
         if (textosPico.length > 1) marcarPico(picoBanda, "#f0b75a", 4);
+        if (grafica.compacto) {
+          ctx.font = "11px Outfit, Segoe UI, sans-serif";
+          ctx.textBaseline = "middle";
+          ctx.textAlign = "left";
+          var reservaLeyenda = 8;
+          var anchoCap = Math.min(w - m.l - m.r - reservaLeyenda, Math.max.apply(null, textosPico.map(function (texto) { return ctx.measureText(texto).width; })) + 12);
+          var altoCap = Math.min(textosPico.length * 14 + 4, Math.max(16, m.t - 8));
+          ctx.fillStyle = "rgba(6, 16, 30, 0.9)";
+          ctx.fillRect(m.l, 4, anchoCap, altoCap);
+          textosPico.forEach(function (texto, i) {
+            ctx.fillStyle = i === 0 ? (lentoFuera ? "#f0b75a" : pico.color) : "#f0b75a";
+            ctx.fillText(texto, m.l + 6, 12 + i * 14, anchoCap - 10);
+          });
+        } else {
         ctx.font = "11px Outfit, Segoe UI, sans-serif";
         var anchoTexto = Math.max.apply(null, textosPico.map(function (texto) { return ctx.measureText(texto).width; }));
         var anchoEtiqueta = Math.min(w - m.l - m.r - 12, anchoTexto + 12);
@@ -2012,15 +2847,74 @@
           ctx.fillStyle = i === 0 ? pico.color : "#f0b75a";
           ctx.fillText(texto, m.l + 13, m.t + 19 + i * 15, anchoEtiqueta - 12);
         });
+        }
       }
-      var lx = w - m.r - 8;
-      grafica.series.forEach(function (serie, i) {
-        var ly = m.t + 8 + i * 16;
-        ctx.fillStyle = serie.color;
-        ctx.fillRect(lx - 78, ly, 12, 8);
-        ctx.fillStyle = "#e9f1fb";
-        ctx.fillText(serie.nombre, lx - 62, ly + 8);
-      });
+      ctx.font = "12.5px Outfit, Segoe UI, sans-serif";
+      ctx.textBaseline = "middle";
+      if (grafica.sinLeyenda) {
+        /* El panel ya nombra la herramienta y el eje. */
+      } else if (grafica.compacto) {
+        ctx.font = "12px Outfit, Segoe UI, sans-serif";
+        ctx.textBaseline = "middle";
+        var cursorLey = w - m.r;
+        for (var li = grafica.series.length - 1; li >= 0; li--) {
+          var serieLey = grafica.series[li];
+          var anchoLey = ctx.measureText(serieLey.nombre).width;
+          ctx.fillStyle = "#e9f1fb";
+          ctx.textAlign = "right";
+          ctx.fillText(serieLey.nombre, cursorLey, m.t + 12);
+          ctx.fillStyle = serieLey.color;
+          ctx.fillRect(cursorLey - anchoLey - 16, m.t + 8, 10, 7);
+          cursorLey -= anchoLey + 28;
+        }
+      } else if (grafica.leyendaAbajo) {
+        var lx = m.l;
+        var ly = h - m.b + 62;
+        var limite = w - m.r;
+        grafica.series.forEach(function (serie) {
+          var anchoItem = ctx.measureText(serie.nombre).width + 34;
+          if (lx > m.l && lx + anchoItem > limite + 4) {
+            lx = m.l;
+            ly += 22;
+          }
+          ctx.fillStyle = serie.color;
+          ctx.fillRect(lx, ly - 4, 14, 8);
+          ctx.fillStyle = "#e9f1fb";
+          ctx.textAlign = "left";
+          ctx.fillText(serie.nombre, lx + 20, ly);
+          lx += anchoItem;
+        });
+      } else {
+        var borde = w - m.r - 8;
+        var etiquetasLey = grafica.series.map(function (serie) {
+          if ((grafica.escalaComun || grafica.escalaFija > 0) && serie._picoVista > 0) return serie.nombre + "   ±" + formatoCorto(serie._picoVista);
+          return serie.nombre;
+        });
+        var textoRms = grafica.escalaFija > 0 && grafica.nivelRms > 0 ? "RMS ±" + formatoCorto(grafica.nivelRms) : "";
+        if (grafica.escalaComun || grafica.escalaFija > 0) {
+          var anchoLeyenda = ctx.measureText(textoRms).width;
+          etiquetasLey.forEach(function (texto) {
+            anchoLeyenda = Math.max(anchoLeyenda, ctx.measureText(texto).width);
+          });
+          ctx.fillStyle = "rgba(6, 16, 30, 0.88)";
+          ctx.fillRect(borde - anchoLeyenda - 30, m.t + 4, anchoLeyenda + 26, grafica.series.length * 18 + (textoRms ? 18 : 0) + 8);
+        }
+        grafica.series.forEach(function (serie, i) {
+          var yLey = m.t + 16 + i * 18;
+          var textoLey = etiquetasLey[i];
+          var tw = ctx.measureText(textoLey).width;
+          ctx.fillStyle = serie.color;
+          ctx.fillRect(borde - tw - 20, yLey - 4, 12, 8);
+          ctx.fillStyle = "#e9f1fb";
+          ctx.textAlign = "right";
+          ctx.fillText(textoLey, borde, yLey);
+        });
+        if (textoRms) {
+          ctx.fillStyle = "#e9f1fb";
+          ctx.textAlign = "right";
+          ctx.fillText(textoRms, borde, m.t + 16 + grafica.series.length * 18);
+        }
+      }
       ctx.strokeStyle = "rgba(140, 190, 255, 0.28)";
       ctx.strokeRect(m.l, m.t, w - m.l - m.r, h - m.t - m.b);
       ctx.fillStyle = "#8ea4be";
@@ -2028,9 +2922,18 @@
       ctx.translate(16, (h - m.b + m.t) / 2);
       ctx.rotate(-Math.PI / 2);
       ctx.textAlign = "center";
-      ctx.fillText(grafica.ylab, 0, 0);
+      ctx.fillText(grafica.ylab + (logY ? " · log" : "") + (escalaPropia ? " · propia" : ""), 0, 0);
       ctx.restore();
       if (Number.isFinite(grafica.hoverX)) dibujarLecturaCursor(canvas, ctx, grafica, X, Y, xmin, xmax, m, h);
+      if (grafica.pareja && grafica.pareja._grafica && grafica.pareja._renderGrafica && !grafica._enSync) {
+        var pareja = grafica.pareja._grafica;
+        pareja.vistaMin = grafica.vistaMin;
+        pareja.vistaMax = grafica.vistaMax;
+        pareja.hoverX = grafica.hoverX;
+        pareja._enSync = true;
+        grafica.pareja._renderGrafica();
+        pareja._enSync = false;
+      }
     }
 
     function dibujarLecturaCursor(canvas, ctx, grafica, X, Y, xmin, xmax, m, h) {
@@ -2058,10 +2961,29 @@
           if (d < distancia) { distancia = d; indice = i; }
         }
         var valor = serie.y[indice];
+        if (serie.mediaX && serie.mediaY) {
+          var iM = -1;
+          var dM = Infinity;
+          for (var k = 0; k < serie.mediaX.length; k++) {
+            if (serie.mediaX[k] < xmin || serie.mediaX[k] > xmax || !Number.isFinite(serie.mediaY[k])) continue;
+            var dm = Math.abs(serie.mediaX[k] - mejorX);
+            if (dm < dM) { dM = dm; iM = k; }
+          }
+          if (iM >= 0) valor = serie.mediaY[iM];
+        }
         if (!Number.isFinite(valor)) return;
-        filas.push(serie.nombre + ": " + formatoInteractivo(valor) + " " + unidadDeEje(grafica.ylab));
+        var textoValor = serie.nombre + ": " + formatoInteractivo(valor) + " " + unidadDeEje(grafica.ylab);
+        if (serie._lane && Number.isFinite(serie.y[indice])) {
+          var par = indice % 2 === 0 ? indice + 1 : indice - 1;
+          if (par >= 0 && par < serie.y.length && Number.isFinite(serie.y[par])) {
+            textoValor += " · " + formatoInteractivo(Math.min(serie.y[indice], serie.y[par])) + " a " + formatoInteractivo(Math.max(serie.y[indice], serie.y[par]));
+          }
+        }
+        filas.push(textoValor);
         coloresFila.push(serie.color);
-        puntos.push({ x: X(serie.x[indice]), y: Y(valor), color: serie.color });
+        var py = serie._lane ? yEnCarril(serie, valor) : Y(valor);
+        if (py == null) return;
+        puntos.push({ x: serie._lane ? X(mejorX) : X(serie.x[indice]), y: py, color: serie.color, lane: serie._lane || null });
       });
       canvas.setAttribute("aria-valuetext", filas.join(". "));
       var xCursor = X(mejorX);
@@ -2074,7 +2996,7 @@
       ctx.stroke();
       ctx.setLineDash([]);
       puntos.forEach(function (punto) {
-        if (punto.y < m.t || punto.y > h - m.b) return;
+        if (punto.lane ? (punto.y < punto.lane.top || punto.y > punto.lane.bot) : (punto.y < m.t || punto.y > h - m.b)) return;
         ctx.beginPath();
         ctx.fillStyle = "#06101e";
         ctx.strokeStyle = punto.color;
@@ -2084,7 +3006,7 @@
         ctx.stroke();
       });
       ctx.font = "12px Outfit, Segoe UI, sans-serif";
-      var ancho = Math.min(210, Math.max.apply(null, filas.map(function (fila) { return ctx.measureText(fila).width; })) + 20);
+      var ancho = Math.min(grafica.apilado ? 360 : 210, Math.max.apply(null, filas.map(function (fila) { return ctx.measureText(fila).width; })) + 20);
       var alto = filas.length * 19 + 12;
       var izquierda = xCursor + ancho + 12 < grafica.ancho ? xCursor + 10 : xCursor - ancho - 10;
       izquierda = Math.max(m.l + 3, Math.min(grafica.ancho - ancho - 4, izquierda));
@@ -2127,10 +3049,13 @@
     function formatoCorto(v) {
       if (!Number.isFinite(v)) return "";
       var a = Math.abs(v);
+      if (a === 0) return "0";
       if (a >= 100) return v.toFixed(0);
       if (a >= 10) return v.toFixed(1);
       if (a >= 1) return v.toFixed(2);
-      return v.toFixed(3);
+      if (a >= 0.01) return v.toFixed(3);
+      if (a >= 0.001) return v.toFixed(4);
+      return v.toExponential(1);
     }
 
     /* ───────── Comparativo entre pruebas ───────── */
@@ -2216,7 +3141,7 @@
       aceleracion: { barras: ["cvBAcel", "cvBPico"], senales: ["FA", "EA", "TA"], controles: true },
       fuerza: { barras: ["cvBFza", "cvBRel"], senales: ["FF", "EF", "TF"], controles: true },
       chatter: { barras: ["cvBCont", "cvBFrec", "cvBCrec", "cvBInd", "cvBVar"], senales: [], controles: false },
-      pieza: { barras: ["cvBRug", "cvBRugLect", "cvBDiam", "cvBDif"], senales: [], controles: false }
+      pieza: { barras: ["cvBRugCond", "cvBDiam", "cvBDif"], senales: [], controles: false }
     };
 
     function instalarPestanasCmp() {
@@ -2420,13 +3345,262 @@
       });
     }
 
+    function repeticionCorta(rep) {
+      if (rep === "primera") return "1ª";
+      if (rep === "segunda") return "2ª";
+      if (rep === "tercera") return "3ª";
+      if (rep === "cuarta") return "4ª";
+      if (rep === "quinta") return "5ª";
+      if (!rep) return "";
+      return rep.charAt(0).toUpperCase() + rep.slice(1);
+    }
+
+    function profundidadTexto(v) {
+      return String(v).replace(/\.0$/, "") + " mm";
+    }
+
+    function fluidoOpciones(r) {
+      if (r === "Sin refrigerante") return ["Seco"];
+      if (r === "Con refrigerante") return ["Refrigerante", "Refrig.", "Ref."];
+      if (r === "Con agua") return ["Agua"];
+      return r ? [r] : null;
+    }
+
+    function herramientaOpciones(h) {
+      if (h === "Desgastada") return ["Desgastada", "Desgast.", "Desg."];
+      if (h === "Nueva") return ["Nueva"];
+      return h ? [h] : null;
+    }
+
+    function etiquetaCorta(p) {
+      var partes = [];
+      var herr = herramientaOpciones(p.herramienta);
+      if (herr) partes.push(herr[0]);
+      var flu = fluidoOpciones(p.refrigerante);
+      if (flu) partes.push(flu.length > 1 ? flu[1] : flu[0]);
+      var rep = repeticionCorta(p.repeticion);
+      if (rep) partes.push(rep);
+      else if (Number.isFinite(p.profundidad)) partes.push(profundidadTexto(p.profundidad));
+      if (partes.length) return partes.join(" · ");
+      var nombre = p.nombre || "Prueba";
+      return nombre.length > 28 ? nombre.slice(0, 26) + "…" : nombre;
+    }
+
+    /* Eje X en tres niveles: repetición, fluido y herramienta. Así el texto se lee entero. */
+    function armarEjeCategorias(lista) {
+      var profDistintas = {};
+      lista.forEach(function (p) {
+        if (Number.isFinite(p.profundidad)) profDistintas[String(p.profundidad)] = true;
+      });
+      var variasProf = Object.keys(profDistintas).length > 1;
+      var items = lista.map(function (p) {
+        var rep = repeticionCorta(p.repeticion);
+        var hoja = rep || (Number.isFinite(p.profundidad) ? profundidadTexto(p.profundidad) : (p.nombre || "Prueba"));
+        var grupos = [];
+        if (rep && variasProf && Number.isFinite(p.profundidad)) grupos.push([profundidadTexto(p.profundidad)]);
+        var flu = fluidoOpciones(p.refrigerante);
+        if (flu) grupos.push(flu);
+        var herr = herramientaOpciones(p.herramienta);
+        if (herr) grupos.push(herr);
+        return { hoja: hoja, grupos: grupos, titulo: p.nombre || etiquetaVisible(p) };
+      });
+      var niveles = [];
+      var nNiv = 0;
+      items.forEach(function (it) { nNiv = Math.max(nNiv, it.grupos.length); });
+      for (var nivel = 0; nivel < nNiv; nivel++) {
+        var spans = [];
+        var i = 0;
+        while (i < items.length) {
+          var opciones = items[i].grupos[nivel] || [];
+          var clave = opciones[0] || "";
+          var j = i + 1;
+          while (j < items.length && ((items[j].grupos[nivel] || [])[0] || "") === clave) j++;
+          if (clave) spans.push({ desde: i, hasta: j - 1, opciones: opciones });
+          i = j;
+        }
+        if (spans.length) niveles.push(spans);
+      }
+      return {
+        hojas: items.map(function (it) { return it.hoja; }),
+        niveles: niveles,
+        titulos: items.map(function (it) { return it.titulo; })
+      };
+    }
+
+    function textoQueCabe(ctx, opciones, ancho) {
+      var elegido = opciones[0] || "";
+      for (var i = 0; i < opciones.length; i++) {
+        elegido = opciones[i];
+        if (ctx.measureText(elegido).width <= ancho) return elegido;
+      }
+      return ctx.measureText(elegido).width <= ancho + 8 ? elegido : "";
+    }
+
+    function prepararLayoutBarras(ctx, cfg, w) {
+      var eje = cfg.eje || { hojas: cfg.categorias || [], niveles: [], titulos: cfg.categorias || [] };
+      var n = Math.max(1, eje.hojas.length);
+      var m = { l: 74, r: 18, t: 40, b: 48 };
+      ctx.font = "600 13px Outfit, Segoe UI, sans-serif";
+      var maxLeaf = 0;
+      eje.hojas.forEach(function (hoja) {
+        maxLeaf = Math.max(maxLeaf, ctx.measureText(String(hoja)).width);
+      });
+      var banda = (w - m.l - m.r) / n;
+      var giro = 0;
+      var altoHoja = 20;
+      if (maxLeaf > banda - 8) {
+        var ratio = (banda * 0.9) / Math.max(maxLeaf, 1);
+        giro = Math.acos(Math.max(0.28, Math.min(1, ratio)));
+        altoHoja = Math.sin(giro) * maxLeaf + 12;
+        var extra = Math.cos(giro) * maxLeaf - banda * 0.45;
+        if (extra > 6) {
+          m.l = Math.min(130, 74 + extra);
+          banda = (w - m.l - m.r) / n;
+          ratio = (banda * 0.9) / Math.max(maxLeaf, 1);
+          giro = Math.acos(Math.max(0.28, Math.min(1, ratio)));
+          altoHoja = Math.sin(giro) * maxLeaf + 12;
+        }
+      }
+      m.b = 12 + altoHoja + eje.niveles.length * 26 + 16;
+      var h = m.t + 214 + m.b;
+      return { m: m, n: n, banda: banda, giro: giro, eje: eje, altoHoja: altoHoja, h: h };
+    }
+
+    /* Lecturas de Ra (µm) de la fase final. Cada arreglo es una prueba. */
+    var LECTURAS_RA = [
+      { herramienta: "Nueva", refrigerante: "Sin refrigerante", lecturas: [2.34, 1.91, 2.17] },
+      { herramienta: "Nueva", refrigerante: "Sin refrigerante", lecturas: [4.12, 6.39, 6.28] },
+      { herramienta: "Nueva", refrigerante: "Sin refrigerante", lecturas: [5.59, 5.96, 6.18] },
+      { herramienta: "Nueva", refrigerante: "Sin refrigerante", lecturas: [4.79, 3.67, 5.24] },
+      { herramienta: "Desgastada", refrigerante: "Sin refrigerante", lecturas: [7.62, 6.61, 4.03, 6.35, 7.64] },
+      { herramienta: "Desgastada", refrigerante: "Sin refrigerante", lecturas: [1.38, 1.56, 1.42] },
+      { herramienta: "Desgastada", refrigerante: "Sin refrigerante", lecturas: [4.96, 3.35, 5.03] },
+      { herramienta: "Desgastada", refrigerante: "Sin refrigerante", lecturas: [5.77, 6.14, 6.32] },
+      { herramienta: "Nueva", refrigerante: "Con refrigerante", lecturas: [4.30, 3.48, 4.59] },
+      { herramienta: "Nueva", refrigerante: "Con refrigerante", lecturas: [1.23, 1.34, 1.27] },
+      { herramienta: "Desgastada", refrigerante: "Con refrigerante", lecturas: [5.64, 7.19, 5.84] },
+      { herramienta: "Desgastada", refrigerante: "Con refrigerante", lecturas: [5.22, 5.50, 5.44] },
+      { herramienta: "Nueva", refrigerante: "Con agua", lecturas: [5.14, 5.63, 5.78, 5.61, 4.61] },
+      { herramienta: "Desgastada", refrigerante: "Con agua", lecturas: [4.21, 4.08, 4.86, 4.01, 4.78] }
+    ];
+
+    function mediaLista(xs) {
+      var s = 0;
+      var n = 0;
+      for (var i = 0; i < xs.length; i++) {
+        if (!Number.isFinite(xs[i])) continue;
+        s += xs[i];
+        n++;
+      }
+      return n ? s / n : NaN;
+    }
+
+    function desvLista(xs) {
+      var m = mediaLista(xs);
+      var n = 0;
+      var s = 0;
+      for (var i = 0; i < xs.length; i++) {
+        if (!Number.isFinite(xs[i])) continue;
+        s += (xs[i] - m) * (xs[i] - m);
+        n++;
+      }
+      return n > 1 ? Math.sqrt(s / (n - 1)) : 0;
+    }
+
+    function resumenRugosidad() {
+      var fluidos = ["Sin refrigerante", "Con refrigerante", "Con agua"];
+      var herramientas = ["Nueva", "Desgastada"];
+      var celdas = {};
+      fluidos.forEach(function (f) {
+        herramientas.forEach(function (h) {
+          var grupo = LECTURAS_RA.filter(function (p) { return p.refrigerante === f && p.herramienta === h; });
+          var medias = grupo.map(function (p) { return mediaLista(p.lecturas); });
+          celdas[f + "|" + h] = {
+            medias: medias,
+            media: mediaLista(medias),
+            desv: desvLista(medias),
+            n: grupo.length
+          };
+        });
+      });
+      return { fluidos: fluidos, herramientas: herramientas, celdas: celdas };
+    }
+
+    function pintarRugosidadRa() {
+      var r = resumenRugosidad();
+      var canvas = document.getElementById("cvBRugCond");
+      if (!canvas) return;
+      function serie(herr, color, nombre) {
+        return {
+          nombre: nombre,
+          color: color,
+          valores: r.fluidos.map(function (f) { return r.celdas[f + "|" + herr].media; }),
+          error: r.fluidos.map(function (f) {
+            var celda = r.celdas[f + "|" + herr];
+            return celda.n > 1 ? celda.desv : 0;
+          })
+        };
+      }
+      dibujarBarras(canvas, {
+        titulo: "Rugosidad media Ra",
+        categorias: r.fluidos,
+        ylab: "Ra [µm]",
+        decimales: 2,
+        series: [
+          serie("Nueva", "#5ad1ff", "Herramienta nueva"),
+          serie("Desgastada", "#ff9f43", "Herramienta desgastada")
+        ]
+      });
+      var nota = document.getElementById("notaRa");
+      if (nota) {
+        nota.textContent = "Cada barra es el Ra promedio, en µm. Si una prueba tiene varias lecturas, primero se promedia la prueba y después se promedian las pruebas de esa condición, para que una serie con más lecturas no pese más. La línea es ±1 desviación estándar entre pruebas. Con agua hay una sola serie por herramienta. Herramienta usada entra como desgastada y sin refrigerante.";
+      }
+      var wrap = document.getElementById("tablaRaWrap");
+      if (!wrap) return;
+      wrap.innerHTML = "";
+      var table = document.createElement("table");
+      var thead = document.createElement("thead");
+      var hr = document.createElement("tr");
+      ["Condición", "Herramienta nueva", "Herramienta desgastada"].forEach(function (t) {
+        var th = document.createElement("th");
+        th.textContent = t;
+        hr.appendChild(th);
+      });
+      thead.appendChild(hr);
+      table.appendChild(thead);
+      var tb = document.createElement("tbody");
+      r.fluidos.forEach(function (f) {
+        var tr = document.createElement("tr");
+        var td0 = document.createElement("td");
+        td0.textContent = f;
+        tr.appendChild(td0);
+        r.herramientas.forEach(function (h) {
+          var celda = r.celdas[f + "|" + h];
+          var td = document.createElement("td");
+          var texto = celda.media.toFixed(2) + " µm";
+          if (celda.n > 1) texto += " ± " + celda.desv.toFixed(2);
+          texto += "  ·  " + celda.n + (celda.n === 1 ? " prueba" : " pruebas");
+          td.textContent = texto;
+          tr.appendChild(td);
+        });
+        tb.appendChild(tr);
+      });
+      table.appendChild(tb);
+      wrap.appendChild(table);
+    }
+
     function pintarBarrasCmp(ids) {
       if (!ids || !ids.length) return;
+      if (ids.indexOf("cvBRugCond") >= 0) pintarRugosidadRa();
       function dib(id, cfg) {
-        if (ids.indexOf(id) >= 0) dibujarBarras(document.getElementById(id), cfg);
+        if (ids.indexOf(id) < 0) return;
+        cfg.eje = ejeCats;
+        cfg.categorias = ejeCats.hojas;
+        dibujarBarras(document.getElementById(id), cfg);
       }
       var lista = listaVisible();
-      var cats = lista.map(etiquetaPrueba);
+      var ejeCats = armarEjeCategorias(lista);
+      var cats = ejeCats.hojas;
       var fn = lista.length ? lista[0].fNatural : NaN;
       var refA = valorReferencia(function (p) { return p.rmsA; });
       var refF = valorReferencia(function (p) { return p.rmsF; });
@@ -2473,21 +3647,9 @@
         titulo: "Índice de severidad", categorias: cats, ylab: "Índice [adim.]",
         series: [{
           nombre: "Índice", color: "#3fe0a0",
-          colores: pruebas.map(function (p) { return p.chatter ? "#ff6b5e" : "#3fe0a0"; }),
+          colores: lista.map(function (p) { return p.chatter ? "#ff6b5e" : "#3fe0a0"; }),
           valores: porPrueba(function (p) { return p.indice; })
         }]
-      });
-      var NOMBRES_LECT = ["Lectura 1", "Lectura 2", "Lectura 3", "Lectura 4", "Lectura 5"];
-      var COLORES_LECT = ["#5ad1ff", "#e4c48a", "#c792ff", "#ff9f43", "#9be15d"];
-      dib("cvBRug", {
-        titulo: "Rugosidad media", categorias: cats, ylab: "Rugosidad [µm]", decimales: 2,
-        series: [{ nombre: "Media", color: "#ff9f43", valores: porPrueba(function (p) { return p.pieza.raMedia; }) }]
-      });
-      dib("cvBRugLect", {
-        titulo: "Rugosidad por lectura", categorias: cats, ylab: "Rugosidad [µm]", decimales: 2,
-        series: NOMBRES_LECT.map(function (nombre, k) {
-          return { nombre: nombre, color: COLORES_LECT[k], valores: porPrueba(function (p) { return p.pieza.rugosidad[k]; }) };
-        })
       });
       dib("cvBDiam", {
         titulo: "Tamaño de la pieza", categorias: cats, ylab: "Tamaño [mm]", decimales: 2,
@@ -2515,7 +3677,7 @@
       pruebas.forEach(function (p, i) {
         if (!pasaFiltro(p) || cmp.ocultas[i]) return;
         var s = extraer(p);
-        if (s && s.x && s.y) out.push({ nombre: etiquetaPrueba(p), color: colorPrueba(i), x: s.x, y: s.y });
+        if (s && s.x && s.y) out.push({ nombre: etiquetaCorta(p), color: colorPrueba(i), x: s.x, y: s.y });
       });
       return out;
     }
@@ -2542,7 +3704,18 @@
         if (pasaFiltro(pruebas[i]) && !cmp.ocultas[i] && pruebas[i].banda) { banda = pruebas[i].banda; break; }
       }
       var espectro = function (campo) {
-        return function (p) { return p[campo] ? { x: p[campo].f, y: p[campo].p[c] } : null; };
+        return function (p) {
+          if (!p[campo] || !p[campo].f || !p[campo].p[c]) return null;
+          var x = p[campo].f;
+          var y = p[campo].p[c];
+          if (campo === "fuerza") {
+            var i0 = 0;
+            while (i0 < x.length && x[i0] < 2) i0++;
+            x = x.subarray(i0);
+            y = y.subarray(i0);
+          }
+          return { x: x, y: y };
+        };
       };
       var tiempo = function (campo) {
         return function (p) {
@@ -2582,19 +3755,28 @@
     }
 
     function geometriaBarras(b) {
-      var m = { l: 66, r: 14, t: 36, b: 40 };
-      var n = Math.max(1, b.cfg.categorias.length);
-      return { m: m, n: n, banda: (b.w - m.l - m.r) / n };
+      return b.layout;
     }
 
     function dibujarBarras(canvas, cfg) {
       var rect = canvas.getBoundingClientRect();
       var dpr = window.devicePixelRatio || 1;
-      var w = Math.max(280, rect.width || 520);
-      var h = 280;
+      var w = Math.max(280, rect.width || 1040);
+      var ctxMedir = canvas.getContext("2d");
+      var layout = prepararLayoutBarras(ctxMedir, cfg, w);
+      var h = layout.h;
+      canvas.style.height = h + "px";
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
-      canvas._barras = { cfg: cfg, w: w, h: h, dpr: dpr, hover: -1 };
+      var hoverPrevio = canvas._barras ? canvas._barras.hover : -1;
+      canvas._barras = {
+        cfg: cfg,
+        w: w,
+        h: h,
+        dpr: dpr,
+        hover: hoverPrevio >= 0 && hoverPrevio < layout.n ? hoverPrevio : -1,
+        layout: layout
+      };
       canvas.setAttribute("aria-label", (cfg.titulo || "Gráfica") + ". Pasa el cursor sobre una columna para leer los valores.");
       if (!canvas._eventosBarras) {
         canvas._eventosBarras = true;
@@ -2640,10 +3822,11 @@
       var vmin = Infinity;
       var vmax = -Infinity;
       cfg.series.forEach(function (s) {
-        s.valores.forEach(function (v) {
+        s.valores.forEach(function (v, i) {
           if (!Number.isFinite(v)) return;
-          vmin = Math.min(vmin, v);
-          vmax = Math.max(vmax, v);
+          var e = s.error && Number.isFinite(s.error[i]) ? Math.abs(s.error[i]) : 0;
+          vmin = Math.min(vmin, v - e);
+          vmax = Math.max(vmax, v + e);
         });
       });
       if (!Number.isFinite(vmin)) {
@@ -2668,6 +3851,7 @@
       ctx.font = "11.5px Outfit, Segoe UI, sans-serif";
       ctx.lineWidth = 1;
       ctx.textAlign = "right";
+      ctx.textBaseline = "alphabetic";
       for (var k = 0; k <= 4; k++) {
         var yy = m.t + (h - m.t - m.b) * k / 4;
         ctx.strokeStyle = "rgba(140, 190, 255, 0.10)";
@@ -2692,11 +3876,58 @@
         ctx.fillRect(m.l + b.hover * g.banda, m.t, g.banda, h - m.t - m.b);
       }
 
-      // Categorías
+      // Marcas del eje X: repetición, y debajo el fluido y la herramienta
+      var eje = g.eje;
+      var yHoja = h - m.b + 8;
+      ctx.font = "600 13px Outfit, Segoe UI, sans-serif";
+      ctx.fillStyle = "#f4f8fd";
       ctx.textAlign = "center";
-      ctx.fillStyle = "#c3d3e6";
-      cfg.categorias.forEach(function (cat, i) {
-        ctx.fillText(cat, m.l + (i + 0.5) * g.banda, h - m.b + 18, g.banda - 6);
+      eje.hojas.forEach(function (hoja, i) {
+        var x = m.l + (i + 0.5) * g.banda;
+        ctx.strokeStyle = "rgba(180, 210, 245, 0.4)";
+        ctx.beginPath();
+        ctx.moveTo(x, h - m.b);
+        ctx.lineTo(x, h - m.b + 5);
+        ctx.stroke();
+        if (g.giro) {
+          ctx.save();
+          ctx.translate(x, yHoja + 4);
+          ctx.rotate(-g.giro);
+          ctx.textAlign = "right";
+          ctx.textBaseline = "middle";
+          ctx.fillStyle = "#f4f8fd";
+          ctx.fillText(hoja, 0, 0);
+          ctx.restore();
+        } else {
+          ctx.textBaseline = "top";
+          ctx.fillStyle = "#f4f8fd";
+          ctx.fillText(hoja, x, yHoja);
+        }
+      });
+      var yGrupo = yHoja + g.altoHoja;
+      ctx.font = "500 12.5px Outfit, Segoe UI, sans-serif";
+      eje.niveles.forEach(function (spans, nivel) {
+        var color = nivel === eje.niveles.length - 1 ? "#e4c48a" : "#d6e8ff";
+        spans.forEach(function (sp) {
+          var x0 = m.l + sp.desde * g.banda + 4;
+          var x1 = m.l + (sp.hasta + 1) * g.banda - 4;
+          if (x1 - x0 < 8) return;
+          ctx.strokeStyle = "rgba(180, 210, 245, 0.55)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(x0, yGrupo);
+          ctx.lineTo(x0, yGrupo + 5);
+          ctx.lineTo(x1, yGrupo + 5);
+          ctx.lineTo(x1, yGrupo);
+          ctx.stroke();
+          var texto = textoQueCabe(ctx, sp.opciones, x1 - x0 - 6);
+          if (!texto) return;
+          ctx.fillStyle = color;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "top";
+          ctx.fillText(texto, (x0 + x1) / 2, yGrupo + 8);
+        });
+        yGrupo += 26;
       });
 
       // Columnas o puntos
@@ -2728,11 +3959,28 @@
             ctx.fillStyle = grad;
             ctx.fillRect(x0 + 1.5, yTop, Math.max(4, ancho - 3), Math.max(1, yBase - yTop));
           }
+          var tope = v;
+          var err = s.error && Number.isFinite(s.error[i]) ? Math.abs(s.error[i]) : 0;
+          if (!puntos && err > 0) {
+            var yHi = Y(v + err);
+            var yLo = Y(Math.max(vmin, v - err));
+            ctx.strokeStyle = "#f4f8fd";
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(cx, yHi);
+            ctx.lineTo(cx, yLo);
+            ctx.moveTo(cx - 6, yHi);
+            ctx.lineTo(cx + 6, yHi);
+            ctx.moveTo(cx - 6, yLo);
+            ctx.lineTo(cx + 6, yLo);
+            ctx.stroke();
+            tope = v + err;
+          }
           ctx.globalAlpha = 1;
           if (ns === 1 || ancho >= 38) {
             ctx.fillStyle = "#e9f1fb";
             ctx.textAlign = "center";
-            ctx.fillText(formatoEje(v, cfg.decimales) + (cfg.sufijo || ""), cx, v >= 0 || puntos ? Y(v) - (puntos ? 11 : 6) : Y(v) + 14);
+            ctx.fillText(formatoEje(v, cfg.decimales) + (cfg.sufijo || ""), cx, tope >= 0 || puntos ? Y(tope) - (puntos ? 11 : 8) : Y(tope) + 14);
           }
         });
       });
@@ -2778,11 +4026,14 @@
 
       // Lectura al pasar el cursor
       if (b.hover >= 0) {
-        var filas = [cfg.categorias[b.hover]];
+        var filas = [(cfg.eje && cfg.eje.titulos && cfg.eje.titulos[b.hover]) || cfg.categorias[b.hover]];
         var colores = ["#8ea4be"];
         cfg.series.forEach(function (s) {
           var v = s.valores[b.hover];
-          filas.push((ns > 1 ? s.nombre + ": " : "") + (Number.isFinite(v) ? (Number.isInteger(cfg.decimales) ? v.toFixed(cfg.decimales) : formatoInteractivo(v)) + (cfg.sufijo || "") : "—"));
+          var err = s.error && Number.isFinite(s.error[b.hover]) ? s.error[b.hover] : 0;
+          var texto = Number.isFinite(v) ? (Number.isInteger(cfg.decimales) ? v.toFixed(cfg.decimales) : formatoInteractivo(v)) + (cfg.sufijo || "") : "—";
+          if (Number.isFinite(v) && err > 0) texto += " ± " + (Number.isInteger(cfg.decimales) ? err.toFixed(cfg.decimales) : formatoInteractivo(err));
+          filas.push((ns > 1 ? s.nombre + ": " : "") + texto);
           colores.push((s.colores && s.colores[b.hover]) || s.color);
         });
         ctx.font = "12px Outfit, Segoe UI, sans-serif";
@@ -3087,6 +4338,127 @@
         if (visible && !document.hidden) dibujar((t - inicio) / 1000);
         requestAnimationFrame(bucle);
       })(performance.now());
+    })();
+  </script>
+  <script>
+    (function () {
+      var estado = document.getElementById("descEstado");
+      var grid = document.getElementById("descGrid");
+      var totales = document.getElementById("descTotales");
+
+      function peso(bytes) {
+        if (bytes >= 1048576) return (bytes / 1048576).toFixed(1) + " MB";
+        if (bytes >= 1024) return Math.max(1, Math.round(bytes / 1024)) + " KB";
+        return (bytes || 0) + " B";
+      }
+
+      function urlDe(tipo, id, archivo) {
+        var params = new URLSearchParams();
+        params.set("tipo", tipo);
+        if (id) params.set("id", id);
+        if (archivo) params.set("archivo", archivo);
+        return "/api/descargar?" + params.toString();
+      }
+
+      function boton(href, texto, secundario) {
+        var enlace = document.createElement("a");
+        enlace.className = "desc-btn" + (secundario ? " sec" : "");
+        enlace.href = href;
+        enlace.textContent = texto;
+        return enlace;
+      }
+
+      function columna(tipo, titulo, ensayos) {
+        var col = document.createElement("div");
+        col.className = "desc-col";
+        var cab = document.createElement("div");
+        cab.className = "desc-col-cab";
+        var tituloEl = document.createElement("h3");
+        tituloEl.appendChild(document.createTextNode(titulo));
+        var bytes = 0;
+        var nArchivos = 0;
+        ensayos.forEach(function (ensayo) {
+          bytes += ensayo.bytes || 0;
+          nArchivos += (ensayo.archivos || []).length;
+        });
+        var detalle = document.createElement("small");
+        detalle.textContent = ensayos.length + " ensayos · " + nArchivos + " archivos · " + peso(bytes);
+        tituloEl.appendChild(detalle);
+        cab.appendChild(tituloEl);
+        if (ensayos.length) cab.appendChild(boton(urlDe(tipo), "Descargar todo", true));
+        col.appendChild(cab);
+
+        var lista = document.createElement("div");
+        lista.className = "desc-lista";
+        if (!ensayos.length) {
+          var vacio = document.createElement("p");
+          vacio.className = "nota";
+          vacio.textContent = "No hay archivos de " + titulo.toLowerCase() + ".";
+          lista.appendChild(vacio);
+        }
+        ensayos.forEach(function (ensayo) {
+          var item = document.createElement("article");
+          item.className = "desc-item";
+          var top = document.createElement("div");
+          top.className = "desc-top";
+          var info = document.createElement("div");
+          var nombre = document.createElement("b");
+          nombre.textContent = ensayo.nombre;
+          var meta = document.createElement("span");
+          meta.className = "meta";
+          meta.textContent = (ensayo.archivos || []).length + " archivos · " + peso(ensayo.bytes);
+          info.appendChild(nombre);
+          info.appendChild(meta);
+          top.appendChild(info);
+          top.appendChild(boton(urlDe(tipo, ensayo.id), "ZIP", false));
+          item.appendChild(top);
+
+          var archivos = document.createElement("details");
+          archivos.className = "desc-archivos";
+          var resumen = document.createElement("summary");
+          resumen.textContent = "Archivos sueltos";
+          archivos.appendChild(resumen);
+          var ul = document.createElement("ul");
+          (ensayo.archivos || []).forEach(function (archivo) {
+            var li = document.createElement("li");
+            var enlace = document.createElement("a");
+            enlace.href = urlDe(tipo, ensayo.id, archivo.nombre);
+            enlace.textContent = archivo.nombre + " · " + peso(archivo.bytes);
+            li.appendChild(enlace);
+            ul.appendChild(li);
+          });
+          archivos.appendChild(ul);
+          item.appendChild(archivos);
+          lista.appendChild(item);
+        });
+        col.appendChild(lista);
+        return { col: col, bytes: bytes };
+      }
+
+      fetch("/api/descargas")
+        .then(function (respuesta) {
+          if (!respuesta.ok) throw new Error("respuesta " + respuesta.status);
+          return respuesta.json();
+        })
+        .then(function (datos) {
+          var aceleracion = datos.aceleracion || [];
+          var fuerza = datos.fuerza || [];
+          estado.textContent = "Los archivos .zip conservan la carpeta de cada ensayo.";
+          var colAcel = columna("aceleracion", "Aceleración", aceleracion);
+          var colFuerza = columna("fuerza", "Fuerza", fuerza);
+          if (aceleracion.length || fuerza.length) {
+            totales.appendChild(boton(
+              urlDe("ambos"),
+              "Descargar aceleración y fuerza · " + peso(colAcel.bytes + colFuerza.bytes),
+              true
+            ));
+          }
+          grid.appendChild(colAcel.col);
+          grid.appendChild(colFuerza.col);
+        })
+        .catch(function () {
+          estado.textContent = "No se pudo leer el catálogo. Abre la página con el servidor local para descargar los archivos.";
+        });
     })();
   </script>
 </body>

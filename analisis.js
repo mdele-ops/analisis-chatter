@@ -490,44 +490,74 @@
     const bucket = Math.max(1, Math.ceil(n / Math.floor(maxPuntos / 2)));
     const tOut = [];
     const ys = [[], [], []];
+    const tMedia = [];
+    const medias = [[], [], []];
     tramos.forEach(function (tramo, k) {
       for (let b = tramo[0]; b < tramo[1]; b += bucket) {
         const fin = Math.min(tramo[1], b + bucket);
         if (fin - b === 1) {
           tOut.push(t[b]);
-          for (let c = 0; c < 3; c++) ys[c].push(canales[c] ? canales[c][b] : NaN);
+          tMedia.push(t[b]);
+          for (let c = 0; c < 3; c++) {
+            const v = canales[c] && Number.isFinite(canales[c][b]) ? canales[c][b] : NaN;
+            ys[c].push(v);
+            medias[c].push(v);
+          }
           continue;
         }
         tOut.push(t[b], t[fin - 1]);
+        tMedia.push((t[b] + t[fin - 1]) / 2);
         for (let c = 0; c < 3; c++) {
           const col = canales[c];
           if (!col) {
             ys[c].push(NaN, NaN);
+            medias[c].push(NaN);
             continue;
           }
           let iMin = -1;
           let iMax = -1;
+          let suma = 0;
+          let cuenta = 0;
           for (let i = b; i < fin; i++) {
             if (!Number.isFinite(col[i])) continue;
             if (iMin < 0 || col[i] < col[iMin]) iMin = i;
             if (iMax < 0 || col[i] > col[iMax]) iMax = i;
+            suma += col[i];
+            cuenta++;
           }
-          if (iMin < 0) ys[c].push(NaN, NaN);
-          else if (iMin <= iMax) ys[c].push(col[iMin], col[iMax]);
-          else ys[c].push(col[iMax], col[iMin]);
+          if (iMin < 0) {
+            ys[c].push(NaN, NaN);
+            medias[c].push(NaN);
+          } else if (iMin <= iMax) {
+            ys[c].push(col[iMin], col[iMax]);
+            medias[c].push(suma / cuenta);
+          } else {
+            ys[c].push(col[iMax], col[iMin]);
+            medias[c].push(suma / cuenta);
+          }
         }
       }
       if (k < tramos.length - 1) {
         tOut.push(t[tramo[1] - 1]);
-        for (let c = 0; c < 3; c++) ys[c].push(NaN);
+        tMedia.push(t[tramo[1] - 1]);
+        for (let c = 0; c < 3; c++) {
+          ys[c].push(NaN);
+          medias[c].push(NaN);
+        }
       }
     });
     return {
       t: Float64Array.from(tOut),
-      y: ys.map(function (col, c) { return canales[c] ? Float64Array.from(col) : null; })
+      y: ys.map(function (col, c) { return canales[c] ? Float64Array.from(col) : null; }),
+      media: {
+        t: Float64Array.from(tMedia),
+        y: medias.map(function (col, c) { return canales[c] ? Float64Array.from(col) : null; })
+      }
     };
   }
 
+  // El espectro que se dibuja conserva cada componente hasta 4000 Hz.
+  // Antes se guardaba solo el pico de cada tramo y la curva se veía simplificada.
   function reducirEspectro(f, espectros) {
     let ultimo = f.length;
     for (let i = 0; i < f.length; i++) {
@@ -536,37 +566,9 @@
         break;
       }
     }
-    if (ultimo <= 2500) {
-      return {
-        f: f.subarray(0, ultimo),
-        p: espectros.map(function (p) { return p ? p.subarray(0, ultimo) : null; })
-      };
-    }
-    const bucket = Math.ceil(ultimo / 2500);
-    const fs = [];
-    const ps = espectros.map(function () { return []; });
-    for (let b = 0; b < ultimo; b += bucket) {
-      const fin = Math.min(ultimo, b + bucket);
-      let iBest = b;
-      let mejor = -Infinity;
-      for (let i = b; i < fin; i++) {
-        let pico = -Infinity;
-        for (let c = 0; c < espectros.length; c++) {
-          if (espectros[c] && espectros[c][i] > pico) pico = espectros[c][i];
-        }
-        if (pico > mejor) {
-          mejor = pico;
-          iBest = i;
-        }
-      }
-      fs.push(f[iBest]);
-      for (let c = 0; c < espectros.length; c++) {
-        ps[c].push(espectros[c] ? espectros[c][iBest] : NaN);
-      }
-    }
     return {
-      f: Float64Array.from(fs),
-      p: ps.map(function (col, c) { return espectros[c] ? Float64Array.from(col) : null; })
+      f: f.subarray(0, ultimo),
+      p: espectros.map(function (p) { return p ? p.subarray(0, ultimo) : null; })
     };
   }
 
@@ -713,13 +715,19 @@
   function crecimiento(mag) {
     const ter = Math.floor(mag.length / 3);
     if (ter < 10) return NaN;
-    let s1 = 0;
-    let s3 = 0;
-    for (let i = 0; i < ter; i++) s1 += mag[i] * mag[i];
-    for (let i = mag.length - ter; i < mag.length; i++) s3 += mag[i] * mag[i];
-    const r1 = Math.sqrt(s1 / ter);
-    const r3 = Math.sqrt(s3 / ter);
-    return r1 > 0 ? r3 / r1 : NaN;
+    function rmsRango(a, b) {
+      let s = 0;
+      let k = 0;
+      for (let i = a; i < b; i++) {
+        if (!Number.isFinite(mag[i]) || mag[i] <= 0) continue;
+        s += mag[i] * mag[i];
+        k++;
+      }
+      return k >= 10 ? Math.sqrt(s / k) : NaN;
+    }
+    const r1 = rmsRango(0, ter);
+    const r3 = rmsRango(mag.length - ter, mag.length);
+    return r1 > 0 && Number.isFinite(r3) ? r3 / r1 : NaN;
   }
 
   function metaDeNombre(nombre) {
@@ -728,11 +736,13 @@
     let refrigerante = "";
     if (texto.indexOf("sin refrigerante") >= 0) refrigerante = "Sin refrigerante";
     else if (texto.indexOf("con refrigerante") >= 0) refrigerante = "Con refrigerante";
+    else if (texto.indexOf("agua") >= 0) refrigerante = "Con agua";
     let herramienta = "";
     if (texto.indexOf("desgast") >= 0) herramienta = "Desgastada";
     else if (texto.indexOf("nuev") >= 0) herramienta = "Nueva";
     let repeticion = "";
     if (texto.indexOf("segunda") >= 0) repeticion = "segunda";
+    else if (texto.indexOf("tercera") >= 0) repeticion = "tercera";
     else if (texto.indexOf("primera") >= 0) repeticion = "primera";
     return {
       profundidad: mm ? parseFloat(mm[1]) : NaN,
@@ -836,28 +846,111 @@
     });
   }
 
+  function quitarTendencia(col) {
+    const n = col.length;
+    let nFin = 0;
+    let sx = 0;
+    let sy = 0;
+    let sxx = 0;
+    let sxy = 0;
+    for (let i = 0; i < n; i++) {
+      const y = col[i];
+      if (!Number.isFinite(y)) continue;
+      nFin++;
+      sx += i;
+      sy += y;
+      sxx += i * i;
+      sxy += i * y;
+    }
+    if (nFin < 8) return col;
+    const den = nFin * sxx - sx * sx;
+    const pendiente = Math.abs(den) < 1e-9 ? 0 : (nFin * sxy - sx * sy) / den;
+    const ordenada = (sy - pendiente * sx) / nFin;
+    const out = new Float64Array(n);
+    for (let i = 0; i < n; i++) {
+      const y = col[i];
+      out[i] = Number.isFinite(y) ? y - (ordenada + pendiente * i) : NaN;
+    }
+    return out;
+  }
+
+  function tramoMasLargo(col, i0, i1) {
+    let mejorA = i0;
+    let mejorB = i0;
+    let ini = -1;
+    const fin = Math.min(i1, col.length);
+    for (let i = Math.max(0, i0); i <= fin; i++) {
+      const ok = i < fin && Number.isFinite(col[i]);
+      if (ok && ini < 0) ini = i;
+      if (!ok && ini >= 0) {
+        if (i - ini > mejorB - mejorA) {
+          mejorA = ini;
+          mejorB = i;
+        }
+        ini = -1;
+      }
+    }
+    return [mejorA, mejorB];
+  }
+
+  // El espectro usa todo el tramo válido del corte. Los picos de saturación
+  // no entran: aplastaban la escala y ocultaban el resto de las frecuencias.
+  function prepararEspectro(canales, ventana, fs) {
+    const base = canales.filter(Boolean)[0];
+    if (!base) return canales;
+    let i0 = 0;
+    let i1 = base.length;
+    if (ventana && fs > 0) {
+      i0 = Math.max(0, Math.floor(ventana[0] * fs));
+      i1 = Math.min(base.length, Math.ceil(ventana[1] * fs) + 1);
+    }
+    let tramo = tramoMasLargo(base, i0, i1);
+    if (tramo[1] - tramo[0] < 256) tramo = tramoMasLargo(base, 0, base.length);
+    if (tramo[1] - tramo[0] < 256) return canales;
+    return canales.map(function (c) { return c ? c.subarray(tramo[0], tramo[1]) : null; });
+  }
+
   function analizarSenal(armado, banda, esFuerza) {
     const canales = armado.canales.map(function (c) { return c ? tarar(c) : null; });
-    const rmsEje = canales.map(rms);
-    const mag = magnitud(canales);
+    const corte = ventanaDeAnalisis(canales, armado.t, armado.fs, !!esFuerza);
+    const ventana = corte && corte.ventana;
+    const visibles = enmascararTope(canales, !!esFuerza, corte && corte.bloques, armado.fs);
+    const rmsEje = visibles.map(rms);
+    const mag = magnitud(visibles);
     let s = 0;
-    for (let i = 0; i < mag.length; i++) s += mag[i] * mag[i];
-    const rmsR = mag.length ? Math.sqrt(s / mag.length) : NaN;
+    let kMag = 0;
+    for (let i = 0; i < mag.length; i++) {
+      let alguno = false;
+      for (let c = 0; c < 3; c++) {
+        if (visibles[c] && Number.isFinite(visibles[c][i])) {
+          alguno = true;
+          break;
+        }
+      }
+      if (!alguno) {
+        mag[i] = NaN;
+        continue;
+      }
+      s += mag[i] * mag[i];
+      kMag++;
+    }
+    const rmsR = kMag ? Math.sqrt(s / kMag) : NaN;
+    const paraFft = prepararEspectro(visibles, ventana, armado.fs).map(function (c) {
+      return c ? quitarTendencia(c) : null;
+    });
     const crudos = [null, null, null];
     let fRef = null;
     for (let c = 0; c < 3; c++) {
-      if (!canales[c]) continue;
-      const spec = fftSimple(canales[c], armado.fs);
+      if (!paraFft[c]) continue;
+      const spec = fftSimple(paraFft[c], armado.fs);
       crudos[c] = spec.p;
       if (!fRef) fRef = spec.f;
     }
     const espec = fRef ? reducirEspectro(fRef, crudos) : { f: new Float64Array(0), p: [null, null, null] };
     const completo = fRef ? { f: fRef, p: crudos } : { f: new Float64Array(0), p: [null, null, null] };
     const ch = evaluarChatter(completo, banda);
-    const corte = ventanaDeAnalisis(canales, armado.t, armado.fs, !!esFuerza);
-    const ventana = corte && corte.ventana;
-    const visibles = enmascararTope(canales, !!esFuerza, corte && corte.bloques, armado.fs);
-    const plot = reducirTiempo(visibles, armado.t, armado.fs, 4000);
+    const nTiempo = (visibles.filter(Boolean)[0] || []).length;
+    const plot = reducirTiempo(visibles, armado.t, armado.fs, Math.max(4000, Math.min(nTiempo * 2, 240000)));
     let evolCanales = canales;
     let evolMag = mag;
     let evolT = armado.t;
@@ -892,6 +985,7 @@
       medianaFueraBandaEje: ch.medianaFueraBandaEje,
       t: plot.t,
       y: plot.y,
+      media: plot.media,
       ventana: ventana,
       evol: evolucionRMS(evolCanales, evolMag, evolT, 60),
       f: espec.f,
@@ -925,6 +1019,7 @@
       locs: locs,
       t: plot.t,
       y: plot.y,
+      media: plot.media,
       detalle: textos.length ? textos.join("; ") : "no se detectaron impactos útiles",
       banda: Number.isFinite(usada) ? [Math.max(20, usada - 125), usada + 125] : [1300, 1550]
     };

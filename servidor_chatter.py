@@ -5,10 +5,12 @@ import json
 import os
 import re
 import ssl
+import tempfile
 import urllib.error
 import urllib.request
+import zipfile
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import unquote, urlsplit
+from urllib.parse import parse_qs, quote, unquote, urlsplit
 
 RAIZ = os.path.dirname(os.path.abspath(__file__))
 PAGINA = os.path.join(RAIZ, "pagina")
@@ -185,6 +187,73 @@ def catalogo_precargados():
     return sorted(pruebas, key=lambda prueba: prueba["profundidad_mm"])
 
 
+RAICES_DATOS = {
+    "aceleracion": os.path.join(RAIZ, "Aceleración"),
+    "fuerza": os.path.join(RAIZ, "Fuerza"),
+}
+
+
+def ensayos_descarga(tipo):
+    raiz = RAICES_DATOS.get(tipo)
+    if not raiz or not os.path.isdir(raiz):
+        return []
+    prefijo = "F" if tipo == "fuerza" else "A"
+    ensayos = []
+    for dirpath, _, _ in os.walk(raiz):
+        lista = archivos_lvm(dirpath, prefijo)
+        if not lista:
+            continue
+        archivos = []
+        total = 0
+        for nombre in lista:
+            tam = os.path.getsize(os.path.join(dirpath, nombre))
+            total += tam
+            archivos.append({"nombre": nombre, "bytes": tam})
+        relativo = os.path.relpath(dirpath, raiz).replace("\\", "/")
+        ensayos.append({
+            "id": relativo,
+            "nombre": os.path.basename(dirpath),
+            "archivos": archivos,
+            "bytes": total,
+        })
+    return sorted(ensayos, key=lambda ensayo: ensayo["nombre"].lower())
+
+
+def entradas_descarga(tipo, identificador):
+    raiz = os.path.realpath(RAICES_DATOS[tipo])
+    ensayos = ensayos_descarga(tipo)
+    elegidos = [ensayo for ensayo in ensayos if ensayo["id"] == identificador] if identificador else ensayos
+    if identificador and not elegidos:
+        return None
+    entradas = []
+    for ensayo in elegidos:
+        carpeta = os.path.realpath(os.path.join(raiz, *ensayo["id"].split("/")))
+        if os.path.commonpath([raiz, carpeta]) != raiz:
+            continue
+        for archivo in ensayo["archivos"]:
+            ruta = os.path.realpath(os.path.join(carpeta, archivo["nombre"]))
+            if os.path.commonpath([carpeta, ruta]) != carpeta or not os.path.isfile(ruta):
+                continue
+            relativo = archivo["nombre"] if identificador else ensayo["id"] + "/" + archivo["nombre"]
+            entradas.append((ruta, relativo.replace("\\", "/")))
+    return entradas
+
+
+def nombre_zip(tipo, identificador):
+    if tipo == "ambos":
+        return "aceleracion-y-fuerza.zip"
+    if not identificador:
+        return tipo + ".zip"
+    base = identificador.split("/")[-1] or tipo
+    limpio = re.sub(r"\s+", " ", re.sub(r'[\\/:*?"<>|]+', " ", base)).strip() or tipo
+    return limpio + ".zip"
+
+
+def encabezado_adjunto(nombre):
+    ascii_nombre = re.sub(r"[^A-Za-z0-9._ -]+", "_", nombre).replace('"', "").strip() or "datos"
+    return "attachment; filename=\"%s\"; filename*=UTF-8''%s" % (ascii_nombre, quote(nombre))
+
+
 def datos_precargados(profundidad):
     prueba = next(
         (item for item in catalogo_precargados() if item["profundidad_mm"] == profundidad),
@@ -243,8 +312,105 @@ class Manejador(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(contenido)
 
+    def servir_descarga(self, consulta):
+        tipo = (consulta.get("tipo") or [""])[0]
+        identificador = (consulta.get("id") or [""])[0]
+        archivo = (consulta.get("archivo") or [""])[0]
+        if tipo not in ("aceleracion", "fuerza", "ambos"):
+            self._error_json(400, "El tipo debe ser aceleracion, fuerza o ambos.")
+            return
+        if archivo and (os.path.basename(archivo) != archivo or not archivo.lower().endswith(".lvm")):
+            self._error_json(400, "Archivo no permitido.")
+            return
+        if tipo == "ambos" and (identificador or archivo):
+            self._error_json(400, "La descarga completa no admite un ensayo o archivo suelto.")
+            return
+        if identificador and any(parte in ("", ".", "..") for parte in re.split(r"[\\/]", identificador)):
+            self._error_json(400, "Ensayo no permitido.")
+            return
+        tipos = ("aceleracion", "fuerza") if tipo == "ambos" else (tipo,)
+        entradas = []
+        for actual in tipos:
+            del_tipo = entradas_descarga(actual, identificador)
+            if del_tipo is None:
+                self._error_json(404, "No está ese ensayo.")
+                return
+            prefijo = actual + "/" if tipo == "ambos" else ""
+            entradas.extend((ruta, prefijo + nombre) for ruta, nombre in del_tipo)
+        if archivo:
+            encontrada = next((item for item in entradas if os.path.basename(item[1]) == archivo), None)
+            if encontrada is None:
+                self._error_json(404, "No está ese archivo.")
+                return
+            with open(encontrada[0], "rb") as origen:
+                datos = origen.read()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/octet-stream")
+            self.send_header("Content-Length", str(len(datos)))
+            self.send_header("Content-Disposition", encabezado_adjunto(archivo))
+            self.end_headers()
+            self.wfile.write(datos)
+            return
+        if not entradas:
+            self._error_json(404, "No hay archivos para descargar.")
+            return
+        temporal = tempfile.SpooledTemporaryFile(max_size=8 * 1024 * 1024)
+        try:
+            try:
+                paquete = zipfile.ZipFile(temporal, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=1)
+            except TypeError:
+                paquete = zipfile.ZipFile(temporal, "w", compression=zipfile.ZIP_DEFLATED)
+            with paquete:
+                for ruta, nombre in entradas:
+                    paquete.write(ruta, nombre)
+            temporal.seek(0, os.SEEK_END)
+            tam = temporal.tell()
+            temporal.seek(0)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/zip")
+            self.send_header("Content-Length", str(tam))
+            self.send_header("Content-Disposition", encabezado_adjunto(nombre_zip(tipo, identificador)))
+            self.end_headers()
+            while True:
+                bloque = temporal.read(256 * 1024)
+                if not bloque:
+                    break
+                self.wfile.write(bloque)
+        finally:
+            temporal.close()
+
+    def _error_json(self, codigo, mensaje):
+        cuerpo = json.dumps({"error": mensaje}, ensure_ascii=False).encode("utf-8")
+        self.send_response(codigo)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(cuerpo)))
+        self.end_headers()
+        self.wfile.write(cuerpo)
+
     def do_GET(self):
-        ruta = unquote(urlsplit(self.path).path)
+        partes = urlsplit(self.path)
+        ruta = unquote(partes.path)
+        if ruta == "/api/descargas":
+            cuerpo = json.dumps({
+                "aceleracion": ensayos_descarga("aceleracion"),
+                "fuerza": ensayos_descarga("fuerza"),
+            }, ensure_ascii=False).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(cuerpo)))
+            self.end_headers()
+            self.wfile.write(cuerpo)
+            return
+        if ruta == "/api/descargar":
+            try:
+                self.servir_descarga(parse_qs(partes.query))
+            except Exception as error:
+                if not self.wfile.closed:
+                    try:
+                        self._error_json(500, str(error))
+                    except Exception:
+                        pass
+            return
         if ruta == "/api/datos-precargados":
             cuerpo = json.dumps({"pruebas": catalogo_precargados()}, ensure_ascii=False).encode("utf-8")
             self.send_response(200)
