@@ -360,7 +360,7 @@
     /* ───────── Descargas ───────── */
     .ayuda a { color: var(--cyan); }
     .desc-totales { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
-    .desc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+    .desc-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
     .desc-col-cab { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
     .desc-col-cab h3 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 32px; line-height: 1; color: #fff; }
     .desc-col-cab h3 small { display: block; margin-top: 6px; font-family: var(--mono); font-size: 11.5px; font-weight: 400; letter-spacing: 0.02em; color: var(--muted); }
@@ -833,7 +833,7 @@
     <section class="seccion" id="descargas">
       <div class="cab rv"><span class="num">05</span><h2>Archivos para <em>descargar</em></h2></div>
       <p class="ayuda rv">
-        Descarga los registros originales de las pruebas en formato .lvm.
+        Descarga los registros originales de las pruebas (.lvm) y la presentación final (.pptx).
       </p>
       <div class="panel" id="panelDescargas">
         <div class="desc-totales" id="descTotales"></div>
@@ -852,9 +852,9 @@
       <span class="mono">Vibraciones en maquinado</span>
     </div>
   </footer>
-  <script src="analisis.js?v=20261116"></script>
+  <script src="analisis.js?v=20261118"></script>
   <script>
-    var VERSION_ESTATICOS = "20261116";
+    var VERSION_ESTATICOS = "20261118";
     var CA = window.ChatterAnalisis;
     document.body.dataset.analisis = CA ? "listo" : "falta";
     var store = { aceleracion: [], fuerza: [], modal: [], carpeta: [] };
@@ -4352,7 +4352,13 @@
         return (bytes || 0) + " B";
       }
 
+      var descargasEstaticas = false;
+
       function urlDe(tipo, id, archivo) {
+        if (descargasEstaticas && archivo && archivo.ruta) {
+          var ruta = archivo.ruta.split("/").map(encodeURIComponent).join("/");
+          return new URL(ruta, document.baseURI).href;
+        }
         var params = new URLSearchParams();
         params.set("tipo", tipo);
         if (id) params.set("id", id);
@@ -4382,10 +4388,11 @@
           nArchivos += (ensayo.archivos || []).length;
         });
         var detalle = document.createElement("small");
-        detalle.textContent = ensayos.length + " ensayos · " + nArchivos + " archivos · " + peso(bytes);
+        detalle.textContent = ensayos.length + " ensayos · " + nArchivos + " archivos" +
+          (descargasEstaticas ? "" : " · " + peso(bytes));
         tituloEl.appendChild(detalle);
         cab.appendChild(tituloEl);
-        if (ensayos.length) cab.appendChild(boton(urlDe(tipo), "Descargar todo", true));
+        if (ensayos.length && !descargasEstaticas) cab.appendChild(boton(urlDe(tipo), "Descargar todo", true));
         col.appendChild(cab);
 
         var lista = document.createElement("div");
@@ -4406,24 +4413,32 @@
           nombre.textContent = ensayo.nombre;
           var meta = document.createElement("span");
           meta.className = "meta";
-          meta.textContent = (ensayo.archivos || []).length + " archivos · " + peso(ensayo.bytes);
+          meta.textContent = (ensayo.archivos || []).length + " archivos" +
+            (descargasEstaticas ? "" : " · " + peso(ensayo.bytes));
           info.appendChild(nombre);
           info.appendChild(meta);
           top.appendChild(info);
-          top.appendChild(boton(urlDe(tipo, ensayo.id), "ZIP", false));
+          if (!descargasEstaticas) top.appendChild(boton(urlDe(tipo, ensayo.id), "ZIP", false));
           item.appendChild(top);
 
           var archivos = document.createElement("details");
           archivos.className = "desc-archivos";
+          archivos.open = descargasEstaticas;
           var resumen = document.createElement("summary");
-          resumen.textContent = "Archivos sueltos";
+          resumen.textContent = descargasEstaticas
+            ? "Descargar archivos (" + (ensayo.archivos || []).length + ")"
+            : "Archivos sueltos";
           archivos.appendChild(resumen);
           var ul = document.createElement("ul");
           (ensayo.archivos || []).forEach(function (archivo) {
             var li = document.createElement("li");
             var enlace = document.createElement("a");
-            enlace.href = urlDe(tipo, ensayo.id, archivo.nombre);
-            enlace.textContent = archivo.nombre + " · " + peso(archivo.bytes);
+            enlace.href = urlDe(tipo, ensayo.id, descargasEstaticas ? archivo : archivo.nombre);
+            enlace.textContent = archivo.nombre +
+              (descargasEstaticas ? "" : " · " + peso(archivo.bytes));
+            if (descargasEstaticas) {
+              enlace.download = (ensayo.id + "_" + archivo.nombre).replace(/[^\w.-]+/g, "_");
+            }
             li.appendChild(enlace);
             ul.appendChild(li);
           });
@@ -4435,29 +4450,97 @@
         return { col: col, bytes: bytes };
       }
 
+      function ensayosEstaticos(catalogo, tipo) {
+        var ensayos = [];
+        var archivosModal = [];
+        var vistosModal = new Set();
+        (catalogo.pruebas || []).forEach(function (ficha) {
+          var archivos = (ficha[tipo] || []).map(function (ruta) {
+            return {
+              nombre: ruta.split("/").pop(),
+              ruta: ruta
+            };
+          });
+          if (tipo === "modal") {
+            archivos.forEach(function (archivo) {
+              var ruta = archivo.ruta;
+              if (!vistosModal.has(ruta)) {
+                vistosModal.add(ruta);
+                archivosModal.push(archivo);
+              }
+            });
+          } else if (archivos.length) {
+            ensayos.push({
+              id: ficha.id,
+              nombre: ficha.nombre,
+              archivos: archivos
+            });
+          }
+        });
+        if (tipo === "modal" && archivosModal.length) {
+          ensayos.push({
+            id: "analisis-modal",
+            nombre: "Archivos del análisis modal",
+            archivos: archivosModal
+          });
+        }
+        return ensayos;
+      }
+
+      function pintarDescargas(datos) {
+        var aceleracion = datos.aceleracion || [];
+        var fuerza = datos.fuerza || [];
+        var modal = datos.modal || [];
+        if (descargasEstaticas) {
+          aceleracion = ensayosEstaticos(datos, "aceleracion");
+          fuerza = ensayosEstaticos(datos, "fuerza");
+          modal = ensayosEstaticos(datos, "modal");
+          estado.textContent = "Descarga los archivos originales individualmente; GitHub Pages no genera paquetes ZIP.";
+        } else {
+          estado.textContent = "Los archivos .zip conservan la carpeta de cada ensayo.";
+        }
+
+        var colAcel = columna("aceleracion", "Aceleración", aceleracion);
+        var colFuerza = columna("fuerza", "Fuerza", fuerza);
+        var colModal = columna("modal", "Análisis modal", modal);
+        if (!descargasEstaticas && (aceleracion.length || fuerza.length)) {
+          totales.appendChild(boton(
+            urlDe("ambos"),
+            "Descargar aceleración y fuerza · " + peso(colAcel.bytes + colFuerza.bytes),
+            true
+          ));
+        }
+        totales.appendChild(boton(
+          new URL("presentacion/Analisis-de-chatter-Tec-de-Monterrey.pptx", document.baseURI).href,
+          "Descargar presentación · PPTX",
+          true
+        ));
+        grid.appendChild(colAcel.col);
+        grid.appendChild(colFuerza.col);
+        grid.appendChild(colModal.col);
+      }
+
       fetch("/api/descargas")
         .then(function (respuesta) {
           if (!respuesta.ok) throw new Error("respuesta " + respuesta.status);
           return respuesta.json();
         })
-        .then(function (datos) {
-          var aceleracion = datos.aceleracion || [];
-          var fuerza = datos.fuerza || [];
-          estado.textContent = "Los archivos .zip conservan la carpeta de cada ensayo.";
-          var colAcel = columna("aceleracion", "Aceleración", aceleracion);
-          var colFuerza = columna("fuerza", "Fuerza", fuerza);
-          if (aceleracion.length || fuerza.length) {
-            totales.appendChild(boton(
-              urlDe("ambos"),
-              "Descargar aceleración y fuerza · " + peso(colAcel.bytes + colFuerza.bytes),
-              true
-            ));
-          }
-          grid.appendChild(colAcel.col);
-          grid.appendChild(colFuerza.col);
-        })
+        .then(pintarDescargas)
         .catch(function () {
-          estado.textContent = "No se pudo leer el catálogo. Abre la página con el servidor local para descargar los archivos.";
+          descargasEstaticas = true;
+          return fetch("datos/catalogo.json?v=" + VERSION_ESTATICOS);
+        })
+        .then(function (respuesta) {
+          if (!respuesta) return null;
+          if (!respuesta.ok) throw new Error("No se pudo leer el catálogo de descargas (" + respuesta.status + ").");
+          return respuesta.json();
+        })
+        .then(function (datos) {
+          if (datos) pintarDescargas(datos);
+        })
+        .catch(function (error) {
+          console.error("No se pudieron cargar los archivos para descargar.", error);
+          estado.textContent = "No se pudieron cargar las descargas. Intenta actualizar la página o vuelve más tarde.";
         });
     })();
   </script>
