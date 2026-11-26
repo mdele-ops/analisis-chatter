@@ -354,8 +354,7 @@ const TIPOS = {
   ".svg": "image/svg+xml",
   ".css": "text/css; charset=utf-8",
   ".json": "application/json; charset=utf-8",
-  ".png": "image/png",
-  ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+  ".png": "image/png"
 };
 
 function enviar(respuesta, codigo, cuerpo, tipo) {
@@ -632,8 +631,7 @@ const servidor = http.createServer((peticion, respuesta) => {
     const recursos = {
       "/Analisis de chatter.html": "Analisis de chatter.html",
       "/analisis.js": "analisis.js",
-      "/logo-tec.svg": "logo-tec.svg",
-      "/presentacion/Analisis-de-chatter-Tec-de-Monterrey.pptx": "presentacion/Analisis-de-chatter-Tec-de-Monterrey.pptx"
+      "/logo-tec.svg": "logo-tec.svg"
     };
     if (paginas.has(ruta)) {
       servirArchivo(respuesta, path.join(RAIZ, "Analisis de chatter.html"));
@@ -648,23 +646,6 @@ const servidor = http.createServer((peticion, respuesta) => {
     if (enPagina && fs.existsSync(enPagina) && fs.statSync(enPagina).isFile()) {
       servirArchivo(respuesta, enPagina);
       return;
-    }
-    if (ruta.toLowerCase().startsWith("/presentacion/") && ruta.toLowerCase().endsWith(".pptx")) {
-      const enPresentacion = rutaSegura(path.join(RAIZ, "presentacion"), relativa.slice("presentacion/".length));
-      if (enPresentacion && fs.existsSync(enPresentacion) && fs.statSync(enPresentacion).isFile()) {
-        const contenido = fs.readFileSync(enPresentacion);
-        const nombre = path.basename(enPresentacion).replace(/"/g, "");
-        respuesta.writeHead(200, {
-          "Content-Type": TIPOS[".pptx"],
-          "Content-Length": contenido.length,
-          "Content-Disposition": "attachment; filename=\"" + nombre + "\"",
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Headers": "Content-Type",
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
-        });
-        respuesta.end(contenido);
-        return;
-      }
     }
     enviar(respuesta, 404, "No encontrado");
     return;
