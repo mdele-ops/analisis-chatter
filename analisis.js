@@ -788,8 +788,7 @@
       const t1 = tiempos && tiempos.length === n ? tiempos[fin - 1] : (fin - 1) / fs;
       let clase = "reposo";
       if (esFuerza) {
-        if (frac > 0.05 || pico > 40) clase = "saturado";
-        else if (rms >= 1.05) clase = "corte";
+        if (rms >= 1.05) clase = "corte";
       } else if (frac > 0.02) clase = "saturado";
       else if (rms >= 1.2) clase = "corte";
       bloques.push({ t0: t0, t1: t1, clase: clase });
@@ -831,7 +830,10 @@
   }
 
   function enmascararTope(canales, esFuerza, bloques, fs) {
-    const umbral = esFuerza ? 20 : 80;
+    if (esFuerza) return canales.map(function (col) {
+      return col ? col.slice() : null;
+    });
+    const umbral = 80;
     const paso = Math.max(1, Math.round((fs || 1) * 0.5));
     return canales.map(function (col) {
       if (!col) return null;
